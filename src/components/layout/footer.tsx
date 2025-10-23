@@ -6,7 +6,7 @@ import { footerDescriptionContent, partners } from "@/data/footerData";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0f1419] border-t border-[#1a1f2e] mt-20 fixed left-0 bottom-0 w-full flex flex-col py-4">
+    <footer className="bg-[#0f1419] border-t border-[#1a1f2e] mt-20  left-0 w-full flex flex-col pt-4">
       {/* Vietnam Flag Banner */}
       <div className="   px-4 py-3 flex items-center gap-2  justify-center ">
         <div className="bg-[#75140F] flex items-center px-4 py-2 rounded-3xl gap-2">
