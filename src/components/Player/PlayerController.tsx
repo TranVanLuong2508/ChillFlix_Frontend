@@ -1,20 +1,37 @@
-"use client";
+import { useEffect, useRef, useState } from "react";
 
 import Artplayer from "artplayer";
-import { useEffect, useRef } from "react";
-
-import Hls from "hls.js";
+import type { Artplayer as ArtplayerType } from "artplayer";
 import artplayerPluginVttThumbnail from "@artplayer/plugin-vtt-thumbnail";
 
-function playM3u8(video, url, art) {
+import Hls from "hls.js";
+
+function playM3u8(video: HTMLVideoElement, url: string, art: ArtplayerType) {
   if (Hls.isSupported()) {
-    if (art.hls) art.hls.destroy();
-    const hls = new Hls();
+    if (art.hls) {
+      console.log("Huy art hls");
+      art.hls.destroy();
+    }
+    const hls = new Hls({
+      lowLatencyMode: true,
+      maxBufferLength: 8,
+      maxMaxBufferLength: 15,
+      maxBufferHole: 0.1,
+      liveSyncDuration: 2,
+      startLevel: -1,
+      testBandwidth: true,
+    });
+
     hls.loadSource(url);
     hls.attachMedia(video);
     art.hls = hls;
 
     hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+      console.log(
+        "Available quality levels:",
+        data.levels.map((l) => l.height)
+      );
+
       const levels = data.levels;
 
       art.quality = [
@@ -32,14 +49,46 @@ function playM3u8(video, url, art) {
       ];
     });
 
-    art.on("quality", (quality) => {
-      hls.currentLevel = quality.index;
+    hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
+      const currentLevel = hls.levels[data.level];
+      if (currentLevel) {
+        art.notice.show = `Auto: ${currentLevel.height}`;
+      }
     });
 
-    art.on("level", (level) => {
-      const qualityItem = art.quality.find((q) => q.index === level.level);
-      if (qualityItem) {
-        art.quality.current = qualityItem;
+    hls.on(Hls.Events.ERROR, (_event, data) => {
+      if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            art.notice.show = "Lỗi mạng. Đang thử tải lại...";
+            hls.startLoad();
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            art.notice.show = "Lỗi phát video. Đang khôi phục...";
+            hls.recoverMediaError();
+            break;
+          default:
+            art.notice.show = "Không thể phát video.";
+            hls.destroy();
+            break;
+        }
+      }
+    });
+
+    art.on("quality", (quality) => {
+      if (quality.index === -1) {
+        hls.currentLevel = -1;
+      } else {
+        // hls.nextLevel = quality.index;
+        // hls.currentLevel = quality.index;
+        // hls.swapAudioCodec();
+        // hls.startLoad();
+
+        hls.currentLevel = quality.index;
+        hls.stopLoad();
+        hls.startLoad();
+
+        art.notice.show = `Đã chuyển sang ${quality.html}`;
       }
     });
 
@@ -54,12 +103,20 @@ function playM3u8(video, url, art) {
 const PlayerController = () => {
   const $container = useRef<null | HTMLDivElement>(null);
 
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
-    if ($container.current === null) return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!$container.current || !mounted) return;
+
+    console.log("Start stream");
 
     const art = new Artplayer({
       container: $container.current,
-      url: "https://stream.mux.com/mUtgiS4yYzvECidgrsAz4zslePyGyE2U1U5YQmGbLjM.m3u8",
+      url: "https://stream.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ.m3u8",
       type: "m3u8",
       customType: {
         m3u8: playM3u8,
@@ -72,13 +129,13 @@ const PlayerController = () => {
       // },
       plugins: [
         artplayerPluginVttThumbnail({
-          vtt: "https://image.mux.com/mUtgiS4yYzvECidgrsAz4zslePyGyE2U1U5YQmGbLjM/storyboard.vtt",
+          vtt: "https://image.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ/storyboard.vtt",
         }),
       ],
 
       poster:
         "https://res.cloudinary.com/chillfliximage/image/upload/v1759825558/w22bp3nhojglsz8xco5h.jpg",
-      muted: true,
+      muted: false,
       theme: "#00B2FF",
 
       autoplay: true,
@@ -86,7 +143,7 @@ const PlayerController = () => {
       autoMini: true,
       playbackRate: true,
       setting: true,
-      screenshot: true,
+      screenshot: false,
       hotkey: true,
       pip: true,
       fullscreen: true,
@@ -101,15 +158,25 @@ const PlayerController = () => {
       gesture: false,
       fastForward: true,
       autoOrientation: true,
+
+      // custom style
+      // icons: {
+      //   loading: '<img src="/assets/img/ploading.gif">', // loading icon
+      //   state: '<img src="/assets/img/state.png">', // nút play/pause
+      // },
     });
 
     art.on("ready", () => {
       console.info(art.hls);
     });
 
-    return () => art.destroy(false);
-  }, []);
+    return () => {
+      art.destroy();
+      if (art.hls) art.hls.destroy();
+    };
+  }, [mounted]);
 
+  if (!mounted) return null;
   return <div ref={$container} className="aspect-video"></div>;
 };
 export default PlayerController;
