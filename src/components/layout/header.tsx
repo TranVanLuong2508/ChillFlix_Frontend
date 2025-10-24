@@ -9,14 +9,44 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+import { allCodeServie } from "@/services";
+
+const genres = [
+  ["Anime", "Bí Ẩn", "Chiến Tranh", "Chiều Rạp"],
+  ["Chuyên Thể", "Chính Kịch", "Chính Luận", "Chính Trị"],
+  ["Chương Trình Truyền Hình", "Concert Film", "Cung Đấu", "Cuối Tuần"],
+  ["Cách Mạng", "Cổ Trang", "Cổ Tích", "Có Điều"],
+  ["DC", "Disney", "Gay Cấn", "Gia Đình"],
+  ["Giáng Sinh", "Giả Tưởng", "Hoàng Cung", "Hoạt Hình"],
+  ["Hài", "Hành Động", "Hình Sự", "Học Đường"],
+  ["Khoa Học", "Kinh Dị", "Kinh Điển", "Kịch Nói"],
+  ["Kỳ Ảo", "LGBT+", "Live Action", "Lãng Mạn"],
+  ["Lịch Sử", "Marvel", "Miền Viễn Tây", "Nghề Nghiệp"],
+  ["Người Mẫu", "Nhạc Kịch", "Phiêu Lưu", "Phép Thuật"],
+  ["Siêu Anh Hùng", "Thiếu Nhi", "Thần Thoại", "Thể Thao"],
+  ["Xuyên Không", "Đau Thương", "Đối Thương", "Ẩm Thực"],
+];
 
 export default function Header() {
+  const [genresList, setGenresList] = useState([]);
+
+  useEffect(() => {
+    fetchAllCodeDataByType("GENRE");
+  }, []);
+
+  const fetchAllCodeDataByType = async (type: string) => {
+    const res = await allCodeServie.getByType(type);
+    setGenresList(res.data.GENRE);
+  };
+
+  console.log("check state", genresList);
   return (
     <header className="sticky top-0 z-50 bg-[#0f1419] border-b border-[#1a1f2e]">
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className=" mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
             <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#f5d547] rounded-full flex items-center justify-center">
               <div className="w-8 h-8 bg-[#0f1419] rounded-full flex items-center justify-center">
                 <span className="text-[#d4af37] font-bold text-lg">▶</span>
@@ -24,27 +54,26 @@ export default function Header() {
             </div>
             <div>
               <h1 className="text-white font-bold text-lg">ChillFlix</h1>
-              <p className="text-gray-400 text-xs">
-                Cảm xúc điện ảnh, chill từng phút giây
-              </p>
             </div>
           </div>
 
           {/* Search Bar */}
           <div className="flex-1 max-w-md">
-            <div className="relative">
+            <div className="relative ">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
               <Input
                 type="text"
                 placeholder="Tìm kiếm phim, diễn viên"
-                className="pl-10 bg-[#1a1f2e] border-[#2a3040] text-white placeholder:text-gray-500"
+                className="pl-10 bg-[#1a1f2e] border-[#2a3040] text-white placeholder:text-gray-500
+             focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0
+             focus-visible:border-[#2a3040] focus:shadow-[0_0_12px_2px_rgba(59,130,246,0.5)] "
               />
             </div>
           </div>
 
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center gap-6">
-            <a href="#" className="text-gray-300 hover:text-white transition">
+            <a href="#" className="text-gray-300 hover:text-white transition ">
               Phim Lẻ
             </a>
             <a href="#" className="text-gray-300 hover:text-white transition">
@@ -57,16 +86,21 @@ export default function Header() {
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#1a1f2e] border-[#2a3040]">
-                <DropdownMenuItem className="text-gray-300 hover:text-white">
-                  Hành động
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-gray-300 hover:text-white">
-                  Tình cảm
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-gray-300 hover:text-white">
-                  Hài hước
-                </DropdownMenuItem>
+              <DropdownMenuContent className="bg-[#1a1f2e] border-[#2a3040] w-auto p-4">
+                <div className="grid grid-cols-4 gap-x-8 gap-y-3">
+                  {genres.map((column, colIndex) => (
+                    <div key={colIndex} className="flex flex-col gap-3">
+                      {column.map((genre) => (
+                        <button
+                          key={genre}
+                          className="text-gray-300 hover:text-[#d4af37] transition text-sm text-left whitespace-nowrap hover:var(--color-yellow-400)  cursor-pointer"
+                        >
+                          {genre}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
@@ -107,11 +141,11 @@ export default function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <span className="bg-[#d4af37] text-[#0f1419] px-2 py-1 rounded text-xs font-bold">
+            {/* <span className="bg-[#d4af37] text-[#0f1419] px-2 py-1 rounded text-xs font-bold">
               NEW
-            </span>
+            </span> */}
             <a href="#" className="text-gray-300 hover:text-white transition">
-              Rổ Bông
+              Phim VIP
             </a>
           </nav>
 

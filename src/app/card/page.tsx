@@ -27,7 +27,7 @@ export default function About() {
           >
             <h2 className="text-2xl font-bold mb-2">3D Atropos Card</h2>
             <p className="text-sm opacity-90">
-              Hiệu ứng nghiêng mượt mà với phản chiếu chiều sâu.
+              Hiệu ứng nghiêng mượt mà với phản chiếu chiều sâu super vípdasd.
             </p>
           </div>
           <div
