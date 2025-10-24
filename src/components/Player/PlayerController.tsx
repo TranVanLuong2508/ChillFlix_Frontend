@@ -1,132 +1,96 @@
-import { useEffect, useRef, useState } from "react";
-
-import Artplayer from "artplayer";
-import type { Artplayer as ArtplayerType } from "artplayer";
-import artplayerPluginVttThumbnail from "@artplayer/plugin-vtt-thumbnail";
+import { useEffect, useRef } from "react";
 
 import Hls from "hls.js";
-
-function playM3u8(video: HTMLVideoElement, url: string, art: ArtplayerType) {
-  if (Hls.isSupported()) {
-    if (art.hls) {
-      console.log("Huy art hls");
-      art.hls.destroy();
-    }
-    const hls = new Hls({
-      lowLatencyMode: true,
-      maxBufferLength: 8,
-      maxMaxBufferLength: 15,
-      maxBufferHole: 0.1,
-      liveSyncDuration: 2,
-      startLevel: -1,
-      testBandwidth: true,
-    });
-
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    art.hls = hls;
-
-    hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-      console.log(
-        "Available quality levels:",
-        data.levels.map((l) => l.height)
-      );
-
-      const levels = data.levels;
-
-      art.quality = [
-        {
-          default: true,
-          html: "Auto",
-          index: -1,
-        },
-        ...levels.map((level, index) => {
-          return {
-            html: `${level.height}p`,
-            index: index,
-          };
-        }),
-      ];
-    });
-
-    hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
-      const currentLevel = hls.levels[data.level];
-      if (currentLevel) {
-        art.notice.show = `Auto: ${currentLevel.height}`;
-      }
-    });
-
-    hls.on(Hls.Events.ERROR, (_event, data) => {
-      if (data.fatal) {
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            art.notice.show = "Lỗi mạng. Đang thử tải lại...";
-            hls.startLoad();
-            break;
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            art.notice.show = "Lỗi phát video. Đang khôi phục...";
-            hls.recoverMediaError();
-            break;
-          default:
-            art.notice.show = "Không thể phát video.";
-            hls.destroy();
-            break;
-        }
-      }
-    });
-
-    art.on("quality", (quality) => {
-      if (quality.index === -1) {
-        hls.currentLevel = -1;
-      } else {
-        // hls.nextLevel = quality.index;
-        // hls.currentLevel = quality.index;
-        // hls.swapAudioCodec();
-        // hls.startLoad();
-
-        hls.currentLevel = quality.index;
-        hls.stopLoad();
-        hls.startLoad();
-
-        art.notice.show = `Đã chuyển sang ${quality.html}`;
-      }
-    });
-
-    art.on("destroy", () => hls.destroy());
-  } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-    video.src = url;
-  } else {
-    art.notice.show = "Unsupported playback format: m3u8";
-  }
-}
+import Artplayer from "artplayer";
+import artplayerPluginVttThumbnail from "@artplayer/plugin-vtt-thumbnail";
 
 const PlayerController = () => {
-  const $container = useRef<null | HTMLDivElement>(null);
+  const artRef = useRef<HTMLDivElement>(null);
 
-  const [mounted, setMounted] = useState(false);
+  const playM3u8 = (video: HTMLVideoElement, url: string, art: Artplayer) => {
+    if (Hls.isSupported()) {
+      if (art.hls) art.hls.destroy();
+
+      const hls = new Hls({
+        lowLatencyMode: true,
+        maxBufferLength: 8,
+        maxMaxBufferLength: 15,
+        maxBufferHole: 0.1,
+        liveSyncDuration: 2,
+        startLevel: -1,
+        testBandwidth: true,
+      });
+
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      art.hls = hls;
+
+      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+        console.log("Available levels: ", data.levels);
+
+        const defaultQuality = data.levels[data.levels.length - 1].height;
+
+        const qualities = data.levels.map((level, index) => {
+          return {
+            default: level.height === defaultQuality,
+            html: `${level.height}`,
+            url: url,
+            level: index,
+          };
+        });
+
+        qualities.unshift({
+          default: false,
+          html: `Auto`,
+          url: url,
+          level: -1,
+        });
+
+        art.setting.update({
+          name: "quality",
+          tooltip: "Quality",
+          html: "Quality",
+          icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>',
+          selector: qualities.reverse(),
+          onSelect: function (item: any) {
+            console.log("Select quality: ", item.html);
+
+            if (item.level === -1) {
+              hls.currentLevel = -1;
+            } else {
+              hls.currentLevel = item.level;
+            }
+
+            return item.html;
+          },
+        });
+      });
+
+      hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+        const level = hls.levels[data.level];
+        console.log(`Switched to ${level.height}p`);
+        art.notice.show = `Quality: ${level.height}P`;
+      });
+
+      art.on("destroy", () => hls.destroy());
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = url;
+    } else {
+      art.notice.show = "Unsupported playback format: m3u8";
+    }
+  };
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!$container.current || !mounted) return;
-
-    console.log("Start stream");
+    if (!artRef.current) return;
 
     const art = new Artplayer({
-      container: $container.current,
+      container: artRef.current,
       url: "https://stream.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ.m3u8",
       type: "m3u8",
       customType: {
         m3u8: playM3u8,
       },
 
-      // thumbnails: {
-      //   url: "https://image.mux.com/mUtgiS4yYzvECidgrsAz4zslePyGyE2U1U5YQmGbLjM/storyboard.png",
-      //   number: 50,
-      //   column: 5,
-      // },
       plugins: [
         artplayerPluginVttThumbnail({
           vtt: "https://image.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ/storyboard.vtt",
@@ -135,48 +99,56 @@ const PlayerController = () => {
 
       poster:
         "https://res.cloudinary.com/chillfliximage/image/upload/v1759825558/w22bp3nhojglsz8xco5h.jpg",
-      muted: false,
-      theme: "#00B2FF",
 
-      autoplay: true,
+      // config common
+      theme: "#00B2FF", // #B20710
       autoSize: true,
       autoMini: true,
       playbackRate: true,
       setting: true,
-      screenshot: false,
       hotkey: true,
       pip: true,
       fullscreen: true,
-      airplay: true,
+
+      // config mobile
+      gesture: false,
+      fastForward: true,
+      autoOrientation: true,
 
       // config play back *****
       // id: "your-url-id",
       // autoPlayback: true,
       // config play back
 
-      // for mobile
-      gesture: false,
-      fastForward: true,
-      autoOrientation: true,
-
       // custom style
-      // icons: {
-      //   loading: '<img src="/assets/img/ploading.gif">', // loading icon
-      //   state: '<img src="/assets/img/state.png">', // nút play/pause
-      // },
+      icons: {
+        // loading: '<img src="/assets/img/ploading.gif">', // loading icon
+        state: '<img src="/media/play.png">', // nút play/pause
+      },
     });
 
     art.on("ready", () => {
+      const bottom = art.template.$bottom;
+      if (bottom) bottom.style.background = "none";
+
+      const info = art.template.$info;
+      if (info) {
+        info.style.top = "50%";
+        info.style.left = "50%";
+        info.style.right = "auto";
+        info.style.transform = "translate(-50%, -50%)";
+      }
       console.info(art.hls);
     });
 
     return () => {
-      art.destroy();
-      if (art.hls) art.hls.destroy();
+      if (art && art.destroy) {
+        art.destroy(false);
+      }
     };
-  }, [mounted]);
+  }, []);
 
-  if (!mounted) return null;
-  return <div ref={$container} className="aspect-video"></div>;
+  return <div ref={artRef} className="aspect-video"></div>;
 };
+
 export default PlayerController;
