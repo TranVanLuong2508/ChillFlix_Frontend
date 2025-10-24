@@ -12,11 +12,67 @@ const PlayerNew = () => {
     if (Hls.isSupported()) {
       if (art.hls) art.hls.destroy();
 
-      const hls = new Hls();
+      const hls = new Hls({
+        lowLatencyMode: true,
+        maxBufferLength: 8,
+        maxMaxBufferLength: 15,
+        maxBufferHole: 0.1,
+        liveSyncDuration: 2,
+        startLevel: -1,
+        testBandwidth: true,
+      });
+
       hls.loadSource(url);
       hls.attachMedia(video);
-
       art.hls = hls;
+
+      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+        console.log("Available levels: ", data.levels);
+
+        const defaultQuality = data.levels[data.levels.length - 1].height;
+
+        const qualities = data.levels.map((level, index) => {
+          return {
+            default: level.height === defaultQuality,
+            html: `${level.height}`,
+            url: url,
+            level: index,
+          };
+        });
+
+        qualities.unshift({
+          default: false,
+          html: `Auto`,
+          url: url,
+          level: -1,
+        });
+
+        art.setting.update({
+          name: "quality",
+          tooltip: "Quality",
+          html: "Quality",
+          icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>',
+          selector: qualities.reverse(),
+          onSelect: function (item: any) {
+            console.log("Select quality: ", item.html);
+
+            if (item.level === -1) {
+              hls.currentLevel = -1;
+            } else {
+              hls.currentLevel = item.level;
+            }
+
+            return item.html;
+          },
+        });
+      });
+
+      hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+        const level = hls.levels[data.level];
+        console.log(`Switched to ${level.height}p`);
+        art.notice.show = `Quality: ${level.height}P`;
+      });
+
       art.on("destroy", () => hls.destroy());
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = url;
