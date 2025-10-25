@@ -12,7 +12,9 @@
   }
 }
 
-/* @custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark *));
+
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -130,4 +132,17 @@
   body {
     @apply bg-background text-foreground;
   }
-} */
+}
+
+body {
+  @apply bg-background text-foreground;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
