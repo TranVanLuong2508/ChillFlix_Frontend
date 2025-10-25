@@ -46,15 +46,19 @@ export default function FilmInfo() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
                     <div>
                         <h3 className="text-sm font-semibold text-white">Thời lượng:</h3>
-                        <p className="text-sm text-gray-400">1 giờ 48 phút</p>
+                        <p className="text-sm text-gray-200">1 giờ 48 phút</p>
                     </div>
                     <div className="sm: col-span-2 ">
                         <h3 className="text-sm font-semibold text-white">Quốc gia:</h3>
-                        <p className="text-sm text-gray-400">Mỹ</p>
+                        <p className="text-sm text-gray-200">Mỹ</p>
+                    </div>
+                    <div className="sm:col-span-2">
+                        <h3 className="text-sm font-semibold text-white">Nhà Sản xuất:</h3>
+                        <p className="text-sm text-gray-200">Lý Mạc Sầu</p>
                     </div>
                     <div className="sm:col-span-2">
                         <h3 className="text-sm font-semibold text-white">Đạo diễn:</h3>
-                        <p className="text-sm text-gray-400">Stephen King</p>
+                        <p className="text-sm text-gray-200">Stephen King</p>
                     </div>
                 </div>
                 <div>
