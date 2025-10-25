@@ -1,4 +1,4 @@
-import Player from "@/components/Player/Player";
+import Player from "@/components/player/player";
 
 export default function Home() {
   return (
