@@ -9,7 +9,7 @@ export default function Footer() {
     <footer className="bg-[#0f1419] border-t border-[#1a1f2e]  left-0 w-full flex flex-col pt-4">
       {/* Vietnam Flag Banner */}
       <div className="   px-4 py-3 flex items-center gap-2  justify-center ">
-        <div className="bg-[#75140F] flex items-center px-4 py-2 rounded-3xl gap-2">
+        <div className="bg-[#75140F] flex items-center px-4 py-2 rounded-[22px] gap-2">
           <div className="flag-vn">
             <Image
               src="/images/vn_flag.svg"
@@ -48,7 +48,7 @@ export default function Footer() {
               {[Send, Gamepad2, Eye, Mail, Eye, Instagram].map((Icon, i) => (
                 <button
                   key={i}
-                  className="w-10 h-10 bg-[#1a1f2e] rounded-full flex items-center justify-center text-gray-400 hover:text-[#d4af37] hover:bg-[#2a3040] transition"
+                  className="w-10 h-10 bg-[#1a1f2e] rounded-full flex items-center justify-center text-gray-400 hover:text-yellow-400 hover:bg-[#2a3040] transition cursor-pointer"
                 >
                   <Icon className="w-5 h-5" />
                 </button>
@@ -63,7 +63,7 @@ export default function Footer() {
               <li>
                 <a
                   href="#"
-                  className="text-gray-400 hover:text-[#d4af37] transition"
+                  className="text-gray-400 hover:text-yellow-400 transition"
                 >
                   Hỏi Đáp
                 </a>
@@ -71,7 +71,7 @@ export default function Footer() {
               <li>
                 <a
                   href="#"
-                  className="text-gray-400 hover:text-[#d4af37] transition"
+                  className="text-gray-400 hover:text-yellow-400 transition"
                 >
                   Chính sách bảo mật
                 </a>
@@ -79,7 +79,7 @@ export default function Footer() {
               <li>
                 <a
                   href="#"
-                  className="text-gray-400 hover:text-[#d4af37] transition"
+                  className="text-gray-400 hover:text-yellow-400 transition"
                 >
                   Điều khoản sử dụng
                 </a>
@@ -94,7 +94,7 @@ export default function Footer() {
               <li>
                 <a
                   href="#"
-                  className="text-gray-400 hover:text-[#d4af37] transition"
+                  className="text-gray-400 hover:text-yellow-400 transition"
                 >
                   Giới thiệu
                 </a>
@@ -102,7 +102,7 @@ export default function Footer() {
               <li>
                 <a
                   href="#"
-                  className="text-gray-400 hover:text-[#d4af37] transition"
+                  className="text-gray-400 hover:text-yellow-400 transition"
                 >
                   Liên hệ
                 </a>
@@ -119,7 +119,7 @@ export default function Footer() {
                   <li key={index}>
                     <a
                       href={partner.href}
-                      className="text-gray-400 hover:text-[#d4af37] transition"
+                      className="text-gray-400 hover:text-yellow-400 transition"
                     >
                       {partner.name}
                     </a>

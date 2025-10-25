@@ -1,6 +1,17 @@
 "use client";
 
-import { Search, Bell, ChevronDown } from "lucide-react";
+import {
+  Search,
+  Bell,
+  ChevronDown,
+  Heart,
+  Plus,
+  CircleUserRound,
+  RotateCw,
+  LogOut,
+  ArrowDown,
+  LogIn,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -9,14 +20,21 @@ import type { AllCodeRow } from "@/types/allcodeType";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ALL_CODE_TYPES } from "@/constants/allCode";
+import Image from "next/image";
+import LoginModal from "../modals/loginModal";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isLogin, setIsLoggedIn] = useState(false);
+
+  const [activeTab, setActiveTab] = useState("film");
 
   useEffect(() => {
     fetchGenresList();
@@ -57,7 +75,7 @@ export default function Header() {
               <Input
                 type="text"
                 placeholder="Tìm kiếm phim, diễn viên"
-                className="pl-10 bg-[#1a1f2e] border-[#2a3040] text-white placeholder:text-gray-500
+                className="pl-10 bg-[#1a1f2e] border-[#2a3040] border-2 text-white placeholder:text-gray-500
              focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0
              focus-visible:border-[#2a3040] focus:shadow-[0_0_12px_2px_rgba(59,130,246,0.5)] "
               />
@@ -66,15 +84,15 @@ export default function Header() {
 
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center gap-0">
-            <button className="text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim Lẻ
             </button>
-            <button className="text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim Bộ
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer">
+                <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
                   Thể loại
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -92,7 +110,7 @@ export default function Header() {
                   {genresList.map((genre, index) => (
                     <button
                       key={`${index}-${genre.id}`}
-                      className="text-gray-300 hover:text-[#d4af37] transition text-sm whitespace-nowrap cursor-pointer text-left
+                      className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                        w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
                     >
                       {genre.valueVi}
@@ -103,7 +121,7 @@ export default function Header() {
             </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer">
+                <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
                   Quốc gia
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -120,7 +138,7 @@ export default function Header() {
                   {countriesList.map((country, index) => (
                     <button
                       key={`${index}-${country.id}`}
-                      className="text-gray-300 hover:text-[#d4af37] transition text-sm whitespace-nowrap cursor-pointer text-left
+                      className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                        w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
                     >
                       {country.valueVi}
@@ -129,12 +147,12 @@ export default function Header() {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
-            <button className="text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Xem Chung
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer">
+                <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
                   Thêm
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -149,13 +167,13 @@ export default function Header() {
               >
                 <div className="flex  flex-col flex-wrap gap-x-0  max-h-[592px] overflow-hidden">
                   <button
-                    className="text-gray-300 hover:text-[#d4af37] transition text-sm whitespace-nowrap cursor-pointer text-left
+                    className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                        w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
                   >
                     Mới cập nhật
                   </button>
                   <button
-                    className="text-gray-300 hover:text-[#d4af37] transition text-sm whitespace-nowrap cursor-pointer text-left
+                    className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                        w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
                   >
                     Phổ biến
@@ -163,27 +181,234 @@ export default function Header() {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
-            <button className="text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim VIP
             </button>
           </nav>
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
-            <Button className="flex items-center gap-2 text-sm text-gray-300 hover:text-white hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md">
+            <button className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md">
               <span>Chat với FlixAI</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-gray-300 hover:text-white hover:bg-[#1a1f2e]"
-            >
-              <Bell className="w-5 h-5" />
-            </Button>
-            <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex-shrink-0" />
+            </button>
+            <button className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md">
+              <span onClick={() => setShowLoginModal(true)}>Đăng nhập</span>
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] relative cursor-pointer transition-all duration-200"
+                >
+                  <Bell className="w-8 h-8" strokeWidth={2.6} />
+                  {/* <span className="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span> */}
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                align="end"
+                className="
+                    bg-[#1a1f2e]/70 backdrop-blur-md text-gray-300 border border-[#2a3040]/60 
+                    rounded-2xl w-80 p-0 shadow-xl overflow-hidden mt-2
+                    transition-all duration-300 ease-out
+                    transform origin-top-right scale-95 opacity-0 
+                    data-[state=open]:scale-100 data-[state=open]:opacity-100
+                  "
+              >
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  {/* Header Tabs */}
+                  <div className="border-b border-[#2a3040] relative overflow-hidden">
+                    <TabsList className="bg-transparent flex text-sm font-medium w-full justify-start relative">
+                      {["film", "community", "read"].map((tab) => (
+                        <TabsTrigger
+                          key={tab}
+                          value={tab}
+                          className={`relative flex-1 py-2 transition-all duration-300 rounded-none cursor-pointer
+                    ${
+                      activeTab === tab
+                        ? "text-yellow-400 font-semibold scale-[1.03]"
+                        : "text-gray-400 hover:text-yellow-300"
+                    }`}
+                        >
+                          {tab === "film" && "Phim"}
+                          {tab === "community" && "Cộng đồng"}
+                          {tab === "read" && "Đã đọc"}
+
+                          {/* Underline animation */}
+                          <span
+                            className={`absolute left-0 bottom-0 h-[2px] bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full transition-all duration-300 ${
+                              activeTab === tab
+                                ? "w-full opacity-100"
+                                : "w-0 opacity-0"
+                            }`}
+                          />
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </div>
+
+                  {/* Nội dung từng tab */}
+                  <TabsContent
+                    value="film"
+                    className="p-4 text-sm text-center text-gray-400"
+                  >
+                    Không có thông báo phim nào
+                  </TabsContent>
+
+                  <TabsContent
+                    value="community"
+                    className="p-4 text-sm text-center text-gray-400"
+                  >
+                    Không có thông báo cộng đồng nào
+                  </TabsContent>
+
+                  <TabsContent
+                    value="read"
+                    className="p-4 text-sm text-center text-gray-400 "
+                  >
+                    Chưa có thông báo đã đọc
+                  </TabsContent>
+                </Tabs>
+
+                <DropdownMenuSeparator className="bg-[#2a3040] p-0 m-0" />
+
+                {/* Nút xem toàn bộ */}
+                <div
+                  className="    p-3 text-center text-sm font-medium text-yellow-400
+                        cursor-pointer transition-all duration-300
+                        bg-[#1a1f2e]/40 backdrop-blur-md border-t border-[#2a3040]/70
+                        hover:bg-[#2a3040]/60 hover:text-yellow-300
+                        hover:shadow-[0_0_10px_rgba(245,213,71,0.2)]
+                        active:scale-[0.98]"
+                >
+                  Xem toàn bộ
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* User Menu Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none flex items-center">
+                  <Image
+                    src="/images/vn_flag.svg"
+                    alt="User Avatar"
+                    width={30}
+                    height={30}
+                    className="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer hover:scale-105 transition-transform object-cover border-2 border-yellow-400/50"
+                  />
+                  <ChevronDown />
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                align="end"
+                className="
+                  bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
+                  w-64 p-0 rounded-2xl shadow-xl overflow-hidden mt-2
+                  transition-all duration-300 ease-out
+                  transform origin-top-right scale-95 opacity-0 
+                  data-[state=open]:scale-100 data-[state=open]:opacity-100
+                "
+              >
+                {/* User Info Section */}
+                <div className="p-4 border-b border-[#2a3040]/50">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Image
+                      src="/images/vn_flag.svg"
+                      alt="User Avatar"
+                      width={30}
+                      height={30}
+                      className="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer hover:scale-105 transition-transform object-cover border-2 border-yellow-400/50"
+                    />{" "}
+                    <div>
+                      <h3 className="text-white font-semibold flex items-center gap-1">
+                        Trần Văn Lương
+                      </h3>
+                      <p className="text-gray-400 text-xs">
+                        Nâng cấp tài khoản ChillFlix để có trải nghiệm đẳng cấp
+                        hơn.
+                      </p>
+                    </div>
+                  </div>
+                  <button className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-semibold py-2 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all cursor-pointer">
+                    Nâng cấp ngay
+                  </button>
+                </div>
+
+                {/* Balance Section */}
+                <div className="px-4 py-3 border-b border-[#2a3040]/50 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded flex items-center justify-center">
+                      <span className="text-[#0f1419] text-xs font-bold">
+                        $
+                      </span>
+                    </div>
+                    <span className="text-gray-300 text-sm">Số dư</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-400 font-semibold">0</span>
+                    <div className="w-5 h-5 bg-[#2a3040] rounded-full flex items-center justify-center">
+                      <span className="text-yellow-400 text-xs font-bold">
+                        ₽
+                      </span>
+                    </div>
+                    <button className="bg-[#2a3040] text-yellow-400 text-xs font-medium px-2 py-1 rounded hover:bg-[#3a4050] transition flex items-center text-[12px]">
+                      <Plus strokeWidth={1} /> Nạp
+                    </button>
+                  </div>
+                </div>
+
+                {/* Menu Items */}
+                <div className="py-2">
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                    <span className="text-lg">
+                      <Heart />
+                    </span>
+                    <span>Yêu thích</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                    <span className="text-lg">
+                      <Plus />
+                    </span>
+                    <span>Danh sách</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                    <span className="text-lg">
+                      <RotateCw />
+                    </span>
+                    <span>Xem tiếp</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                    <span className="text-lg">
+                      <CircleUserRound />
+                    </span>
+                    <span>Tài khoản</span>
+                  </button>
+                </div>
+
+                <DropdownMenuSeparator className="bg-[#2a3040]/50 m-0" />
+
+                {/* Logout */}
+                <button className="w-full flex items-center gap-3 px-4 py-3  hover:bg-[#2a3040]/60 hover:text-yellow-400 text-gray-300  transition text-sm   hover:shadow-[0_0_10px_rgba(245,213,71,0.2)] cursor-pointer">
+                  <span className="text-lg">
+                    <LogOut />
+                  </span>
+                  <span>Thoát</span>
+                </button>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={() => setIsLoggedIn(true)}
+      />
     </header>
   );
 }

@@ -8,10 +8,10 @@ export default function About() {
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <Atropos
         className="my-atropos w-80 h-96 rounded-2xl shadow-2xl bg-white overflow-hidden"
-        activeOffset={40} // độ nghiêng tối đa
-        shadowScale={1.05} // độ phóng bóng
-        highlight={true} // hiệu ứng phản chiếu (shine)
-        rotateTouch="scroll-y" // cho phép nghiêng bằng chạm
+        activeOffset={40}
+        shadowScale={1.05}
+        highlight={true}
+        rotateTouch="scroll-y"
         shadow={true}
       >
         <div className="relative w-full h-full">
