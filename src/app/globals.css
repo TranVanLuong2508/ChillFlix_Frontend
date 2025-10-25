@@ -136,6 +136,10 @@ body {
   @apply bg-background text-foreground;
 }
 
+body {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
