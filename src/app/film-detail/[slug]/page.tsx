@@ -2,6 +2,7 @@ import Poster from "@/components/ui/Poster";
 import Playbar from "@/components/ui/Playbar";
 import TabsSection from "@/components/ui/Tabs";
 import FilmInfo from "@/components/ui/FilmInfo";
+import Comment from "@/components/ui/Comment";
 
 export default function FilmDetailPage() {
     return (
@@ -21,7 +22,9 @@ export default function FilmDetailPage() {
                             <div className="lg:col-span-7">
                                 <Playbar />
                                 <TabsSection />
+                                <Comment />
                             </div>
+
                         </div>
                     </div>
                 </section>

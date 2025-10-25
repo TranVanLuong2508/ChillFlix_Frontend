@@ -1,5 +1,5 @@
 "use client";
-import { Cast } from "lucide-react";
+
 import { useState } from "react";
 import CastInfo from "./CastInfo";
 
@@ -34,9 +34,12 @@ export default function TabsSection() {
         {activeTab === "episodes" && (
           <div>
             <h2 className="text-xl font-semibold mb-2">Các bản chiếu</h2>
-            <ul className="list-disc list-inside text-gray-400">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-            </ul>
+              <div className="bg-zinc-900 p-4 rounded-lg h-32 flex items-center justify-center border border-zinc-800 hover:border-chillflix-yellow transition-colors cursor-pointer">
+                <span className="text-gray-400">Bản chiếu 1</span>
+              </div>
+            </div>
           </div>
         )}
 

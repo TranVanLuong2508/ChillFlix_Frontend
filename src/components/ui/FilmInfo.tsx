@@ -19,8 +19,8 @@ export default function FilmInfo() {
                     <span className="bg-[#facc15] text-black px-2 py-0.5 rounded font-semibold">
                         IMDb 7.1
                     </span>
-                    <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded">2025</span>
-                    <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded">1h 48m</span>
+                    <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded border-1">2025</span>
+                    <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded border-1">1h 48m</span>
                 </div>
 
                 <div className="flex items-center  gap-2 text-sm text-gray-300 mt-2">
