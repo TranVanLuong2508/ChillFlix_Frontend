@@ -1,15 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Reply, Send } from "lucide-react";
 import AvatarUser from "./AvartarUser";
 
 export default function Comment() {
-    const [activeTab, setActiveTab] = useState("comment");
     const [comment, setComment] = useState("");
     const [reveal, setReveal] = useState(false);
+    const [replyingTo, setReplyingTo] = useState<number | null>(null);
+    const [replyText, setReplyText] = useState("");
     const [comments, setComments] = useState<
-        { id: number; name: string; text: string }[]
+        {
+            id: number;
+            name: string;
+            text: string;
+            replies: { id: number; name: string; text: string }[];
+        }[]
     >([]);
 
     const handleSend = () => {
@@ -18,43 +24,42 @@ export default function Comment() {
             id: Date.now(),
             name: "An Nguyễn",
             text: comment,
+            replies: [],
         };
         setComments([newComment, ...comments]);
         setComment("");
     };
 
+    const handleReplySend = (parentId: number) => {
+        if (replyText.trim() === "") return;
+
+        const newReply = {
+            id: Date.now(),
+            name: "An Nguyễn",
+            text: replyText,
+        };
+
+        const updatedComments = comments.map((cmt) =>
+            cmt.id === parentId
+                ? { ...cmt, replies: [newReply, ...cmt.replies] }
+                : cmt
+        );
+
+        setComments(updatedComments);
+        setReplyText("");
+        setReplyingTo(null);
+    };
+
     return (
         <div id="comment-section" className="mt-10">
-            {/* ----- HEADER ----- */}
+
             <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                        Bình luận
-                    </h2>
-                    <div className="ml-4 flex border border-zinc-700 rounded-lg overflow-hidden">
-                        <button
-                            onClick={() => setActiveTab("comment")}
-                            className={`px-4 py-1 text-sm font-medium transition ${activeTab === "comment"
-                                    ? "bg-white text-black"
-                                    : "bg-transparent text-gray-400 hover:text-white"
-                                }`}
-                        >
-                            Bình luận
-                        </button>
-                        <button
-                            onClick={() => setActiveTab("rating")}
-                            className={`px-4 py-1 text-sm font-medium transition ${activeTab === "rating"
-                                    ? "bg-white text-black"
-                                    : "bg-transparent text-gray-400 hover:text-white"
-                                }`}
-                        >
-                            Đánh giá
-                        </button>
-                    </div>
-                </div>
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                    Bình luận
+                </h2>
             </div>
 
-            {/* ----- KHUNG NHẬP BÌNH LUẬN ----- */}
+
             <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 shadow-lg">
                 <div className="flex items-center gap-3 mb-4">
                     <AvatarUser />
@@ -79,9 +84,9 @@ export default function Comment() {
                         </span>
                         <button
                             onClick={handleSend}
-                            className="flex items-center gap-2 md:w-20 justify-center font-semibold hover:brightness-125 transition"
+                            className="flex items-center gap-2 font-semibold text-yellow-400 hover:text-yellow-300 transition"
                         >
-                            Gửi <Send size={18} />
+                            Gửi <Send size={18} className="text-yellow-400" />
                         </button>
                     </div>
                 </div>
@@ -100,7 +105,7 @@ export default function Comment() {
                 </div>
             </div>
 
-            {/* ----- DANH SÁCH BÌNH LUẬN (BÊN NGOÀI KHUNG) ----- */}
+
             <div className="mt-6">
                 {comments.length === 0 ? (
                     <div className="bg-zinc-900 rounded-2xl border border-zinc-800 py-12 flex flex-col items-center justify-center text-gray-400">
@@ -112,15 +117,96 @@ export default function Comment() {
                         {comments.map((cmt) => (
                             <div
                                 key={cmt.id}
-                                className="flex items-start gap-3 border-b border-zinc-800 pb-4"
+                                className="flex flex-col gap-3 border-b border-zinc-800 pb-4"
                             >
-                                <AvatarUser />
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-white">{cmt.name}</p>
-                                    <p className="text-gray-300 text-sm mt-1 break-words whitespace-pre-wrap leading-relaxed">
-                                        {cmt.text}
-                                    </p>
+
+                                <div className="flex items-start gap-3">
+                                    <AvatarUser />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm font-semibold text-white">
+                                                {cmt.name}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                8 giờ trước
+                                            </p>
+                                        </div>
+                                        <p className="text-gray-300 text-sm mt-1 break-words whitespace-pre-wrap leading-relaxed">
+                                            {cmt.text}
+                                        </p>
+
+                                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                                            <button
+                                                onClick={() =>
+                                                    setReplyingTo(
+                                                        replyingTo === cmt.id
+                                                            ? null
+                                                            : cmt.id
+                                                    )
+                                                }
+                                                className="flex items-center gap-1 hover:text-white transition"
+                                            >
+                                                <Reply size={14} />
+                                                Trả lời
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
+
+
+                                {replyingTo === cmt.id && (
+                                    <div className="ml-12 mt-2 w-[60%] bg-zinc-950 border border-zinc-800 rounded-xl p-3 shadow-inner">
+                                        <textarea
+                                            value={replyText}
+                                            onChange={(e) =>
+                                                setReplyText(e.target.value)
+                                            }
+                                            maxLength={1000}
+                                            rows={2}
+                                            placeholder="Viết phản hồi..."
+                                            className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
+                                        />
+                                        <div className="flex items-center justify-between mt-2">
+                                            <span className="text-gray-500 text-xs">
+                                                {replyText.length} / 1000
+                                            </span>
+
+                                            <button
+                                                onClick={() =>
+                                                    handleReplySend(cmt.id)
+                                                }
+                                                className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
+                                            >
+                                                Gửi{" "}
+                                                <Send
+                                                    size={14}
+                                                    className="text-yellow-400"
+                                                />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {cmt.replies.length > 0 && (
+                                    <div className="ml-12 mt-3 space-y-3">
+                                        {cmt.replies.map((rep) => (
+                                            <div
+                                                key={rep.id}
+                                                className="flex items-start gap-3"
+                                            >
+                                                <AvatarUser />
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-semibold text-white">
+                                                        {rep.name}
+                                                    </p>
+                                                    <p className="text-gray-300 text-sm mt-1 break-words whitespace-pre-wrap leading-relaxed">
+                                                        {rep.text}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

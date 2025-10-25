@@ -43,7 +43,7 @@ export default function PlayBar() {
     return (
         <>
 
-            <div className="flex items-center justify-between w-full mt-2 px-4 md:px-10">
+            <div className="flex items-center justify-between w-full mt-2 px-4 md:px-1">
                 <button
                     onClick={() => setActive("play")}
                     className="flex items-center gap-2 bg-gradient-to-b from-yellow-200 to-yellow-400 text-black font-semibold px-6 py-3 rounded-full hover:brightness-110 transition-all shadow-lg"
