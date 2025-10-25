@@ -3,7 +3,7 @@ import CastInfoFilm from "./CastInfoFilm";
 
 export default function FilmInfo() {
     return (
-        <div className="flex flex-col gap-4 -mt-55 px-6">
+        <div className="flex flex-col gap-4 -mt-1 px-6">
 
             <img
                 src="/images/small.jpg"

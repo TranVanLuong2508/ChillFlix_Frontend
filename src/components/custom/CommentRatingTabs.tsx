@@ -10,9 +10,9 @@ interface TabsSectionProps {
 export default function TabsSection({ externalTab }: TabsSectionProps) {
     const [activeTab, setActiveTab] = useState<"comments" | "ratings">("comments");
 
-    useEffect(() => {
-        if (externalTab) setActiveTab(externalTab);
-    }, [externalTab]);
+    // useEffect(() => {
+    //     if (externalTab) setActiveTab(externalTab);
+    // }, [externalTab]);
 
     return (
         <div className="mt-10 bg-zinc-900 rounded-xl p-6 text-white">

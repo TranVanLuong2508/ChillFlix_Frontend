@@ -1,8 +1,8 @@
-import Poster from "@/components/ui/Poster";
-import Playbar from "@/components/ui/Playbar";
-import TabsSection from "@/components/ui/Tabs";
-import FilmInfo from "@/components/ui/FilmInfo";
-import CommentRatingTabs from "@/components/ui/CommentRatingTabs";
+import Poster from "@/components/custom/Poster";
+import Playbar from "@/components/custom/Playbar";
+import TabsSection from "@/components/custom/Tabs";
+import FilmInfo from "@/components/custom/FilmInfo";
+import CommentRatingTabs from "@/components/custom/CommentRatingTabs";
 
 export default function FilmDetailPage() {
     return (
