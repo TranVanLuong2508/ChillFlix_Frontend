@@ -161,14 +161,14 @@ export default function Comment() {
                                             onChange={(e) =>
                                                 setReplyText(e.target.value)
                                             }
-                                            maxLength={1000}
+                                            maxLength={2000}
                                             rows={2}
                                             placeholder="Viết phản hồi..."
                                             className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
                                         />
                                         <div className="flex items-center justify-between mt-2">
                                             <span className="text-gray-500 text-xs">
-                                                {replyText.length} / 1000
+                                                {replyText.length} / 2000
                                             </span>
 
                                             <button

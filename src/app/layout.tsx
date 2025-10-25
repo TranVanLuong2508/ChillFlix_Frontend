@@ -1,6 +1,7 @@
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import "./globals.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 
 

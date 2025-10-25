@@ -22,7 +22,7 @@ export default function TabsSection() {
             onClick={() => setActiveTab(tab.id)}
             className={`pb-2 transition-all ${activeTab === tab.id
               ? "border-b-2 border-chillflix-yellow text-yellow-400 font-semibold"
-              : "text-gray-400 hover:text-yellow-400"
+              : "text-white font-semibold hover:text-yellow-400"
               }`}
           >
             {tab.label}

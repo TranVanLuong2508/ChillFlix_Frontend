@@ -2,7 +2,7 @@ import Poster from "@/components/ui/Poster";
 import Playbar from "@/components/ui/Playbar";
 import TabsSection from "@/components/ui/Tabs";
 import FilmInfo from "@/components/ui/FilmInfo";
-import Comment from "@/components/ui/Comment";
+import CommentRatingTabs from "@/components/ui/CommentRatingTabs";
 
 export default function FilmDetailPage() {
     return (
@@ -28,7 +28,7 @@ export default function FilmDetailPage() {
                                 </div>
 
                                 <div className="w-full">
-                                    <Comment />
+                                    <CommentRatingTabs />
                                 </div>
                             </div>
                         </div>
