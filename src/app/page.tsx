@@ -16,10 +16,10 @@ export default function Home() {
   //   console.log("check res", res.data.users);
   // };
   return (
-    <main className="min-h-screen bg-[#0f1419] pb-0">
+    <>
       <Header />
       <div className="h-[500px] bg-gray-700"></div>
       <Footer />
-    </main>
+    </>
   );
 }

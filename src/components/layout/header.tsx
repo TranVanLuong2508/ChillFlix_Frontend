@@ -3,41 +3,34 @@
 import { Search, Bell, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { allCodeServie } from "@/services";
+import type { AllCodeRow } from "@/types/allcodeType";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
-import { allCodeServie } from "@/services";
-
-const genres = [
-  ["Anime", "Bí Ẩn", "Chiến Tranh", "Chiều Rạp"],
-  ["Chuyên Thể", "Chính Kịch", "Chính Luận", "Chính Trị"],
-  ["Chương Trình Truyền Hình", "Concert Film", "Cung Đấu", "Cuối Tuần"],
-  ["Cách Mạng", "Cổ Trang", "Cổ Tích", "Có Điều"],
-  ["DC", "Disney", "Gay Cấn", "Gia Đình"],
-  ["Giáng Sinh", "Giả Tưởng", "Hoàng Cung", "Hoạt Hình"],
-  ["Hài", "Hành Động", "Hình Sự", "Học Đường"],
-  ["Khoa Học", "Kinh Dị", "Kinh Điển", "Kịch Nói"],
-  ["Kỳ Ảo", "LGBT+", "Live Action", "Lãng Mạn"],
-  ["Lịch Sử", "Marvel", "Miền Viễn Tây", "Nghề Nghiệp"],
-  ["Người Mẫu", "Nhạc Kịch", "Phiêu Lưu", "Phép Thuật"],
-  ["Siêu Anh Hùng", "Thiếu Nhi", "Thần Thoại", "Thể Thao"],
-  ["Xuyên Không", "Đau Thương", "Đối Thương", "Ẩm Thực"],
-];
+import { ALL_CODE_TYPES } from "@/constants/allCode";
 
 export default function Header() {
-  const [genresList, setGenresList] = useState([]);
+  const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
+  const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
 
   useEffect(() => {
-    fetchAllCodeDataByType("GENRE");
+    fetchGenresList();
+    fetchCountriesList();
   }, []);
 
-  const fetchAllCodeDataByType = async (type: string) => {
-    const res = await allCodeServie.getByType(type);
-    setGenresList(res.data.GENRE);
+  const fetchGenresList = async () => {
+    const res = await allCodeServie.getByType(ALL_CODE_TYPES.GENRE);
+    setGenresList(res?.data?.GENRE);
+  };
+
+  const fetchCountriesList = async () => {
+    const res = await allCodeServie.getByType(ALL_CODE_TYPES.COUNTRY);
+    setCountriesList(res?.data?.COUNTRY);
   };
 
   console.log("check state", genresList);
@@ -72,96 +65,114 @@ export default function Header() {
           </div>
 
           {/* Navigation Menu */}
-          <nav className="hidden lg:flex items-center gap-6">
-            <a href="#" className="text-gray-300 hover:text-white transition ">
+          <nav className="hidden lg:flex items-center gap-0">
+            <button className="text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim Lẻ
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white transition">
+            </button>
+            <button className="text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim Bộ
-            </a>
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-white transition">
+                <button className="flex items-center gap-1 text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer">
                   Thể loại
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#1a1f2e] border-[#2a3040] w-auto p-4">
-                <div className="grid grid-cols-4 gap-x-8 gap-y-3">
-                  {genres.map((column, colIndex) => (
-                    <div key={colIndex} className="flex flex-col gap-3">
-                      {column.map((genre) => (
-                        <button
-                          key={genre}
-                          className="text-gray-300 hover:text-[#d4af37] transition text-sm text-left whitespace-nowrap hover:var(--color-yellow-400)  cursor-pointer"
-                        >
-                          {genre}
-                        </button>
-                      ))}
-                    </div>
+              <DropdownMenuContent
+                align="start"
+                // className="bg-[#1a1f2e] border-[#2a3040] w-max p-4 rounded-xl shadow-lg"
+                className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
+                            w-max p-4 rounded-xl shadow-lg 
+                            transition-all duration-300 ease-out 
+                            transform origin-top scale-95 opacity-0 
+                            data-[state=open]:scale-100 data-[state=open]:opacity-100"
+              >
+                <div className="flex  flex-col flex-wrap gap-x-0  max-h-[592px] overflow-hidden">
+                  {genresList.map((genre, index) => (
+                    <button
+                      key={`${index}-${genre.id}`}
+                      className="text-gray-300 hover:text-[#d4af37] transition text-sm whitespace-nowrap cursor-pointer text-left
+                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                    >
+                      {genre.valueVi}
+                    </button>
                   ))}
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-white transition">
+                <button className="flex items-center gap-1 text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer">
                   Quốc gia
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#1a1f2e] border-[#2a3040]">
-                <DropdownMenuItem className="text-gray-300 hover:text-white">
-                  Việt Nam
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-gray-300 hover:text-white">
-                  Hàn Quốc
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-gray-300 hover:text-white">
-                  Trung Quốc
-                </DropdownMenuItem>
+              <DropdownMenuContent
+                align="start"
+                className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
+                            w-max p-4 rounded-xl shadow-lg 
+                            transition-all duration-300 ease-out 
+                            transform origin-top scale-95 opacity-0 
+                            data-[state=open]:scale-100 data-[state=open]:opacity-100"
+              >
+                <div className="flex  flex-col flex-wrap gap-x-0  max-h-[592px] overflow-hidden">
+                  {countriesList.map((country, index) => (
+                    <button
+                      key={`${index}-${country.id}`}
+                      className="text-gray-300 hover:text-[#d4af37] transition text-sm whitespace-nowrap cursor-pointer text-left
+                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                    >
+                      {country.valueVi}
+                    </button>
+                  ))}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
-            <a href="#" className="text-gray-300 hover:text-white transition">
+            <button className="text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Xem Chung
-            </a>
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-white transition">
+                <button className="flex items-center gap-1 text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer">
                   Thêm
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#1a1f2e] border-[#2a3040]">
-                <DropdownMenuItem className="text-gray-300 hover:text-white">
-                  Mới cập nhật
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-gray-300 hover:text-white">
-                  Phổ biến
-                </DropdownMenuItem>
+              <DropdownMenuContent
+                align="start"
+                className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
+                          w-max p-4 rounded-xl shadow-lg 
+                          transition-all duration-300 ease-out 
+                          transform origin-top scale-95 opacity-0 
+                          data-[state=open]:scale-100 data-[state=open]:opacity-100"
+              >
+                <div className="flex  flex-col flex-wrap gap-x-0  max-h-[592px] overflow-hidden">
+                  <button
+                    className="text-gray-300 hover:text-[#d4af37] transition text-sm whitespace-nowrap cursor-pointer text-left
+                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                  >
+                    Mới cập nhật
+                  </button>
+                  <button
+                    className="text-gray-300 hover:text-[#d4af37] transition text-sm whitespace-nowrap cursor-pointer text-left
+                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                  >
+                    Phổ biến
+                  </button>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
-            {/* <span className="bg-[#d4af37] text-[#0f1419] px-2 py-1 rounded text-xs font-bold">
-              NEW
-            </span> */}
-            <a href="#" className="text-gray-300 hover:text-white transition">
+            <button className="text-gray-300 hover:text-white hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim VIP
-            </a>
+            </button>
           </nav>
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-gray-300 hover:text-white hover:bg-[#1a1f2e]"
-            >
-              <span className="text-sm">🎧</span>
+            <Button className="flex items-center gap-2 text-sm text-gray-300 hover:text-white hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md">
+              <span>Chat với FlixAI</span>
             </Button>
-            <div className="flex items-center gap-2 text-sm text-gray-300">
-              <span>Tải ứng dụng</span>
-              <span>ChillFlix</span>
-            </div>
             <Button
               variant="ghost"
               size="icon"

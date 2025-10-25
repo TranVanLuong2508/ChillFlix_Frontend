@@ -1,6 +1,17 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* close radix ul scrollbar */
+
+:root {
+  body[data-scroll-locked][data-scroll-locked] {
+    overflow: auto !important;
+  }
+  body[data-scroll-locked] {
+    margin-right: 0 !important;
+  }
+}
+
 /* @custom-variant dark (&:is(.dark *));
 
 @theme inline {
