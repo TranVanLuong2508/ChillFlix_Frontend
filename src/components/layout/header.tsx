@@ -53,7 +53,7 @@ export default function Header({
 
   console.log("check state", genresList);
   return (
-    <header className="absolute sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
+    <header className="sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
       <div className=" mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
@@ -225,7 +225,8 @@ export default function Header({
                         <TabsTrigger
                           key={tab}
                           value={tab}
-                          className={`relative flex-1 py-2 transition-all duration-300 rounded-none cursor-pointer
+                          className={`relative flex-1 py-2 transition-all duration-300 rounded-none cursor-pointer data-[state=active]:bg-transparent
+
                     ${
                       activeTab === tab
                         ? "text-yellow-400 font-semibold scale-[1.03]"
