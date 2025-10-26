@@ -26,11 +26,13 @@ import { ALL_CODE_TYPES } from "@/constants/allCode";
 import Image from "next/image";
 import LoginModal from "../modals/loginModal";
 
-export default function Header() {
+export default function Header({
+  setShowLogin,
+}: {
+  setShowLogin: (value: boolean) => void;
+}) {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isLogin, setIsLoggedIn] = useState(false);
 
   const [activeTab, setActiveTab] = useState("film");
 
@@ -51,7 +53,7 @@ export default function Header() {
 
   console.log("check state", genresList);
   return (
-    <header className="sticky top-0 z-50 bg-[#0f1419] border-b border-[#1a1f2e]">
+    <header className="absolute sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
       <div className=" mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
@@ -190,7 +192,7 @@ export default function Header() {
               <span>Chat với FlixAI</span>
             </button>
             <button className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md">
-              <span onClick={() => setShowLoginModal(true)}>Đăng nhập</span>
+              <span onClick={() => setShowLogin(true)}>Đăng nhập</span>
             </button>
 
             <DropdownMenu>
@@ -401,12 +403,6 @@ export default function Header() {
           </div>
         </div>
       </div>
-
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLogin={() => setIsLoggedIn(true)}
-      />
     </header>
   );
 }

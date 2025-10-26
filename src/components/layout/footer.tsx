@@ -8,17 +8,24 @@ export default function Footer() {
   return (
     <footer className="bg-[#0f1419] border-t border-[#1a1f2e]  left-0 w-full flex flex-col pt-4">
       {/* Vietnam Flag Banner */}
-      <div className="   px-4 py-3 flex items-center gap-2  justify-center ">
-        <div className="bg-[#75140F] flex items-center px-4 py-2 rounded-[22px] gap-2">
+      <div className="px-4 py-3 flex items-center justify-center">
+        <div className="relative backdrop-blur-md bg-[#d62828]/90 border border-[#ff4d4d]/40 shadow-[0_6px_25px_rgba(214,40,40,0.6)] rounded-[22px] px-6 py-3 flex items-center gap-3 transition-all duration-300 transform-gpu  hover:scale-105 hover:shadow-[0_10px_35px_rgba(255,77,77,0.8)] hover:border-[#ff6666]/60">
+          {/* Hiệu ứng ánh sáng nhẹ phía trên */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent rounded-[22px] pointer-events-none"></div>
+
+          {/* Cờ Việt Nam */}
           <div className="flag-vn">
             <Image
               src="/images/vn_flag.svg"
-              width={30}
-              height={30}
+              width={36}
+              height={36}
               alt="Viet Nam"
+              className="drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]"
             />
           </div>
-          <span className="text-white font-semibold ">
+
+          {/* Dòng chữ khẩu hiệu */}
+          <span className="text-white font-bold tracking-wide drop-shadow-[0_3px_6px_rgba(0,0,0,0.5)] select-none">
             Hoàng Sa & Trường Sa là của Việt Nam!
           </span>
         </div>

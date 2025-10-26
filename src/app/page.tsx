@@ -21,8 +21,5 @@ export default function Home() {
       <div className="h-[500px] bg-gray-700"></div>
       <Footer />
     </>
-
   );
 }
-
-

@@ -1,22 +1,37 @@
 // import Header from "@/app/components/header"
+"use client";
 import HeroCarousel from "@/components/homepage/hero-carousel";
 import ContentCarousel from "@/components/homepage/content-carousel";
+import { useState } from "react";
+import LoginModal from "@/components/modals/loginModal";
+import Footer from "@/components/layout/footer";
+import Header from "@/components/layout/header";
 // import Footer from "@/app/components/footer"
 
 export default function Home() {
+  const [showLoginModal, setShowLogin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* <Header /> */}
-      <HeroCarousel />
+    <>
+      <Header setShowLogin={setShowLogin} />
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+        <HeroCarousel />
 
-      <main className="space-y-4 pb-12">
-        <ContentCarousel title="Phim Hàn Quốc mới" items={koreanItems} />
-        <ContentCarousel title="Phim Trung Quốc mới" items={chineseItems} />
-        <ContentCarousel title="Phim US-UK mới" items={usukItems} />
-      </main>
+        <main className="space-y-4 pb-12">
+          <ContentCarousel title="Phim Hàn Quốc mới" items={koreanItems} />
+          <ContentCarousel title="Phim Trung Quốc mới" items={chineseItems} />
+          <ContentCarousel title="Phim US-UK mới" items={usukItems} />
+        </main>
+      </div>
+      <Footer />
 
-      {/* <Footer /> */}
-    </div>
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLogin(false)}
+        onLogin={() => setIsLoggedIn(true)}
+      />
+    </>
   );
 }
 
