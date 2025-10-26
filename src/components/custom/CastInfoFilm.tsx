@@ -1,7 +1,7 @@
 export default function CastInfoFilm() {
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center ml-5">
                 <div className="w-20 h-20 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg">
                     <img
                         src="/images/small.jpg"

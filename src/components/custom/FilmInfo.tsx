@@ -3,8 +3,7 @@ import CastInfoFilm from "./CastInfoFilm";
 
 export default function FilmInfo() {
     return (
-        <div className="flex flex-col gap-4 px-6">
-
+        <div className="flex flex-col gap-4 px-6 -mx-4">
             <img
                 src="/images/small.jpg"
                 alt="Poster nhỏ"
@@ -24,15 +23,15 @@ export default function FilmInfo() {
                 </div>
 
                 <div className="flex items-center  gap-2 text-sm text-gray-300 mt-2">
-                    <a href="/" className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 py-0.5 rounded transition-colors">
+                    <button className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 py-0.5 rounded transition-colors">
                         Hành động
-                    </a>
-                    <a href="/" className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 py-0.5 rounded transition-colors">
+                    </button>
+                    <button className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 py-0.5 rounded transition-colors">
                         Phiêu lưu
-                    </a>
-                    <a href="/" className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 py-0.5 rounded transition-colors">
+                    </button>
+                    <button className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 py-0.5 rounded transition-colors">
                         Viễn tưởng
-                    </a>
+                    </button>
                 </div>
                 <div className="mt-4">
                     <h3 className="text-base font-semibold text-white mb-1">Giới thiệu:</h3>
@@ -44,24 +43,25 @@ export default function FilmInfo() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
-                    <div>
+                    <div className="flex items-center gap-2">
                         <h3 className="text-sm font-semibold text-white">Thời lượng:</h3>
                         <p className="text-sm text-gray-200">1 giờ 48 phút</p>
                     </div>
-                    <div className="sm: col-span-2 ">
+                    <div className="sm: col-span-2 flex items-center gap-2">
                         <h3 className="text-sm font-semibold text-white">Quốc gia:</h3>
                         <p className="text-sm text-gray-200">Mỹ</p>
                     </div>
-                    <div className="sm:col-span-2">
+                    <div className="sm:col-span-2 flex items-center gap-2">
                         <h3 className="text-sm font-semibold text-white">Nhà Sản xuất:</h3>
                         <p className="text-sm text-gray-200">Lý Mạc Sầu</p>
                     </div>
-                    <div className="sm:col-span-2">
+                    <div className="sm:col-span-2 flex items-center gap-2">
                         <h3 className="text-sm font-semibold text-white">Đạo diễn:</h3>
                         <p className="text-sm text-gray-200">Stephen King</p>
                     </div>
+
                 </div>
-                <div>
+                <div className="mt-6">
                     <h2 className="text-xl font-semibold mb-4">Diễn viên</h2>
                 </div>
                 <div>

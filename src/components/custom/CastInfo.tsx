@@ -6,7 +6,7 @@ export default function CastInfo() {
                     <img
                         src="/images/small.jpg"
                         alt="Poster nhỏ"
-                        className="w-36 md:w-48 md:h-48 object-cover rounded-xl shadow-lg"
+                        className="w-36 md:w-48 md:h-48 object-cover rounded-xl shadow-lg "
                     />
                     <div className="absolute bottom-0 left-0 right-0  bg-opacity-60 py-1 rounded-b-xl">
                         <a href="/" className="text- md:text-base text-white hover:text-chillflix-yellow transition-colors">
