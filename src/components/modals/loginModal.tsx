@@ -75,7 +75,7 @@ export default function LoginModal({
                 highlight={true}
                 rotateTouch="scroll-y"
                 shadow={true}
-                style={{ backgroundColor: "#0f1419" }} // 👈 thêm dòng này
+                style={{ backgroundColor: "#0f1419" }}
               >
                 <div className="relative w-full h-full">
                   <img
@@ -90,10 +90,9 @@ export default function LoginModal({
                   ></div>
                   <div
                     data-atropos-offset="15"
-                    className="absolute top-6 right-6 px-3 py-1 text-xs font-semibold 
-                            text-white rounded-full shadow-lg
-                            bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 
-                            animate-pulse"
+                    className="absolute top-6 right-6 px-3 py-1 text-xs font-semibold drop-shadow-[0_0_8px_rgba(255,100,0,0.6)]
+                      text-white rounded-full shadow-[0_0_10px_rgba(255,0,128,0.6)]
+                      bg-gradient-to-r from-pink-600 via-fuchsia-500 to-purple-500"
                   >
                     HOT
                   </div>
