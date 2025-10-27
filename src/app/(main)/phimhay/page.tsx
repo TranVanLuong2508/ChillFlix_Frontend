@@ -23,7 +23,6 @@ export default function Home() {
           <ContentCarousel title="Phim US-UK mới" items={usukItems} />
         </main>
       </div>
-      <Footer />
     </>
   );
 }
