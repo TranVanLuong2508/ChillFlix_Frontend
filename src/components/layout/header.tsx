@@ -24,17 +24,13 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ALL_CODE_TYPES } from "@/constants/allCode";
 import Image from "next/image";
-import LoginModal from "../modals/loginModal";
+import { useLoginModal } from "@/contexts/LoginModalContext";
 
-export default function Header({
-  setShowLogin,
-}: {
-  setShowLogin: (value: boolean) => void;
-}) {
+export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
-
   const [activeTab, setActiveTab] = useState("film");
+  const { openModal: showLoginModal } = useLoginModal();
 
   useEffect(() => {
     fetchGenresList();
@@ -51,7 +47,6 @@ export default function Header({
     setCountriesList(res?.data?.COUNTRY);
   };
 
-  console.log("check state", genresList);
   return (
     <header className="sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
       <div className=" mx-auto px-4 py-4">
@@ -191,8 +186,13 @@ export default function Header({
             <button className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md">
               <span>Chat với FlixAI</span>
             </button>
-            <button className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md">
-              <span onClick={() => setShowLogin(true)}>Đăng nhập</span>
+            <button
+              className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md"
+              onClick={() => {
+                showLoginModal();
+              }}
+            >
+              <span>Đăng nhập</span>
             </button>
 
             <DropdownMenu>
@@ -200,7 +200,7 @@ export default function Header({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] relative cursor-pointer transition-all duration-200"
+                  className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] relative cursor-pointer transition-all duration-200 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none"
                 >
                   <Bell className="w-8 h-8" strokeWidth={2.6} />
                   {/* <span className="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span> */}

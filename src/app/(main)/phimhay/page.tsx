@@ -14,7 +14,6 @@ export default function Home() {
 
   return (
     <>
-      <Header setShowLogin={setShowLogin} />
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
         <HeroCarousel />
 
@@ -25,12 +24,6 @@ export default function Home() {
         </main>
       </div>
       <Footer />
-
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLogin(false)}
-        onLogin={() => setIsLoggedIn(true)}
-      />
     </>
   );
 }

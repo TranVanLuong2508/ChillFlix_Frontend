@@ -1,6 +1,10 @@
 import { Metadata } from "next";
 import "./globals.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import { LoginModalProvider } from "@/contexts/LoginModalContext";
+import Header from "@/components/layout/header";
+import LoginModal from "@/components/modals/loginModal";
+import Footer from "@/components/layout/footer";
 
 export const metadata: Metadata = {
   title: {
@@ -18,8 +22,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased text-white bg-[#191B24] m-0 p-0`}>
-        {/* {bg-[#0f1419]} */}
-        {children}
+        <LoginModalProvider>
+          <Header />
+          {children}
+          <Footer />
+          <LoginModal />
+        </LoginModalProvider>
       </body>
     </html>
   );

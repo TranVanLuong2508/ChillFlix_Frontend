@@ -5,22 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import modalVariants from "@/constants/modalVariants";
 import Atropos from "atropos/react";
 import "atropos/css";
+import { useLoginModal } from "@/contexts/LoginModalContext";
 
-interface LoginModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onLogin: () => void;
-}
-
-export default function LoginModal({
-  isOpen,
-  onClose,
-  onLogin,
-}: LoginModalProps) {
-  const handleLogin = () => {
-    onLogin();
-    onClose();
-  };
+export default function LoginModal() {
+  const { isOpen, closeModal } = useLoginModal();
 
   return (
     <AnimatePresence>
@@ -33,7 +21,7 @@ export default function LoginModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          onClick={onClose}
+          onClick={closeModal}
         >
           {/* Modal Box */}
           <motion.div
@@ -48,7 +36,7 @@ export default function LoginModal({
           >
             {/* Close Button */}
             <button
-              onClick={onClose}
+              onClick={closeModal}
               className="absolute top-4 right-4 z-10 text-gray-400 hover:text-white transition cursor-pointer"
             >
               <svg
@@ -126,7 +114,6 @@ export default function LoginModal({
 
                 <button
                   type="button"
-                  onClick={handleLogin}
                   className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-bold py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all"
                 >
                   Đăng nhập
