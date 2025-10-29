@@ -5,6 +5,7 @@ import { LoginModalProvider } from "@/contexts/LoginModalContext";
 import Header from "@/components/layout/header";
 import LoginModal from "@/components/modals/loginModal";
 import Footer from "@/components/layout/footer";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: {
@@ -27,6 +28,7 @@ export default function RootLayout({
           {children}
           <Footer />
           <LoginModal />
+          <Toaster />
         </LoginModalProvider>
       </body>
     </html>

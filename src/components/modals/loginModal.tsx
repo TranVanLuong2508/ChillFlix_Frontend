@@ -6,6 +6,7 @@ import modalVariants from "@/constants/modalVariants";
 import Atropos from "atropos/react";
 import "atropos/css";
 import { useLoginModal } from "@/contexts/LoginModalContext";
+import { toast } from "sonner";
 
 export default function LoginModal() {
   const { isOpen, closeModal } = useLoginModal();
@@ -113,8 +114,11 @@ export default function LoginModal() {
                 />
 
                 <button
+                  onClick={() => {
+                    toast.success("Event has been created", {});
+                  }}
                   type="button"
-                  className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-bold py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all"
+                  className=" cursor-pointer w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-bold py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all"
                 >
                   Đăng nhập
                 </button>

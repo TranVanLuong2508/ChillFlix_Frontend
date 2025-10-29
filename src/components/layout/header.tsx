@@ -38,6 +38,7 @@ export default function Header() {
   }, []);
 
   const fetchGenresList = async () => {
+    console.log(";check fetch list");
     const res = await allCodeServie.getByType(ALL_CODE_TYPES.GENRE);
     setGenresList(res?.data?.GENRE);
   };

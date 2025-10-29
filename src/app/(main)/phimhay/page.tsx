@@ -9,9 +9,6 @@ import Header from "@/components/layout/header";
 // import Footer from "@/app/components/footer"
 
 export default function Home() {
-  const [showLoginModal, setShowLogin] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   return (
     <>
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
