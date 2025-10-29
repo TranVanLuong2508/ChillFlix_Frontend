@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Play, Heart, Info } from "lucide-react"
 
 interface MovieCardProps {
@@ -25,15 +25,17 @@ interface MovieCardProps {
 export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgress = false }: MovieCardProps) {
     const [isHovered, setIsHovered] = useState(false)
     const [isFavorite, setIsFavorite] = useState(false)
+    const cardContainerRef = useRef<HTMLDivElement>(null)
 
     return (
         <div
-            className="relative flex-shrink-0 cursor-pointer"
+            ref={cardContainerRef}
+            className="relative flex-shrink-0 cursor-pointer group"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             <div
-                className={`relative overflow-hidden rounded-lg bg-slate-800 transition-all duration-300 w-56 h-32 ${isHovered ? "shadow-2xl shadow-slate-900/50 scale-105" : ""
+                className={`relative overflow-visible rounded-lg bg-slate-800 transition-all duration-300 w-56 h-32  ${isHovered ? "shadow-2xl shadow-slate-900/50 scale-105" : ""
                     }`}
             >
                 {/* Image */}
@@ -80,11 +82,14 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
 
             {isHovered && (
                 <div
-                    className="fixed z-50 w-80 bg-slate-900 rounded-lg overflow-hidden shadow-2xl border border-slate-700"
+                    className="fixed z-50 w-80 bg-slate-900 rounded-lg overflow-hidden shadow-2xl border border-slate-700 pointer-events-auto animate-popup-in "
                     style={{
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
+                        top: cardContainerRef.current ? cardContainerRef.current.getBoundingClientRect().top + 200 : 0,
+                        left: cardContainerRef.current
+                            ? cardContainerRef.current.getBoundingClientRect().left +
+                            cardContainerRef.current.getBoundingClientRect().width / 2
+                            : 0,
+                        transform: "translateX(-50%) translateY(-100%)",
                     }}
                 >
                     {/* Preview Image */}
@@ -119,7 +124,7 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
 
                         {/* Metadata */}
                         <div className="flex flex-wrap gap-1 text-xs text-gray-300">
-                            {item.imdbRating && <span className="bg-slate-800 px-2 py-0.5 rounded">IMDb: {item.imdbRating}</span>}
+                            {item.imdbRating && <span className="text-amber-400 px-2 py-0.5 rounded">IMDb: {item.imdbRating}</span>}
                             {item.ageRating && <span className="bg-slate-800 px-2 py-0.5 rounded">{item.ageRating}</span>}
                             {item.year && <span className="bg-slate-800 px-2 py-0.5 rounded">{item.year}</span>}
                             {item.episodes && <span className="bg-slate-800 px-2 py-0.5 rounded">{item.episodes}</span>}
