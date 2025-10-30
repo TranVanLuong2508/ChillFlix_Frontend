@@ -7,9 +7,14 @@ import Atropos from "atropos/react";
 import "atropos/css";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export default function LoginModal() {
   const { isOpen, closeModal } = useLoginModal();
+  const [userEmail, setUserEmail] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  console.log("check eemail", userEmail);
+  console.log("check password", userPassword);
 
   return (
     <AnimatePresence>
@@ -101,12 +106,20 @@ export default function LoginModal() {
 
               <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                 <Input
+                  value={userEmail}
+                  onChange={(inputEvent) =>
+                    setUserEmail(inputEvent.target.value)
+                  }
                   type="email"
                   placeholder="Email"
                   className="w-full bg-[#252d3d] border-[#2a3040] text-white placeholder:text-gray-500 h-12
                              focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400"
                 />
                 <Input
+                  value={userPassword}
+                  onChange={(inputEvent) =>
+                    setUserPassword(inputEvent.target.value)
+                  }
                   type="password"
                   placeholder="Mật khẩu"
                   className="w-full bg-[#252d3d] border-[#2a3040] text-white placeholder:text-gray-500 h-12

@@ -25,18 +25,29 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ALL_CODE_TYPES } from "@/constants/allCode";
 import Image from "next/image";
 import { useLoginModal } from "@/contexts/LoginModalContext";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
   const { openModal: showLoginModal } = useLoginModal();
+  const router = useRouter();
 
   useEffect(() => {
     fetchGenresList();
     fetchCountriesList();
+    Login();
   }, []);
 
+  const Login = async () => {
+    const res = await signIn("credentials", {
+      redirect: false,
+      email: "admin@gmail.com",
+      password: "123456",
+    });
+  };
   const fetchGenresList = async () => {
     console.log(";check fetch list");
     const res = await allCodeServie.getByType(ALL_CODE_TYPES.GENRE);
@@ -56,7 +67,14 @@ export default function Header() {
           <div className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
             <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#f5d547] rounded-full flex items-center justify-center">
               <div className="w-8 h-8 bg-[#0f1419] rounded-full flex items-center justify-center">
-                <span className="text-[#d4af37] font-bold text-lg">▶</span>
+                <span
+                  onClick={() => {
+                    router.push("/");
+                  }}
+                  className="text-[#d4af37] font-bold text-lg"
+                >
+                  ▶
+                </span>
               </div>
             </div>
             <div>
@@ -335,7 +353,12 @@ export default function Header() {
                       </p>
                     </div>
                   </div>
-                  <button className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-semibold py-2 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all cursor-pointer">
+                  <button
+                    onClick={() => {
+                      router.push("/user/upgrade_vip");
+                    }}
+                    className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-semibold py-2 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all cursor-pointer"
+                  >
                     Nâng cấp ngay
                   </button>
                 </div>

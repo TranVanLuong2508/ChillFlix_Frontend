@@ -1,5 +1,5 @@
 "use client";
-
+import { useSession } from "next-auth/react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -74,6 +74,12 @@ export default function VipUpgradeContent() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string>("sixmonths");
   const [isLoading, setIsLoading] = useState(false);
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push("/");
+    },
+  });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price);
