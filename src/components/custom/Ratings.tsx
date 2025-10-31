@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Star } from "lucide-react";
-import AvatarUser from "./AvartarUser";
 
 export default function Ratings() {
     const [rating, setRating] = useState(0);
@@ -25,8 +24,8 @@ export default function Ratings() {
     };
 
     return (
-        <div id="rating-section" className="mt-10 text-center">
-            <h3 className="text-lg font-semibold mb-4">Đánh giá phim</h3>
+        <div id="rating-section" className="mt-2 text-center">
+            <h3 className="text-2xl font-semibold mb-4">Đánh giá</h3>
 
 
             <div className="flex justify-center mb-4 gap-3">
@@ -51,7 +50,7 @@ export default function Ratings() {
 
             <textarea
                 placeholder="Viết nhận xét về phim (tuỳ chọn)"
-                className="w-full p-3 rounded-lg bg-zinc-900 text-gray-300 text-sm focus:outline-none resize-none h-24 mb-4"
+                className="w-full p-3 rounded-lg bg-zinc-800/70 text-gray-200 placeholder-gray-500 text-sm focus:outline-none resize-none h-24 mb-4 border border-zinc-800 "
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
             ></textarea>
@@ -77,7 +76,7 @@ export default function Ratings() {
 
             <div className="mt-6">
                 {reviews.length === 0 ? (
-                    <div className="bg-zinc-900 rounded-2xl border border-zinc-800 py-12 flex flex-col items-center justify-center text-gray-400">
+                    <div className="bg-zinc-800/70 rounded-2xl border border-zinc-800 py-12 flex flex-col items-center justify-center text-gray-400">
                         <Star size={40} className="mb-3 opacity-70" />
                         <p className="text-sm">Chưa có đánh giá nào</p>
                     </div>
@@ -89,7 +88,13 @@ export default function Ratings() {
                                 className="flex flex-col gap-3 border-b border-zinc-800 pb-4"
                             >
                                 <div className="flex items-start gap-3">
-                                    <AvatarUser />
+                                    <div className="relative w-12 h-12">
+                                        <img
+                                            src="/images/monkey.jpg"
+                                            alt="avatar"
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
+                                    </div>
                                     <div className="flex-1 min-w-0 text-left">
                                         <div className="flex items-center gap-2">
                                             <p className="text-sm font-semibold text-white">

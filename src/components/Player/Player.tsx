@@ -7,9 +7,11 @@ import { Tv } from "lucide-react";
 import PlayerInfo from "./playerInfo";
 import PlayerLineConfig from "./playerLineConfig";
 import PlayListNav from "./playListNav";
+import { EpisodesData } from "@/types/episodesData";
+
 
 const PlayerController = dynamic(
-  () => import("@/components/player/playerController"),
+  () => import("@/components/Player/PlayerController"),
   {
     ssr: false,
     loading: () => (
@@ -35,7 +37,7 @@ const PlayerController = dynamic(
 //  shadow-[-8px_-8px_40px_10px_rgba(255,255,255,0.1),_8px_8px_40px_10px_rgba(255,255,255,0.1)]
 // shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),_8px_8px_40px_10px_rgba(0,0,0,0.3)]
 
-const Player = () => {
+const Player = ({video}: {video: EpisodesData}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -44,7 +46,7 @@ const Player = () => {
         <PlayerInfo onOpenChange={setIsOpen} />
         <PlayListNav open={isOpen} onOpenChange={setIsOpen} />
         <div className="relative">
-          <PlayerController />
+          <PlayerController videoUrl={video} />
         </div>
       </div>
       <PlayerLineConfig />
