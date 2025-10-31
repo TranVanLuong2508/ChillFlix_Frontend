@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { paymentService } from "@/services/payment.service";
+import { paymentService } from "@/services";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/layout/loadingSpinner";
 

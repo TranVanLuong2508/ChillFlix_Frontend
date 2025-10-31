@@ -7,15 +7,27 @@ import Atropos from "atropos/react";
 import "atropos/css";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import type { LoginInput } from "@/types/authen.type";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginModal() {
   const { isOpen, closeModal } = useLoginModal();
-  const [userEmail, setUserEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
-  console.log("check eemail", userEmail);
-  console.log("check password", userPassword);
+  const [showPassword, setShowPassword] = useState(false);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    clearErrors,
+  } = useForm<LoginInput>({
+    mode: "onSubmit",
+  });
+
+  // useEffect(() => {
+  //   if (!isOpen) clearErrors();
+  // }, [isOpen, clearErrors]);
   return (
     <AnimatePresence>
       {isOpen && (
@@ -104,33 +116,64 @@ export default function LoginModal() {
                 </span>
               </p>
 
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <form
+                className="space-y-4"
+                onSubmit={handleSubmit((data) => {
+                  console.log("Form submit data:", data);
+                  toast.success("Đăng nhập thành công");
+                })}
+              >
                 <Input
-                  value={userEmail}
-                  onChange={(inputEvent) =>
-                    setUserEmail(inputEvent.target.value)
-                  }
-                  type="email"
+                  {...register("email", {
+                    required: "Email là bắt buộc",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Email không hợp lệ",
+                    },
+                  })}
+                  type="text"
                   placeholder="Email"
-                  className="w-full bg-[#252d3d] border-[#2a3040] text-white placeholder:text-gray-500 h-12
-                             focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400"
+                  className="w-full bg-[#252d3d] border-[#2a3040] text-white placeholder:text-gray-500 h-12 mb-0
+                             focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 input-selection-yellow caret-color"
                 />
-                <Input
-                  value={userPassword}
-                  onChange={(inputEvent) =>
-                    setUserPassword(inputEvent.target.value)
-                  }
-                  type="password"
-                  placeholder="Mật khẩu"
-                  className="w-full bg-[#252d3d] border-[#2a3040] text-white placeholder:text-gray-500 h-12
-                             focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400"
-                />
-
+                <div className="min-h-[16px] my-[16px]">
+                  {errors.email && (
+                    <p className="text-red-400 text-xs animate-in fade-in slide-in-from-top-1 duration-200 ">
+                      {errors.email?.message || " "}
+                    </p>
+                  )}
+                </div>
+                <div className="relative w-full">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Mật khẩu"
+                    className="w-full bg-[#252d3d] text-white border-[#2a3040] h-12
+               focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 
+              input-selection-yellow pr-10"
+                    {...register("password", {
+                      required: "Mật khẩu là bắt buộc",
+                      minLength: {
+                        value: 6,
+                        message: "Mật khẩu phải có ít nhất 6 ký tự",
+                      },
+                    })}
+                  />
+                  <div
+                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-yellow-400"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </div>
+                </div>
+                <div className="min-h-[16px] my-[16px]">
+                  {errors.password && (
+                    <p className="text-red-400 text-xs  animate-in fade-in slide-in-from-top-1 duration-200  ">
+                      {errors.password?.message || " "}
+                    </p>
+                  )}
+                </div>
                 <button
-                  onClick={() => {
-                    toast.success("Event has been created", {});
-                  }}
-                  type="button"
+                  type="submit"
                   className=" cursor-pointer w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-bold py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all"
                 >
                   Đăng nhập
