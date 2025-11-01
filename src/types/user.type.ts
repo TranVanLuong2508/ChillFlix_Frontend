@@ -1,13 +1,13 @@
 export interface IUser {
   userId: number;
   email: string;
-  roleId: number;
   fullName: string;
+  roleId: number;
   genderCode: string;
   isVip: boolean;
   statusCode: string;
 }
-export interface UserData {
+export interface DataFieldInLoginResponse {
   access_token: string;
   user: IUser;
 }
@@ -17,5 +17,5 @@ export interface LoginResponse {
   message: string;
   EC: number;
   EM: string;
-  data: UserData;
+  data: DataFieldInLoginResponse;
 }

@@ -25,7 +25,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ALL_CODE_TYPES } from "@/constants/allCode";
 import Image from "next/image";
 import { useLoginModal } from "@/contexts/LoginModalContext";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
@@ -38,16 +37,8 @@ export default function Header() {
   useEffect(() => {
     fetchGenresList();
     fetchCountriesList();
-    Login();
   }, []);
 
-  const Login = async () => {
-    const res = await signIn("credentials", {
-      redirect: false,
-      email: "admin@gmail.com",
-      password: "123456",
-    });
-  };
   const fetchGenresList = async () => {
     console.log(";check fetch list");
     const res = await allCodeServie.getByType(ALL_CODE_TYPES.GENRE);

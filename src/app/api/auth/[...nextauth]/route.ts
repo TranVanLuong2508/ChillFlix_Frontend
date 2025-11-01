@@ -2,7 +2,7 @@ import NextAuth, { AuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { JWT } from "next-auth/jwt";
 import { authService } from "@/services";
-import type { IUser, LoginResponse, UserData } from "@/types/user.type";
+import type { IUser, LoginResponse } from "@/types/user.type";
 
 const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -12,30 +12,26 @@ const authOptions: AuthOptions = {
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        userId: { type: "text" },
+        fullName: { type: "text" },
+        roleId: { type: "text" },
+        genderCode: { type: "text" },
+        isVip: { type: "text" },
+        statusCode: { type: "text" },
+        access_token: { type: "text" },
       },
       async authorize(credentials) {
-        // const res = await authService.login(credentials);
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BACKEND_URL}/auth/login`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(credentials),
-            credentials: "include", // để backend set cookie refresh_token
-          }
-        );
+        console.log("🔐 authorize() nhận credentials:", credentials);
 
-        if (!res.ok) return null;
-
-        const loginResponse: LoginResponse = await res.json();
-        const userData = loginResponse.data;
         return {
-          id: userData.user?.userId,
-          email: userData.user?.email,
-          name: userData.user?.fullName,
-          isVip: userData.user?.isVip,
-          accessToken: userData?.access_token,
-          statusCode: userData?.user.statusCode,
+          id: credentials.userId,
+          email: credentials.email,
+          name: credentials.fullName,
+          roleId: parseInt(credentials.roleId),
+          genderCode: credentials.genderCode,
+          isVip: credentials.isVip === "true",
+          statusCode: credentials.statusCode,
+          accessToken: credentials.access_token,
         };
       },
     }),
@@ -56,7 +52,10 @@ const authOptions: AuthOptions = {
           email: user.email,
           name: user.name,
           isVip: user.isVip,
-          statusCode: user.statusCode,
+          statusCode: user.statusCode as string,
+          roleId: user.roleId,
+          genderCode: user.genderCode,
+          accessToken: user.access_token,
         };
         token.accessToken = user.accessToken;
         token.accessTokenExpires = Date.now() + 1000 * 60 * 5; // ví dụ 5 phút

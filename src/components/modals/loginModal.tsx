@@ -8,9 +8,12 @@ import "atropos/css";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import type { LoginInput } from "@/types/authen.type";
 import { Eye, EyeOff } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { authService } from "@/services";
+import { LoginResponse } from "@/types/user.type";
 
 export default function LoginModal() {
   const { isOpen, closeModal } = useLoginModal();
@@ -25,9 +28,34 @@ export default function LoginModal() {
     mode: "onSubmit",
   });
 
-  // useEffect(() => {
-  //   if (!isOpen) clearErrors();
-  // }, [isOpen, clearErrors]);
+  const handleLogin = async (userLoginInput: LoginInput) => {
+    const loginResponse: LoginResponse = await authService.login(
+      userLoginInput
+    );
+    console.log("checck axios login", loginResponse);
+    const res = await signIn("credentials", {
+      redirect: false,
+      email: loginResponse.data.user.email,
+      userId: loginResponse.data.user.userId.toString(),
+      fullName: loginResponse.data.user.fullName,
+      roleId: loginResponse.data.user.roleId.toString(),
+      genderCode: loginResponse.data.user.genderCode,
+      isVip: loginResponse.data.user.isVip.toString(),
+      statusCode: loginResponse.data.user.statusCode,
+      access_token: loginResponse.data.access_token,
+    });
+    if (!res?.error) {
+      toast.success("Đăng nhập thành công");
+    } else {
+      toast.error(res.error);
+    }
+  };
+
+  const Login = async (user) => {};
+
+  useEffect(() => {
+    if (!isOpen) clearErrors();
+  }, [isOpen, clearErrors]);
   return (
     <AnimatePresence>
       {isOpen && (
@@ -118,9 +146,10 @@ export default function LoginModal() {
 
               <form
                 className="space-y-4"
-                onSubmit={handleSubmit((data) => {
+                onSubmit={handleSubmit((data: LoginInput) => {
                   console.log("Form submit data:", data);
-                  toast.success("Đăng nhập thành công");
+                  // Login(data);
+                  handleLogin(data);
                 })}
               >
                 <Input

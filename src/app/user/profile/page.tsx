@@ -5,6 +5,7 @@ export default function Profile() {
   const { data: session, status } = useSession();
   console.log("Session:", session);
   console.log("Status:", status);
+  console.log("session:", session);
   if (status === "loading") return <p>Loading...</p>;
   if (!session) return <p>Not logged in</p>;
   return (
