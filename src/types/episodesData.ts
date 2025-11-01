@@ -1,6 +1,6 @@
 export interface EpisodesData {
   id: string;
-  title: string;
+  title?: string;
   episodeNumber: number;
   duration: number;
   videoUrl: string;
