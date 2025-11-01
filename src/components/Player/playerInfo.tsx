@@ -3,6 +3,9 @@ import { ListVideo } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PlayerInfoProps {
+  partNumber: number;
+  episodeNumber: number;
+
   onOpenChange: (open: boolean) => void;
 }
 

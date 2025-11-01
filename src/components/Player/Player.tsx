@@ -9,7 +9,6 @@ import PlayerLineConfig from "./playerLineConfig";
 import PlayListNav from "./playListNav";
 import { EpisodesData } from "@/types/episodesData";
 
-
 const PlayerController = dynamic(
   () => import("@/components/Player/PlayerController"),
   {
@@ -37,7 +36,11 @@ const PlayerController = dynamic(
 //  shadow-[-8px_-8px_40px_10px_rgba(255,255,255,0.1),_8px_8px_40px_10px_rgba(255,255,255,0.1)]
 // shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),_8px_8px_40px_10px_rgba(0,0,0,0.3)]
 
-const Player = ({video}: {video: EpisodesData}) => {
+interface PlayerProps {
+  episodeData: EpisodesData;
+}
+
+const Player = ({ episodeData }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -46,7 +49,10 @@ const Player = ({video}: {video: EpisodesData}) => {
         <PlayerInfo onOpenChange={setIsOpen} />
         <PlayListNav open={isOpen} onOpenChange={setIsOpen} />
         <div className="relative">
-          <PlayerController videoUrl={video} />
+          <PlayerController
+            videoUrl={episodeData.videoUrl}
+            posterUrl={episodeData.thumbUrl}
+          />
         </div>
       </div>
       <PlayerLineConfig />
