@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FilmActorData } from "@/types/filmActorData";
+import { FilmActorSimpleData } from "@/types/filmActorData";
 import { FilmData } from "@/types/filmData";
 import { PartData, EpisodeData } from "@/types/partData";
 import { Menu } from "lucide-react";
@@ -15,6 +15,7 @@ import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { useRouter } from "next/navigation";
 
 
+
 const tabs = [
   { id: "episodes", label: "Tập phim" },
   { id: "gallery", label: "Hình ảnh" },
@@ -23,14 +24,14 @@ const tabs = [
 ];
 
 type TabsSectionProps = {
-  actor: FilmActorData[];
+  filmActor: FilmActorSimpleData[];
   film: FilmData;
   part: {
     parts: PartData[];
   };
 };
 
-export default function TabsSection({ film, actor, part }: TabsSectionProps) {
+export default function TabsSection({ film, part, filmActor }: TabsSectionProps) {
   const [activeTab, setActiveTab] = useState("episodes");
   const [selectedPart, setSelectedPart] = useState<PartData | null>();
   const [isLoadingPart, setIsLoadingPart] = useState(false);
@@ -45,7 +46,12 @@ export default function TabsSection({ film, actor, part }: TabsSectionProps) {
   };
 
   const handleChooseEpisode = (ep: EpisodeData) => {
+    setIsLoadingPart(true);
     route.push(`/play/${ep.id}`);
+  }
+
+  const handleChooseCast = (actorId: number) => {
+    route.push(`/actor-detail/${actorId}`);
   }
 
   useEffect(() => {
@@ -86,15 +92,41 @@ export default function TabsSection({ film, actor, part }: TabsSectionProps) {
             ) : film.type?.keyMap === "FT_SINGLE" ? (
 
               <>
-                <h2 className="text-xl font-semibold mb-2">Bản chiếu</h2>
+                <h2 className="text-xl font-semibold mb-3 text-yellow-400">Bản chiếu</h2>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div
-                    className="bg-zinc-900 p-4 rounded-lg h-32 flex items-center justify-center border border-zinc-800 hover:border-yellow-400 transition-colors cursor-pointer"
+                    className="relative overflow-hidden rounded-xl border border-zinc-800 
+                 bg-zinc-900 hover:border-yellow-400 transition-all duration-300
+                 shadow-[0_0_12px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(250,204,21,0.3)]
+                 cursor-pointer"
                   >
-                    <span className="text-gray-400">Bản chiếu chính</span>
+                    <img
+                      src={film.thumbUrl || "/images/small.jpg"}
+                      alt={film.title}
+                      className="w-full h-48 md:h-40 object-cover rounded-xl transition-transform duration-500 hover:scale-105"
+                    />
+
+                    <h3 className="absolute bottom-3 left-4 text-yellow-400 text-base font-semibold tracking-wide drop-shadow-md">
+                      {film.title || "Bản chiếu chính"}
+                    </h3>
+
+                    <button
+                      onClick={() => handleChooseEpisode(part.parts[0].episodes[0])}
+                      className="absolute bottom-3 right-4 text-xs font-semibold 
+                   bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
+                   hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
+                   transition-all duration-300 ease-in-out"
+                    >
+                      Xem ngay
+                    </button>
                   </div>
                 </div>
               </>
+
+
+
+
             ) : (
 
               <>
@@ -163,17 +195,21 @@ export default function TabsSection({ film, actor, part }: TabsSectionProps) {
                     selectedPart?.episodes?.map((ep, index) => (
                       <div
                         key={`${ep.id}-${index}`}
-                        className="bg-zinc-900 rounded-lg border border-zinc-800 hover:border-yellow-400 transition-all duration-300 cursor-pointer overflow-hidden group"
+                        onClick={() => handleChooseEpisode(ep)}
+                        className="relative overflow-hidden rounded-xl border border-zinc-800 
+                                  bg-zinc-900 hover:border-yellow-400 transition-all duration-300
+                                  shadow-[0_0_12px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(250,204,21,0.3)]
+                                  cursor-pointer"
                       >
                         <div className="relative w-full h-32">
                           <img
                             src={ep.thumbUrl || "/images/small.jpg"}
                             alt={ep.title}
-                            className="w-full h-full object-cover rounded-t-lg group-hover:brightness-110 transition-all duration-300"
+                            className="w-full h-full object-cover rounded-t-lg group-hover:brightness-110 transition-all duration-300 hover:scale-105"
                           />
                         </div>
                         <div className="p-2 text-center">
-                          <span className="text-gray-300 text-sm group-hover:text-yellow-400 transition-colors duration-200">
+                          <span className="text-gray-300 text-sm group-hover:text-yellow-400 transition-colors duration-200 hover:text-yellow-400 font-medium">
                             {ep.title || `Tập ${ep.episodeNumber}`}
                           </span>
                         </div>
@@ -190,45 +226,81 @@ export default function TabsSection({ film, actor, part }: TabsSectionProps) {
 
         {activeTab === "gallery" && (
           <div>
-            <h2 className="text-xl font-semibold mb-2">Hình ảnh</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-zinc-900 rounded-lg w-40 h-48  overflow-hidden border border-zinc-800 hover:border-yellow-400 transition-all cursor-pointer">
-                <img
-                  src={film.posterUrl || "/images/small.jpg"}
-                  alt={film.title}
-                  className="w-full h-full object-cover rounded-lg"
-                />
+            <h2 className="text-xl font-semibold mb-3 text-yellow-400">Hình ảnh</h2>
+
+            {Array.isArray(film.filmImages) && (film.filmImages.length > 0 || film.thumbUrl) ? (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 md:gap-2">
+                {film.thumbUrl && (
+                  <div
+                    key="thumb"
+                    className="aspect-[2/3] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                  >
+                    <img
+                      src={film.thumbUrl}
+                      alt={`${film.title} - Thumbnail`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                {film.filmImages.map((img, index) => (
+                  <div
+                    key={index}
+                    className="aspect-[2/3] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                  >
+                    <img
+                      src={img.url || "/images/small.jpg"}
+                      alt={`${film.title} - ${img.type}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
               </div>
+            ) : (
+              <p className="text-gray-400 italic mt-2">Chưa có hình ảnh cho phim này</p>
+            )}
+          </div>
+        )}
+
+
+
+        {activeTab === "cast" && (
+          <div>
+            <h2 className="text-xl font-semibold mb-5">Diễn viên</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 -ml-3">
+              {Array.isArray(filmActor) && filmActor.length > 0 ? (
+                filmActor.map((a, index) =>
+                  a.actorId ? (
+                    <div
+                      key={`${a.actorId}-${index}`}
+                      onClick={() => handleChooseCast(a.actorId)}
+                      className="flex flex-col items-center cursor-pointer"
+                    >
+                      <div className="relative hover:scale-105 transition-transform duration-300">
+                        <img
+                          src={a.avatarUrl || "/images/small.jpg"}
+                          alt={a.actorName}
+                          className="w-36 md:w-48 md:h-48 object-cover rounded-xl shadow-lg"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-opacity-60 py-1 rounded-b-xl justify-center text-center">
+                          <button className="text-white hover:text-yellow-400 transition-colors cursor-pointer">
+                            {a.actorName}
+                          </button>
+                        </div>
+                      </div>
+                      <span className="mt-2 text-sm text-pink-300 italic">
+                        {a.characterName || ""}
+                      </span>
+                    </div>
+                  ) : null
+                )
+              ) : (
+                <p className="text-gray-400 italic">Chưa có thông tin diễn viên</p>
+              )}
             </div>
           </div>
         )}
 
-        {activeTab === "cast" && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Diễn viên</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 ">
-              {actor.map((a, index) => (
-                <div key={`${a.actorId}-${index}`} className="flex flex-col items-center cursor-pointer">
-                  <div className="relative">
-                    <img
-                      src={a.avatarUrl || "/images/small.jpg"}
-                      alt={a.actorName}
-                      className="w-36 md:w-48 md:h-48 object-cover rounded-xl shadow-lg"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-opacity-60 py-1 rounded-b-xl justify-center text-center">
-                      <button className="text-white hover:text-yellow-400 transition-colors cursor-pointer">
-                        {a.actorName}
-                      </button>
-                    </div>
-                  </div>
-                  <span className="mt-2 text-sm text-pink-300 italic">
-                    {a.characterName}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
 
         {activeTab === "recommend" && (

@@ -5,7 +5,7 @@ import Artplayer from "artplayer";
 import artplayerPluginVttThumbnail from "@artplayer/plugin-vtt-thumbnail";
 import { EpisodesData } from "@/types/episodesData";
 
-const PlayerController = ({ videoUrl }: { videoUrl: EpisodesData }) => {
+const PlayerController = ({ video }: { video: EpisodesData }) => {
   const artRef = useRef<HTMLDivElement>(null);
 
   const playM3u8 = (video: HTMLVideoElement, url: string, art: Artplayer) => {
@@ -87,7 +87,7 @@ const PlayerController = ({ videoUrl }: { videoUrl: EpisodesData }) => {
     const art = new Artplayer({
       container: artRef.current,
       // url: "https://stream.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ.m3u8",
-      url: videoUrl.videoUrl,
+      url: video.videoUrl,
       type: "m3u8",
       customType: {
         m3u8: playM3u8,

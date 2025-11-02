@@ -5,10 +5,12 @@ type PosterProps = {
 };
 
 export default function Poster({ film }: PosterProps) {
+  const poster = film.filmImages?.find((img) => img.type === "poster");
+
   return (
     <div className="relative w-full h-[80vh] overflow-hidden">
       <img
-        src={film?.posterUrl || "/images/poster.jpg"}
+        src={poster?.url || "/images/poster.jpg"}
         alt="Poster phim"
         className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
       />

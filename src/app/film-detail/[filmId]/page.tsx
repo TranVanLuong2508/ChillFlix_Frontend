@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { act, use, useEffect, useState } from "react";
 import { filmServices } from "@/services/filmService";
 import Poster from "@/components/custom/Poster";
 import FilmInfo from "@/components/custom/FilmInfo";
@@ -17,13 +17,15 @@ import { partServices } from "@/services/partService";
 import { RatingData } from "@/types/ratingData";
 
 import { PartData } from "@/types/partData";
+import { actorServices } from "@/services/actorService";
+import { filmActorServices } from "@/services/filmActorService";
 
-export default function FilmDetailPage() {
+export default function FilmDetailPage({ params }: { params: { id: string } }) {
 
     const [activeTab, setActiveTab] = useState<"comments" | "ratings">("comments");
     const [filmData, setFilmData] = useState<FilmData | null>();
     const [filmDirectorData, setFilmDirectorData] = useState<FilmDirectorData | null>();
-    const [filmActorData, setFilmActorData] = useState<FilmActorData | null>();
+    const [filmActorData, setFilmActorData] = useState<FilmActorData[]>([]);
     const [filmRatingData, setFilmRatingData] = useState<RatingData | null>();
     const [filmPartData, setFilmPartData] = useState<{ parts: PartData[] } | null>(null);
     const filmId = useParams().filmId;
@@ -35,25 +37,39 @@ export default function FilmDetailPage() {
             const actorRes = await filmServices.getActorByFilmId(filmId as string);
             const ratingRes = await filmServices.getRatingsByFilmId(filmId as string);
             const partRes = await partServices.getPartsByFilmId(filmId as string);
-
+            const partData = partRes.data.result.length > 0 ? partRes.data.result[0] : null;
 
             setFilmDirectorData(directorRes.data.result);
-            setFilmData(res.data);
+            setFilmData(res.data.film);
             setFilmActorData(actorRes.data.result);
             setFilmRatingData(ratingRes.data.result);
-            setFilmPartData({ parts: Array.isArray(partRes.data) ? partRes.data : [], });
-
+            setFilmPartData({
+                parts: partData ? [partData] : [],
+            });
         } catch (error) {
             console.error("Failed to fetch film:", error);
         }
 
     };
 
+    const fetchFilmActors = async () => {
+        try {
+
+            const filmActorRes = await filmActorServices.getActorsByFilmId(filmId as string);
+            setFilmActorData(filmActorRes.data.result);
+
+            console.log("Film Actors:", filmActorRes.data.result);
+        } catch (error) {
+            console.error("Failed to fetch film actors:", error);
+        }
+    };
+
+
     useEffect(() => {
         if (!filmId) return;
         fetchFilm();
-
-    }, [filmId]);
+        fetchFilmActors();
+    }, [filmId, params.id]);
 
     if (!filmData) return <div className="text-center py-20">Đang tải dữ liệu...</div>;
     return (
@@ -68,8 +84,8 @@ export default function FilmDetailPage() {
                         </div>
 
                         <div className="lg:col-span-7 flex flex-col gap-8 bg-[#191B24] border border-zinc-800 rounded-[20px] p-5 md:p-6 shadow-md">
-                            <Playbar activeTab={activeTab} setActiveTab={setActiveTab} />
-                            <TabsSection actor={filmActorData as any} film={filmData} part={filmPartData as any} />
+                            <Playbar activeTab={activeTab} setActiveTab={setActiveTab} episodes={filmPartData?.parts?.[0]?.episodes || []} />
+                            <TabsSection filmActor={filmActorData as any} film={filmData} part={filmPartData as any} />
                             <CommentRatingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
                         </div>
                     </div>

@@ -1,20 +1,33 @@
 "use client";
 
 
-import { FilmActorData } from "@/types/filmActorData";
+import { ActorData } from "@/types/actorData";
 import { FilmData } from "@/types/filmData";
 import { FilmDirectorData } from "@/types/filmDirectorData";
 import { RatingData } from "@/types/ratingData";
 import { Star } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+interface FilmInfoProps {
+  film: FilmData;
+  director: FilmDirectorData[];
+  actor: ActorData[];
+  rating: RatingData;
+}
 
 
+export default function FilmInfo({ film, director, actor, rating }: FilmInfoProps) {
 
-export default function FilmInfo({ film, director, actor, rating }: { film: FilmData, director: FilmDirectorData[], actor: FilmActorData[], rating: RatingData }) {
+  const router = useRouter();
+
+  const handleFilmClick = (actorId: number) => {
+    router.push(`/actor-detail/${actorId}`);
+  };
 
   return (
-    <div className="flex flex-col gap-4 px-6 -mx-4 py-6 rounded-lg shadow-lg">
+    <div className="flex flex-col gap-4 px-6 -mx-4 py-6 rounded-lg ">
       <img
-        src={film.posterUrl || "/images/small.jpg"}
+        src={film.filmImages?.[0]?.url || "/images/small.jpg"}
         alt={film.title}
         className="w-40 md:w-48 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
       />
@@ -27,7 +40,7 @@ export default function FilmInfo({ film, director, actor, rating }: { film: Film
       <div className="flex items-center gap-2 text-sm text-gray-300">
 
         <span className="inline-flex items-center bg-[#facc15] text-black px-2 py-0.5 rounded font-semibold">
-          {rating.averageRating > 0 ? `${rating.averageRating}` : 'Chưa có đánh giá'}
+          {rating.averageRating > 0 ? `${rating.averageRating}` : 'Chưa có'}
           <Star size={14} className="ml-1" />
         </span>
 
@@ -39,6 +52,11 @@ export default function FilmInfo({ film, director, actor, rating }: { film: Film
         )}
         {film.year && (
           <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded border">{film.year}</span>
+        )}
+        {film.duration > 0 && (
+          <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded border">
+            {Math.floor(film.duration / 60)}h {film.duration % 60}m
+          </span>
         )}
       </div>
 
@@ -59,7 +77,10 @@ export default function FilmInfo({ film, director, actor, rating }: { film: Film
         <h3 className="text-base font-semibold text-white mb-1">Giới thiệu:</h3>
         <p className="text-sm text-gray-400 leading-relaxed">{film.description}</p>
       </div>
-
+      <div className="flex items-center gap-2 text-sm">
+        <h3 className="font-semibold text-white">Thời lượng: </h3>
+        <span className="text-gray-300"> {Math.floor(film.duration / 60)}h {film.duration % 60}m</span>
+      </div>
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Quốc gia: </h3>
         <button className="text-gray-300 cursor-pointer hover:text-yellow-400">{film.country?.valueVi}</button>
@@ -88,6 +109,7 @@ export default function FilmInfo({ film, director, actor, rating }: { film: Film
               {actor.map((a, index) => (
                 <div
                   key={`${a.actorId}-${index}`}
+                  onClick={() => handleFilmClick(a.actorId)}
                   className="flex flex-col items-center text-center cursor-pointer group hover:scale-105 transition-transform duration-300"
                 >
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg mt-6 hover:scale-105 transition-transform duration-300">
@@ -110,7 +132,7 @@ export default function FilmInfo({ film, director, actor, rating }: { film: Film
         </div>
       </div>
 
-    </div>
+    </div >
   );
 
 }

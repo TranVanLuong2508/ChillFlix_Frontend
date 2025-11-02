@@ -1,10 +1,10 @@
 import { AllCodeRow } from "./allcodeType";
 
-export interface FilmDirectorData  {
-  directorId: string;
+export interface FilmDirectorData {
+  directorId: number;
   directorName: string;
   slug: string;
-  avatarUrl: string;
-  genderCode: AllCodeRow | null;
-  nationalityCode: AllCodeRow | null;
-};
+  isMain: boolean;
+  genderCode: string | AllCodeRow | null;
+  nationalityCode: string | AllCodeRow | null;
+}

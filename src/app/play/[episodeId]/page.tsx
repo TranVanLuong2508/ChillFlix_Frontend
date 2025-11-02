@@ -14,7 +14,7 @@ export default function PlayPage() {
     const fetchEpisode = async () => {
       try {
         const res = await episodeServices.getEpisodeById(episodeId as string);
-        setEpisode(res.data);
+        setEpisode(res.data.episode);
       } catch (error) {
         console.error("Failed to fetch episode:", error);
       }
@@ -30,7 +30,7 @@ export default function PlayPage() {
     );
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center py-6">
+    <div className="min-h-screen bg-[#191B24] text-white flex flex-col items-center py-6">
       <h1 className="text-xl font-semibold mb-4">
         {episode.title || `Tập ${episode.episodeNumber}`}
       </h1>

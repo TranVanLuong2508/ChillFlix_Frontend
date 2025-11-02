@@ -1,19 +1,26 @@
 import { AllCodeRow } from "./allcodeType";
 
+export interface FilmImage {
+  url: string;
+  type: "poster" | "horizontal" | "backdrop";
+}
+
 export interface FilmData {
   filmId: string;
   originalTitle: string;
   title: string;
   description: string;
-  releaseDate: Date;
+  duration: number;
+  releaseDate: string;
   year: string;
   thumbUrl: string;
-  posterUrl: string;
   slug: string;
+  view: number;
+  filmImages: FilmImage[] | null;
+  genres: AllCodeRow[] | null;
   age: AllCodeRow | null;
   type: AllCodeRow | null;
-  genres: AllCodeRow[] | null;
   country: AllCodeRow | null;
-  lang: AllCodeRow | null;
+  language: AllCodeRow | null;
   publicStatus: AllCodeRow | null;
 }

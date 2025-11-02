@@ -1,12 +1,25 @@
-import { AllCodeRow } from "./allcodeType";
+import { FilmData } from "./filmData";
+import { ActorData } from "./actorData";
 
 
 export interface FilmActorData {
-  actorId: string;
+  id: number;
+  film: FilmData; 
+  actor: ActorData;
+  characterName: string | null;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: number | null;
+}
+
+
+export interface FilmActorSimpleData {
+  actorId: number;
   actorName: string;
-  avatarUrl: string;
   slug: string;
-  nationalityCode: AllCodeRow | null;
-  genderCode: AllCodeRow | null;
-  characterName: string;
-};
+  avatarUrl: string | null;
+  nationalityCode?: string | null;
+  genderCode?: string | null;
+  birthDate?: string | null;
+  characterName?: string | null;
+}
