@@ -3,14 +3,14 @@
 
 import { ActorData } from "@/types/actorData";
 import { FilmData } from "@/types/filmData";
-import { FilmDirectorData } from "@/types/filmDirectorData";
+import { FilmDirectorSimpleData } from "@/types/filmDirectorData";
 import { RatingData } from "@/types/ratingData";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface FilmInfoProps {
   film: FilmData;
-  director: FilmDirectorData[];
+  director: FilmDirectorSimpleData[];
   actor: ActorData[];
   rating: RatingData;
 }
@@ -23,6 +23,9 @@ export default function FilmInfo({ film, director, actor, rating }: FilmInfoProp
   const handleFilmClick = (actorId: number) => {
     router.push(`/actor-detail/${actorId}`);
   };
+  const handleDirectorClick = (directorId: number) => {
+    router.push(`/director-detail/${directorId}`);
+  }
 
   return (
     <div className="flex flex-col gap-4 px-6 -mx-4 py-6 rounded-lg ">
@@ -93,7 +96,9 @@ export default function FilmInfo({ film, director, actor, rating }: FilmInfoProp
         <h3 className="font-semibold text-white">Đạo diễn:</h3>
         {director?.length ? (
           director.map((d) => (
-            <div key={d.directorId} className="flex items-center gap-2">
+            <div key={d.directorId}
+              onClick={() => handleDirectorClick(d.directorId)}
+              className="flex items-center gap-2">
               <button className="text-gray-300 cursor-pointer hover:text-yellow-400">{d.directorName}</button>
             </div>
           ))

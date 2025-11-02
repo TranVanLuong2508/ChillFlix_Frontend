@@ -15,7 +15,6 @@ import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { useRouter } from "next/navigation";
 
 
-
 const tabs = [
   { id: "episodes", label: "Tập phim" },
   { id: "gallery", label: "Hình ảnh" },
@@ -42,7 +41,7 @@ export default function TabsSection({ film, part, filmActor }: TabsSectionProps)
     setTimeout(() => {
       setSelectedPart(p);
       setIsLoadingPart(false);
-    }, 500);
+    }, 300);
   };
 
   const handleChooseEpisode = (ep: EpisodeData) => {
