@@ -1,6 +1,7 @@
-export type AllCodeRow = {
+export interface AllCodeRow {
   id: number;
   keyMap: string;
-  valueVi: string;
   valueEn: string;
-};
+  valueVi: string;
+  description: string;
+}

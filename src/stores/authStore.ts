@@ -42,14 +42,20 @@ type authAction = {
   setAuthenticated: (value: boolean) => void;
   setLoading: (value: boolean) => void;
   loginAction: (data: { access_token: string; user: IAuthUser }) => void;
+  logOutAction: () => void;
+  setRefreshTokenAction: (status: boolean, message: string) => void;
+  setTokenToTestApi: () => void;
 };
 
 export const useAuthStore = create<IAuthState & authAction>()(
   persist(
     (set, get) => ({
       ...initialAuthState,
+
       setAuthenticated: (value) => set({ isAuthenticated: value }),
+
       setLoading: (value) => set({ isLoading: value }),
+
       loginAction: ({ access_token, user }) => {
         set((prev) => ({
           isAuthenticated: true,
@@ -59,6 +65,33 @@ export const useAuthStore = create<IAuthState & authAction>()(
           },
           access_token: access_token,
         }));
+      },
+
+      logOutAction: () => {
+        set({
+          access_token: "",
+          isAuthenticated: false,
+          authUser: {
+            userId: null,
+            email: "",
+            roleId: null,
+            fullName: "",
+            genderCode: "",
+            isVip: null,
+            statusCode: "",
+          },
+        });
+      },
+
+      setRefreshTokenAction: (status, message) => {
+        set({
+          isRefreshToken: status,
+          access_token: message,
+        });
+      },
+
+      setTokenToTestApi: () => {
+        set({ access_token: "" });
       },
     }),
     {

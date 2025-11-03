@@ -2,11 +2,12 @@
 import { useSession } from "next-auth/react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { paymentService } from "@/services";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/layout/loadingSpinner";
 import { useAuthStore } from "@/stores/authStore";
+import { subsciptionPlanService } from "@/services/subscriptionPlanService";
 
 interface VipPackage {
   id: string;
@@ -75,7 +76,6 @@ export default function VipUpgradeContent() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string>("sixmonths");
   const [isLoading, setIsLoading] = useState(false);
-  const {} = useAuthStore();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price);
@@ -95,6 +95,19 @@ export default function VipUpgradeContent() {
     } else {
       alert("Không lấy được link thanh toán");
       setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {}, []);
+
+  const fetchPlanList = async () => {
+    try {
+      const res = await subsciptionPlanService.getSubscriptionsPlanList();
+      if (res && res.EC === 1) {
+        console.log("check plans", res);
+      }
+    } catch (error) {
+      console.log("error fetch plan", error);
     }
   };
 
@@ -137,7 +150,12 @@ export default function VipUpgradeContent() {
               <span className="text-yellow-400 font-semibold">0</span>
               <span className="text-yellow-400 text-xs">₽</span>
             </div>
-            <Button className="bg-white text-[#0f1419] hover:bg-gray-200 font-semibold">
+            <Button
+              onClick={() => {
+                fetchPlanList();
+              }}
+              className="bg-white text-[#0f1419] hover:bg-gray-200 font-semibold"
+            >
               + Nạp
             </Button>
           </div>

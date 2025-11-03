@@ -26,6 +26,7 @@ import Image from "next/image";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { toast } from "sonner";
 import { useAppRouter } from "@/hooks/useAppRouter";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
@@ -33,6 +34,7 @@ export default function Header() {
   const [activeTab, setActiveTab] = useState("film");
   const { openModal: showLoginModal } = useLoginModal();
   const { goHome, goProfile, goUpgradeVip } = useAppRouter();
+  const { logOutAction, setTokenToTestApi } = useAuthStore();
 
   useEffect(() => {
     fetchGenresList();
@@ -49,21 +51,31 @@ export default function Header() {
   const fetchCountriesList = async () => {
     const res = await allCodeServie.getCountriesList();
     if (res && res.EC === 1) {
-      console.log("check res", res);
       setCountriesList(res.data?.COUNTRY || []);
     } else setCountriesList([]);
   };
 
   const haneleLogOut = async () => {
-    const res = await authService.logout();
-    if (res && res.EC === 1) console.log("check logout res", res);
-    goHome();
-    toast.success("Đăng xuất thành công");
+    try {
+      const res = await authService.logout();
+      console.log("check res", res);
+
+      if (res && res.EC === 1) {
+        goHome();
+        toast.success("Đăng xuất thành công");
+        logOutAction();
+      }
+    } catch (error) {}
   };
 
   const handleRefreshToken = async () => {
-    const res = await authService.refreshToken();
-    console.log("check resfresh", res);
+    console.log("refres");
+    try {
+      const res = await authService.refreshToken();
+      console.log("check resfresh", res);
+    } catch (error) {
+      console.log("error when refresh token", error);
+    }
   };
 
   return (
@@ -214,7 +226,12 @@ export default function Header() {
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md">
+            <button
+              onClick={() => {
+                setTokenToTestApi();
+              }}
+              className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md"
+            >
               <span>Chat với FlixAI</span>
             </button>
             <button
