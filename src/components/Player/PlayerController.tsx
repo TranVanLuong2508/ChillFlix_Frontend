@@ -4,6 +4,8 @@ import Hls from "hls.js";
 import Artplayer from "artplayer";
 import artplayerPluginVttThumbnail from "@artplayer/plugin-vtt-thumbnail";
 
+import "@/components/Player/artplayer-custom.css";
+
 interface PlayerControllerProps {
   videoUrl: string;
   posterUrl: string;
@@ -17,7 +19,7 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
       artRef.current.setAttribute("tabindex", "0");
       artRef.current.focus();
 
-      const headerHeight = 86;
+      const headerHeight = 88;
       const y =
         artRef.current.getBoundingClientRect().top +
         window.scrollY -
@@ -120,13 +122,15 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
 
       // config common
       theme: "#00B2FF", // #B20710
-      autoSize: true,
+      // autoSize: true,
       autoMini: true,
       playbackRate: true,
       setting: true,
       hotkey: true,
       pip: true,
       fullscreen: true,
+      aspectRatio: true,
+      fullscreenWeb: true,
 
       // config mobile
       gesture: false,
@@ -167,7 +171,12 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
     };
   }, []);
 
-  return <div ref={artRef} className="aspect-video"></div>;
+  return (
+    <div
+      ref={artRef}
+      className="artplayer-app hide-scrollbar h-[90vh] aspect-auto"
+    ></div>
+  );
 };
 
 export default PlayerController;

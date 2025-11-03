@@ -1,9 +1,13 @@
-import axios from "@/lib/axios";
+import axiosInstance from "@/lib/axios";
+import { EpisodeData } from "@/types/episodeData";
+import { IBackendRes } from "@/types/responseType";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL;
 
-export const episodeServices = {
-  getEpisodeById: (episodeId: string) => {
-    return axios.get(`${baseURL}/episodes/${episodeId}`);
+const episodeServices = {
+  getEpisodeById: (episodeId: string): Promise<IBackendRes<EpisodeData>> => {
+    return axiosInstance.get(`${baseURL}/episodes/${episodeId}`);
   },
 };
+
+export default episodeServices;

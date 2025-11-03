@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
-import { EpisodesData } from "@/types/episodesData";
+import { EpisodeData } from "@/types/episodeData";
 
-import { episodeServices } from "@/services/episodeService";
+import episodeServices from "@/services/episodeService";
 
 import Player from "@/components/Player/Player";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ import { toast } from "sonner";
 export default function PlayPage() {
   const { episodeSlug }: { episodeSlug: string } = useParams();
 
-  const [episodeData, setEpisodeData] = useState<EpisodesData | null>(null);
+  const [episodeData, setEpisodeData] = useState<EpisodeData | null>(null);
 
   useEffect(() => {
     const handleFetchDataPlayer = async () => {
@@ -22,7 +22,7 @@ export default function PlayPage() {
         if (res && res.EC !== 0) {
           toast.error(res.EM);
         }
-        setEpisodeData(res.data.episode);
+        setEpisodeData(res.data);
       } catch (error) {
         console.error("Failed to fetch episode:", error);
       }
@@ -39,8 +39,7 @@ export default function PlayPage() {
 
   return (
     <div className="w-full bg-zinc-950 text-white">
-      <h1 className="text-xl font-semibold mb-4">Xem phim ...</h1>
-      <div className="min-h-[80%] px-[150px]">
+      <div className="px-[100px] pt-4">
         <Player episodeData={episodeData} />
       </div>
     </div>

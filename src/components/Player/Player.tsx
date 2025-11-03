@@ -7,7 +7,7 @@ import { Tv } from "lucide-react";
 import PlayerInfo from "./playerInfo";
 import PlayerLineConfig from "./playerLineConfig";
 import PlayListNav from "./playListNav";
-import { EpisodesData } from "@/types/episodesData";
+import { EpisodeData } from "@/types/episodeData";
 
 const PlayerController = dynamic(
   () => import("@/components/Player/PlayerController"),
@@ -37,7 +37,7 @@ const PlayerController = dynamic(
 // shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),_8px_8px_40px_10px_rgba(0,0,0,0.3)]
 
 interface PlayerProps {
-  episodeData: EpisodesData;
+  episodeData: EpisodeData;
 }
 
 const Player = ({ episodeData }: PlayerProps) => {
@@ -46,7 +46,11 @@ const Player = ({ episodeData }: PlayerProps) => {
   return (
     <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
       <div className="relative group">
-        <PlayerInfo onOpenChange={setIsOpen} />
+        <PlayerInfo
+          partNumber={episodeData.part.partNumber}
+          episodeNumber={episodeData.episodeNumber}
+          onOpenChange={setIsOpen}
+        />
         <PlayListNav open={isOpen} onOpenChange={setIsOpen} />
         <div className="relative">
           <PlayerController
