@@ -1,8 +1,10 @@
-import axios from "@/lib/axios";
+import publicAxios from "@/lib/publicAxios";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL;
 export const allCodeServie = {
   getByType: (type: string) => {
-    return axios.get(`${baseURL}/all-codes/type/get-by-type?type=${type}`);
+    return publicAxios.get(
+      `${baseURL}/all-codes/type/get-by-type?type=${type}`
+    );
   },
 };

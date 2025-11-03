@@ -6,6 +6,7 @@ import { useState } from "react";
 import { paymentService } from "@/services";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/layout/loadingSpinner";
+import { useAuthStore } from "@/stores/authStore";
 
 interface VipPackage {
   id: string;
@@ -74,12 +75,7 @@ export default function VipUpgradeContent() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string>("sixmonths");
   const [isLoading, setIsLoading] = useState(false);
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      router.push("/");
-    },
-  });
+  const {} = useAuthStore();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price);
@@ -101,6 +97,8 @@ export default function VipUpgradeContent() {
       setIsLoading(false);
     }
   };
+
+  console.log("render vip");
 
   return (
     <div className="w-full">

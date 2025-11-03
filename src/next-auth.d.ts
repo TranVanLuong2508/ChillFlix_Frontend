@@ -10,11 +10,11 @@
 //     statusCode: string;
 //   }
 
-//   interface Session {
-//     user: User;
-//     accessToken?: string;
-//     error?: string;
-//   }
+interface Session {
+  user: User;
+  accessToken?: string;
+  error?: string;
+}
 // }
 
 // declare module "next-auth/jwt" {

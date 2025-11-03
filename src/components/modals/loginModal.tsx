@@ -11,13 +11,14 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { LoginInput } from "@/types/authen.type";
 import { Eye, EyeOff } from "lucide-react";
-import { signIn } from "next-auth/react";
 import { authService } from "@/services";
-import { LoginResponse } from "@/types/user.type";
+import { AuthenticationsMessage } from "@/constants/message";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function LoginModal() {
   const { isOpen, closeModal } = useLoginModal();
   const [showPassword, setShowPassword] = useState(false);
+  const { isAuthenticated, setAuthenticated, loginAction } = useAuthStore();
 
   const {
     register,
@@ -29,33 +30,31 @@ export default function LoginModal() {
   });
 
   const handleLogin = async (userLoginInput: LoginInput) => {
-    const loginResponse: LoginResponse = await authService.login(
-      userLoginInput
-    );
-    console.log("checck axios login", loginResponse);
-    const res = await signIn("credentials", {
-      redirect: false,
-      email: loginResponse.data.user.email,
-      userId: loginResponse.data.user.userId.toString(),
-      fullName: loginResponse.data.user.fullName,
-      roleId: loginResponse.data.user.roleId.toString(),
-      genderCode: loginResponse.data.user.genderCode,
-      isVip: loginResponse.data.user.isVip.toString(),
-      statusCode: loginResponse.data.user.statusCode,
-      access_token: loginResponse.data.access_token,
-    });
-    if (!res?.error) {
-      toast.success("Đăng nhập thành công");
-    } else {
-      toast.error(res.error);
+    try {
+      const loginResponse = await authService.login(userLoginInput);
+      if (loginResponse && loginResponse.EC === 1) {
+        toast(AuthenticationsMessage.success, {
+          closeButton: true,
+        });
+        const loginData = loginResponse.data;
+        loginAction(loginData);
+      }
+      console.log("check login resplonse", loginResponse);
+    } catch (error) {
+      console.log("error login", error);
+      toast("Có lỗi xảy ra");
     }
   };
 
-  const Login = async (user) => {};
+  const handleCloseLoginModal = () => {
+    closeModal();
+    setShowPassword(!showPassword);
+  };
 
   useEffect(() => {
     if (!isOpen) clearErrors();
   }, [isOpen, clearErrors]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -67,7 +66,9 @@ export default function LoginModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          onClick={closeModal}
+          onClick={() => {
+            handleCloseLoginModal();
+          }}
         >
           {/* Modal Box */}
           <motion.div
@@ -82,7 +83,9 @@ export default function LoginModal() {
           >
             {/* Close Button */}
             <button
-              onClick={closeModal}
+              onClick={() => {
+                handleCloseLoginModal();
+              }}
               className="absolute top-4 right-4 z-10 text-gray-400 hover:text-white transition cursor-pointer"
             >
               <svg
@@ -191,7 +194,7 @@ export default function LoginModal() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-yellow-400"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                   </div>
                 </div>
                 <div className="min-h-[16px] my-[16px]">

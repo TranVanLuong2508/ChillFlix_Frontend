@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import { allCodeServie } from "@/services";
+import { allCodeServie, authService } from "@/services";
 import type { AllCodeRow } from "@/types/allcodeType";
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ import { ALL_CODE_TYPES } from "@/constants/allCode";
 import Image from "next/image";
 import { useLoginModal } from "@/contexts/LoginModalContext";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
@@ -40,14 +41,28 @@ export default function Header() {
   }, []);
 
   const fetchGenresList = async () => {
-    console.log(";check fetch list");
     const res = await allCodeServie.getByType(ALL_CODE_TYPES.GENRE);
-    setGenresList(res?.data?.GENRE);
+    if (res && res.EC === 1) {
+      setGenresList(res?.data?.GENRE);
+    } else setGenresList([]);
   };
 
   const fetchCountriesList = async () => {
     const res = await allCodeServie.getByType(ALL_CODE_TYPES.COUNTRY);
-    setCountriesList(res?.data?.COUNTRY);
+    if (res && res.EC === 1) {
+      setCountriesList(res?.data?.COUNTRY);
+    } else setCountriesList([]);
+  };
+
+  const haneleLogOut = async () => {
+    const res = await authService.logout();
+    router.push("/");
+    toast.success("Đăng xuất thành công");
+  };
+
+  const handleRefreshToken = async () => {
+    const res = await authService.refreshToken();
+    console.log("check resfresh", res);
   };
 
   return (
@@ -89,7 +104,12 @@ export default function Header() {
 
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center gap-0">
-            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button
+              onClick={() => {
+                handleRefreshToken();
+              }}
+              className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md"
+            >
               Phim Lẻ
             </button>
             <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
@@ -408,7 +428,10 @@ export default function Header() {
                 <DropdownMenuSeparator className="bg-[#2a3040]/50 m-0" />
 
                 {/* Logout */}
-                <button className="w-full flex items-center gap-3 px-4 py-3  hover:bg-[#2a3040]/60 hover:text-yellow-400 text-gray-300  transition text-sm   hover:shadow-[0_0_10px_rgba(245,213,71,0.2)] cursor-pointer">
+                <button
+                  onClick={() => haneleLogOut()}
+                  className="w-full flex items-center gap-3 px-4 py-3  hover:bg-[#2a3040]/60 hover:text-yellow-400 text-gray-300  transition text-sm   hover:shadow-[0_0_10px_rgba(245,213,71,0.2)] cursor-pointer"
+                >
                   <span className="text-lg">
                     <LogOut />
                   </span>

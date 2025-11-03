@@ -16,15 +16,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased text-white bg-[#191B24] m-0 p-0`}>
-        <SessionProvider>
-          <LoginModalProvider>
-            <Header />
-            {children}
-            <Footer />
-            <LoginModal />
-            <Toaster />
-          </LoginModalProvider>
-        </SessionProvider>
+        <LoginModalProvider>
+          <Header />
+          {children}
+          <Footer />
+          <LoginModal />
+          <Toaster />
+        </LoginModalProvider>
       </body>
     </html>
   );
