@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axios";
+import { IBackendRes } from "@/types/backend.type";
 import { EpisodeData } from "@/types/episodeData";
-import { IBackendRes } from "@/types/responseType";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL;
 

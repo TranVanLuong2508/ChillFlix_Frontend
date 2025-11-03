@@ -1,14 +1,12 @@
-import { FilmData } from "@/types/filmData";
+interface PosterProps {
+  posterUrl: string;
+}
 
-type PosterProps = {
-  film: FilmData;
-};
-
-export default function Poster({ film }: PosterProps) {
+export default function Poster({ posterUrl }: PosterProps) {
   return (
     <div className="relative w-full h-[80vh] overflow-hidden">
       <img
-        src={film?.posterUrl || "/images/poster.jpg"}
+        src={posterUrl}
         alt="Poster phim"
         className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
       />

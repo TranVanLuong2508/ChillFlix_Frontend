@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { allCodeServie } from "@/services";
-import type { AllCodeRow } from "@/types/allcodeType";
+import type { AllCodeValue } from "@/types/allcode.type";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,8 +27,8 @@ import Image from "next/image";
 import LoginModal from "../modals/loginModal";
 
 export default function Header() {
-  const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
-  const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
+  const [genresList, setGenresList] = useState<AllCodeValue[]>([]);
+  const [countriesList, setCountriesList] = useState<AllCodeValue[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLogin, setIsLoggedIn] = useState(false);
 
@@ -49,7 +49,7 @@ export default function Header() {
     setCountriesList(res?.data?.COUNTRY);
   };
 
-  console.log("check state", genresList);
+  // console.log("check state", genresList);
   return (
     <header className="sticky top-0 z-50 bg-[#0f1419] border-b border-[#1a1f2e]">
       <div className=" mx-auto px-4 py-4">

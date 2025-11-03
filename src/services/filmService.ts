@@ -1,16 +1,23 @@
 import axios from "@/lib/axios";
+import { IBackendRes } from "@/types/backend.type";
+import { FilmDetailRes } from "@/types/film.type";
 
-
-export const filmServices = {
-  getFilmId: (filmId: string) => {
+const filmServices = {
+  getFilmById: (filmId: string): Promise<IBackendRes<FilmDetailRes>> => {
     return axios.get(`/films/${filmId}`);
   },
+
   getActorByFilmId: (filmId: string) => {
     return axios.get(`/film-actor/get-actors-by-film/${filmId}`);
   },
-  getDirectorByFilm: (filmId: string) =>
-    axios.get(`/film-director/by-film/${filmId}`),
+
+  getDirectorByFilm: (filmId: string) => {
+    return axios.get(`/film-director/by-film/${filmId}`);
+  },
+
   getRatingsByFilmId: (filmId: string) => {
     return axios.get(`/rating/get-rating-by-film/${filmId}`);
   },
 };
+
+export default filmServices;
