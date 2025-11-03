@@ -1,4 +1,4 @@
-export interface EpisodeData {
+interface EpisodeData {
   id: string;
   title: string;
   episodeNumber: number;
