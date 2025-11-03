@@ -22,18 +22,17 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ALL_CODE_TYPES } from "@/constants/allCode";
 import Image from "next/image";
 import { useLoginModal } from "@/contexts/LoginModalContext";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAppRouter } from "@/hooks/useAppRouter";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
   const { openModal: showLoginModal } = useLoginModal();
-  const router = useRouter();
+  const { goHome, goProfile, goUpgradeVip } = useAppRouter();
 
   useEffect(() => {
     fetchGenresList();
@@ -41,22 +40,24 @@ export default function Header() {
   }, []);
 
   const fetchGenresList = async () => {
-    const res = await allCodeServie.getByType(ALL_CODE_TYPES.GENRE);
+    const res = await allCodeServie.getGenresList();
     if (res && res.EC === 1) {
-      setGenresList(res?.data?.GENRE);
+      setGenresList(res?.data?.GENRE || []);
     } else setGenresList([]);
   };
 
   const fetchCountriesList = async () => {
-    const res = await allCodeServie.getByType(ALL_CODE_TYPES.COUNTRY);
+    const res = await allCodeServie.getCountriesList();
     if (res && res.EC === 1) {
-      setCountriesList(res?.data?.COUNTRY);
+      console.log("check res", res);
+      setCountriesList(res.data?.COUNTRY || []);
     } else setCountriesList([]);
   };
 
   const haneleLogOut = async () => {
     const res = await authService.logout();
-    router.push("/");
+    if (res && res.EC === 1) console.log("check logout res", res);
+    goHome();
     toast.success("Đăng xuất thành công");
   };
 
@@ -75,7 +76,7 @@ export default function Header() {
               <div className="w-8 h-8 bg-[#0f1419] rounded-full flex items-center justify-center">
                 <span
                   onClick={() => {
-                    router.push("/");
+                    goProfile();
                   }}
                   className="text-[#d4af37] font-bold text-lg"
                 >
@@ -366,7 +367,7 @@ export default function Header() {
                   </div>
                   <button
                     onClick={() => {
-                      router.push("/user/upgrade_vip");
+                      goUpgradeVip();
                     }}
                     className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-semibold py-2 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all cursor-pointer"
                   >

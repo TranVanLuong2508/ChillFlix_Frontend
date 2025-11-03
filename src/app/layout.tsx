@@ -1,4 +1,3 @@
-"use client";
 import { Metadata } from "next";
 import "./globals.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -7,7 +6,14 @@ import Header from "@/components/layout/header";
 import LoginModal from "@/components/modals/loginModal";
 import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
-import { SessionProvider } from "next-auth/react";
+
+export const metadata: Metadata = {
+  title: {
+    default: "ChillFlix",
+    template: "%s | ChillFlix",
+  },
+  description: "Xem phim chất lượng cao cùng ChillFlix",
+};
 export default function RootLayout({
   children,
 }: {
