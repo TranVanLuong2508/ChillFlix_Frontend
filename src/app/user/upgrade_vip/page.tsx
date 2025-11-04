@@ -76,6 +76,7 @@ export default function VipUpgradeContent() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string>("sixmonths");
   const [isLoading, setIsLoading] = useState(false);
+  const { isRefreshToken, errorRefreshToken } = useAuthStore();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price);
@@ -111,7 +112,8 @@ export default function VipUpgradeContent() {
     }
   };
 
-  console.log("render vip");
+  console.log("is refres", isRefreshToken);
+  console.log("error", errorRefreshToken);
 
   return (
     <div className="w-full">

@@ -86,7 +86,7 @@ export const useAuthStore = create<IAuthState & authAction>()(
       setRefreshTokenAction: (status, message) => {
         set({
           isRefreshToken: status,
-          access_token: message,
+          errorRefreshToken: message,
         });
       },
 
