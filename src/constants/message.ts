@@ -3,4 +3,5 @@ export const AuthenticationsMessage = {
   invalid: "Sai Email/Mật khẩu",
   errorLogin: "Có lỗi xảy ra khi đăng nhập",
   errorLogout: "Có lỗi xảy ra khi đăng xuất",
+  registerSucess: "Đăng ký tài khoản người dùng thành công",
 } as const;

@@ -14,31 +14,35 @@ import { Eye, EyeOff } from "lucide-react";
 import { authService } from "@/services";
 import { AuthenticationsMessage } from "@/constants/message";
 import { useAuthStore } from "@/stores/authStore";
-import { DataFieldInLoginResponse, IUser } from "@/types/user.type";
+import { useModalStore } from "@/stores/authModalStore";
 
 export default function LoginModal() {
-  const { isOpen, closeModal } = useLoginModal();
   const [showPassword, setShowPassword] = useState(false);
   const { isAuthenticated, setAuthenticated, loginAction } = useAuthStore();
+  const { isLoginModalOpen, closeLoginModal, openRegisterModal } =
+    useModalStore();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     clearErrors,
+    reset,
   } = useForm<LoginInput>({
     mode: "onSubmit",
   });
 
   const handleLogin = async (userLoginInput: LoginInput) => {
     try {
-      const loginResponse = await authService.login(userLoginInput);
+      const loginResponse = await authService.callLogin(userLoginInput);
       if (loginResponse && loginResponse.EC === 1) {
         toast(AuthenticationsMessage.success);
         if (loginResponse.data) {
-          const loginData: DataFieldInLoginResponse = loginResponse.data;
+          const loginData = loginResponse.data;
           loginAction(loginData);
         }
+        reset();
+        closeLoginModal();
       }
     } catch (error) {
       console.log("error login", error);
@@ -47,17 +51,17 @@ export default function LoginModal() {
   };
 
   const handleCloseLoginModal = () => {
-    closeModal();
+    closeLoginModal();
     setShowPassword(!showPassword);
   };
 
   useEffect(() => {
-    if (!isOpen) clearErrors();
-  }, [isOpen, clearErrors]);
+    if (!isLoginModalOpen) clearErrors();
+  }, [isLoginModalOpen, clearErrors]);
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {isLoginModalOpen && (
         // Overlay
         <motion.div
           key="overlay"
@@ -142,7 +146,16 @@ export default function LoginModal() {
               <h2 className="text-white text-3xl font-bold mb-2">Đăng nhập</h2>
               <p className="text-gray-400 mb-6">
                 Nếu bạn chưa có tài khoản,{" "}
-                <span className="text-yellow-400 cursor-pointer hover:underline">
+                <span
+                  onClick={() => {
+                    closeLoginModal();
+                    console.log("check click");
+                    setTimeout(() => {
+                      openRegisterModal();
+                    }, 300);
+                  }}
+                  className="text-yellow-400 cursor-pointer hover:underline"
+                >
                   đăng ký ngay
                 </span>
               </p>
@@ -231,7 +244,7 @@ export default function LoginModal() {
                   </div>
                 </div>
 
-                <button
+                {/* <button
                   type="button"
                   className="w-full bg-white text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-3"
                 >
@@ -239,7 +252,7 @@ export default function LoginModal() {
                   <span className="text-xs text-gray-500 ml-auto">
                     tranvanluong032020@gmail.com
                   </span>
-                </button>
+                </button> */}
               </form>
             </div>
           </motion.div>

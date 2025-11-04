@@ -2,7 +2,7 @@ import { IUser } from "@/types/user.type";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-interface IAuthUser {
+export interface IAuthUser {
   userId: number | null;
   email: string;
   roleId: number | null;
@@ -10,6 +10,12 @@ interface IAuthUser {
   genderCode: string;
   isVip: boolean | null;
   statusCode: string;
+  permissions?: {
+    name: string;
+    apiPath: string;
+    method: string;
+    module: string;
+  }[];
 }
 
 interface IAuthState {
@@ -35,6 +41,7 @@ const initialAuthState: IAuthState = {
     genderCode: "",
     isVip: null,
     statusCode: "",
+    permissions: [],
   },
 };
 
@@ -45,6 +52,8 @@ type authAction = {
   logOutAction: () => void;
   setRefreshTokenAction: (status: boolean, message: string) => void;
   setTokenToTestApi: () => void;
+  fetchAccountAction: (user: IUser) => void;
+  resetAuthAction: () => void;
 };
 
 export const useAuthStore = create<IAuthState & authAction>()(
@@ -63,6 +72,7 @@ export const useAuthStore = create<IAuthState & authAction>()(
             ...prev.authUser,
             ...user,
           },
+          isLoading: false,
           access_token: access_token,
         }));
       },
@@ -70,6 +80,7 @@ export const useAuthStore = create<IAuthState & authAction>()(
       logOutAction: () => {
         set({
           access_token: "",
+          isLoading: false,
           isAuthenticated: false,
           authUser: {
             userId: null,
@@ -79,6 +90,7 @@ export const useAuthStore = create<IAuthState & authAction>()(
             genderCode: "",
             isVip: null,
             statusCode: "",
+            permissions: [],
           },
         });
       },
@@ -87,11 +99,38 @@ export const useAuthStore = create<IAuthState & authAction>()(
         set({
           isRefreshToken: status,
           errorRefreshToken: message,
+          access_token: "",
+          isAuthenticated: false,
         });
       },
 
       setTokenToTestApi: () => {
         set({ access_token: "" });
+      },
+
+      fetchAccountAction: (user) => {
+        set({
+          isAuthenticated: true,
+          isLoading: false,
+          authUser: {
+            userId: user.userId,
+            email: user.email,
+            roleId: user.roleId,
+            fullName: user.fullName,
+            genderCode: user.genderCode,
+            isVip: user.isVip,
+            statusCode: user.statusCode,
+            permissions: user.permissions || [],
+          },
+        });
+      },
+      resetAuthAction: () => {
+        set({
+          isAuthenticated: false,
+          access_token: "",
+          authUser: initialAuthState.authUser,
+          isLoading: false,
+        });
       },
     }),
     {

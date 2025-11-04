@@ -9,70 +9,62 @@ import { useLoginModal } from "@/contexts/LoginModalContext";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { LoginInput } from "@/types/authen.type";
 import { Eye, EyeOff } from "lucide-react";
 import { authService } from "@/services";
 import { AuthenticationsMessage } from "@/constants/message";
 import { useAuthStore } from "@/stores/authStore";
-import { DataFieldInLoginResponse, IUser } from "@/types/user.type";
+import { RegisterInput } from "@/types/authen.type";
+import { useModalStore } from "@/stores/authModalStore";
 
-export default function LoginModal() {
-  const { isOpen, closeModal } = useLoginModal();
+export default function RegisterModal() {
+  const { isRegisterModalOpen, closeRegisterModal } = useModalStore();
   const [showPassword, setShowPassword] = useState(false);
-  const { isAuthenticated, setAuthenticated, loginAction } = useAuthStore();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     clearErrors,
-  } = useForm<LoginInput>({
+    reset,
+  } = useForm<RegisterInput>({
     mode: "onSubmit",
   });
 
-  const handleLogin = async (userLoginInput: LoginInput) => {
+  const handleRegister = async (data: RegisterInput) => {
     try {
-      const loginResponse = await authService.login(userLoginInput);
-      if (loginResponse && loginResponse.EC === 1) {
-        toast(AuthenticationsMessage.success);
-        if (loginResponse.data) {
-          const loginData: DataFieldInLoginResponse = loginResponse.data;
-          loginAction(loginData);
-        }
+      const res = await authService.callRegister(data);
+      if (res && res.EC === 1) {
+        toast.success(AuthenticationsMessage.registerSucess);
+        reset();
+        closeRegisterModal();
       }
     } catch (error) {
-      console.log("error login", error);
-      toast.error(AuthenticationsMessage.errorLogin);
+      console.log("register error:", error);
+      toast.error("Đăng ký thất bại, vui lòng thử lại.");
     }
   };
 
-  const handleCloseLoginModal = () => {
-    closeModal();
-    setShowPassword(!showPassword);
+  const handleClose = () => {
+    closeRegisterModal();
+    setShowPassword(false);
   };
 
   useEffect(() => {
-    if (!isOpen) clearErrors();
-  }, [isOpen, clearErrors]);
+    if (!isRegisterModalOpen) clearErrors();
+  }, [isRegisterModalOpen, clearErrors]);
 
   return (
     <AnimatePresence>
-      {isOpen && (
-        // Overlay
+      {isRegisterModalOpen && (
         <motion.div
-          key="overlay"
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          onClick={() => {
-            handleCloseLoginModal();
-          }}
+          onClick={handleClose}
         >
-          {/* Modal Box */}
           <motion.div
-            key="modal"
             variants={modalVariants}
             initial="hidden"
             animate="visible"
@@ -81,11 +73,9 @@ export default function LoginModal() {
             className="relative w-full max-w-5xl h-[600px] bg-[#1a1f2e]/95 backdrop-blur-md 
                        rounded-2xl shadow-2xl overflow-hidden flex"
           >
-            {/* Close Button */}
+            {/* Close */}
             <button
-              onClick={() => {
-                handleCloseLoginModal();
-              }}
+              onClick={handleClose}
               className="absolute top-4 right-4 z-10 text-gray-400 hover:text-white transition cursor-pointer"
             >
               <svg
@@ -103,58 +93,39 @@ export default function LoginModal() {
               </svg>
             </button>
 
-            {/*Left Side: Atropos 3D Card */}
-            <div className="hidden md:flex w-1/2 bg-[#151a25] items-center justify-center relative">
+            {/* Left Poster */}
+            <div className="hidden md:flex w-1/2 bg-[#151a25] items-center justify-center">
               <Atropos
-                className="my-atropos w-[85%] h-[85%] rounded-2xl shadow-2xl bg-white overflow-hidden"
+                className="my-atropos w-[85%] h-[85%] rounded-2xl overflow-hidden"
                 activeOffset={40}
-                shadowScale={1.05}
-                highlight={true}
-                rotateTouch="scroll-y"
-                shadow={true}
-                style={{ backgroundColor: "#0f1419" }}
               >
-                <div className="relative w-full h-full">
-                  <img
-                    data-atropos-offset="-5"
-                    src="/images/login_poster.webp"
-                    alt="Cinematic scene"
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  <div
-                    data-atropos-offset="10"
-                    className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-8 text-white"
-                  ></div>
-                  <div
-                    data-atropos-offset="15"
-                    className="absolute top-6 right-6 px-3 py-1 text-xs font-semibold drop-shadow-[0_0_8px_rgba(255,100,0,0.6)]
-                      text-white rounded-full shadow-[0_0_10px_rgba(255,0,128,0.6)]
-                      bg-gradient-to-r from-pink-600 via-fuchsia-500 to-purple-500"
-                  >
-                    HOT
-                  </div>
-                </div>
+                <img
+                  src="/images/login_poster.webp"
+                  className="w-full h-full object-cover"
+                />
               </Atropos>
             </div>
 
-            {/* Right Side: Login Form */}
+            {/* Form */}
             <div className="flex-1 p-8 md:p-12 flex flex-col justify-center">
-              <h2 className="text-white text-3xl font-bold mb-2">Đăng nhập</h2>
-              <p className="text-gray-400 mb-6">
-                Nếu bạn chưa có tài khoản,{" "}
-                <span className="text-yellow-400 cursor-pointer hover:underline">
-                  đăng ký ngay
-                </span>
-              </p>
+              <h2 className="text-white text-3xl font-bold mb-2">Đăng ký</h2>
+              <p className="text-gray-400 mb-6">Tạo tài khoản để tiếp tục</p>
 
               <form
+                onSubmit={handleSubmit(handleRegister)}
                 className="space-y-4"
-                onSubmit={handleSubmit((data: LoginInput) => {
-                  console.log("Form submit data:", data);
-                  // Login(data);
-                  handleLogin(data);
-                })}
               >
+                <Input
+                  {...register("fullName", { required: "Tên là bắt buộc" })}
+                  placeholder="Tên người dùng"
+                  className="input-login"
+                />
+                {errors.fullName && (
+                  <p className="text-red-400 text-xs">
+                    {errors.fullName.message}
+                  </p>
+                )}
+
                 <Input
                   {...register("email", {
                     required: "Email là bắt buộc",
@@ -163,30 +134,23 @@ export default function LoginModal() {
                       message: "Email không hợp lệ",
                     },
                   })}
-                  type="text"
                   placeholder="Email"
-                  className="w-full bg-[#252d3d] border-[#2a3040] text-white placeholder:text-gray-500 h-12 mb-0
-                             focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 input-selection-yellow caret-color"
+                  className="input-login"
                 />
-                <div className="min-h-[16px] my-[16px]">
-                  {errors.email && (
-                    <p className="text-red-400 text-xs animate-in fade-in slide-in-from-top-1 duration-200 ">
-                      {errors.email?.message || " "}
-                    </p>
-                  )}
-                </div>
-                <div className="relative w-full">
+                {errors.email && (
+                  <p className="text-red-400 text-xs">{errors.email.message}</p>
+                )}
+
+                <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Mật khẩu"
-                    className="w-full bg-[#252d3d] text-white border-[#2a3040] h-12
-               focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 
-              input-selection-yellow pr-10"
+                    className="input-login pr-10"
                     {...register("password", {
                       required: "Mật khẩu là bắt buộc",
                       minLength: {
                         value: 6,
-                        message: "Mật khẩu phải có ít nhất 6 ký tự",
+                        message: "Mật khẩu phải có it nhất 6 ký tự",
                       },
                     })}
                   />
@@ -197,48 +161,17 @@ export default function LoginModal() {
                     {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                   </div>
                 </div>
-                <div className="min-h-[16px] my-[16px]">
-                  {errors.password && (
-                    <p className="text-red-400 text-xs  animate-in fade-in slide-in-from-top-1 duration-200  ">
-                      {errors.password?.message || " "}
-                    </p>
-                  )}
-                </div>
+                {errors.password && (
+                  <p className="text-red-400 text-xs">
+                    {errors.password.message}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className=" cursor-pointer w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-bold py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all"
+                  className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-400 transition"
                 >
-                  Đăng nhập
-                </button>
-
-                <div className="text-center">
-                  <button
-                    type="button"
-                    className="text-gray-400 hover:text-yellow-400 text-sm transition"
-                  >
-                    Quên mật khẩu?
-                  </button>
-                </div>
-
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[#2a3040]" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-[#1a1f2e] text-gray-400">
-                      Hoặc
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="w-full bg-white text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-3"
-                >
-                  <span>Sign in as Trần Văn</span>
-                  <span className="text-xs text-gray-500 ml-auto">
-                    tranvanluong032020@gmail.com
-                  </span>
+                  Đăng ký
                 </button>
               </form>
             </div>

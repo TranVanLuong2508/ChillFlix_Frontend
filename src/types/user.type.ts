@@ -6,16 +6,10 @@ export interface IUser {
   genderCode: string;
   isVip: boolean;
   statusCode: string;
-}
-export interface DataFieldInLoginResponse {
-  access_token: string;
-  user: IUser;
-}
-
-export interface LoginResponse {
-  statusCode: number;
-  message: string;
-  EC: number;
-  EM: string;
-  data: DataFieldInLoginResponse;
+  permissions?: {
+    name: string;
+    apiPath: string;
+    method: string;
+    module: string;
+  }[];
 }

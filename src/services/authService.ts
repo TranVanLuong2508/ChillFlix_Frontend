@@ -1,20 +1,32 @@
 import privateAxios from "@/lib/privateAxios";
 import publicAxios from "@/lib/publicAxios";
-import { AuthRes, LoginInput } from "@/types/authen.type";
+import {
+  IAccount,
+  IGetAccount,
+  LoginInput,
+  RegisterInput,
+} from "@/types/authen.type";
 import { IBackendRes } from "@/types/backend.type";
-import { IUser } from "@/types/user.type";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL;
 export const authService = {
-  login: (credentials: LoginInput): Promise<AuthRes<IUser>> => {
+  callLogin: (credentials: LoginInput): Promise<IBackendRes<IAccount>> => {
     return publicAxios.post(`${baseURL}/auth/login`, credentials);
   },
 
-  logout: (): Promise<IBackendRes<IUser>> => {
+  callLogout: (): Promise<IBackendRes<IAccount>> => {
     return privateAxios.post(`${baseURL}/auth/logout`);
   },
 
-  refreshToken: (): Promise<AuthRes<IUser>> => {
+  CallRefreshToken: (): Promise<IBackendRes<IAccount>> => {
     return privateAxios.get(`${baseURL}/auth/refreshToken`);
+  },
+
+  callFetchAccount: (): Promise<IBackendRes<IGetAccount>> => {
+    return privateAxios.get("/auth/account");
+  },
+
+  callRegister: (data: RegisterInput): Promise<IBackendRes<IGetAccount>> => {
+    return privateAxios.post(`${baseURL}/auth/register`, data);
   },
 };
