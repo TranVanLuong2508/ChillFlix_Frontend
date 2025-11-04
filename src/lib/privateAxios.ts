@@ -82,7 +82,8 @@ privateAxios.interceptors.response.use(
       console.log("check erro from axios", error);
 
       const message =
-        error?.response?.data?.message ?? "Có lỗi xảy ra, vui lòng login.";
+        error?.error?.response?.data?.message ??
+        "Có lỗi xảy ra, vui lòng login.";
       console.log("Message:", message);
       console.log("Setting refresh token action...");
 
