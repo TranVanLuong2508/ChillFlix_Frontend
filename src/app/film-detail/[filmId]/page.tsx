@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import filmServices from "@/services/filmService";
-import Poster from "@/components/custom/Poster";
+import Background from "@/components/custom/Background";
 import FilmInfo from "@/components/custom/FilmInfo";
-import Playbar from "@/components/custom/Playbar";
 import TabsSection from "@/components/custom/Tabs";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
@@ -19,6 +18,7 @@ import { PartData } from "@/types/partData";
 import { FilmDetail } from "@/types/film.type";
 import { useFilmStore } from "@/stores/filmStore";
 import ErrorPage from "@/app/error";
+import PlayBar from "@/components/film/detail/playbar";
 
 export default function FilmDetailPage() {
   const { filmId }: { filmId: string } = useParams();
@@ -67,35 +67,28 @@ export default function FilmDetailPage() {
   console.log("Check data film: ", filmData);
 
   return (
-    <main className="flex flex-col min-h-screen bg-[#191B24] text-white overflow-x-hidden">
-      <section className="relative min-h-screen">
-        <Poster posterUrl={filmData.filmImages.backdrop} />
-        <div className="relative z-20 max-w-10xl mx-auto px-4 sm:px-6 md:px-8 py-8 bg-zinc-900/80 backdrop-blur-sm">
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
-            <div className="lg:col-span-3 flex flex-col bg-[#191B24] gap-8 border border-zinc-800 rounded-[20px] p-5 md:p-6 shadow-md">
-              {/* <FilmInfo
-                film={filmData}
-                director={filmData.directors}
-                actor={filmData.actors}
-                rating={filmRatingData as any}
-              /> */}
-            </div>
+    <main className="bg-[#191B24]">
+      <Background backdropUrl={filmData.filmImages.backdrop} />
+      <div className="relative z-20 mx-auto mt-[-200px] px-[150px] ">
+        <div className="grid grid-cols-12">
+          <div className="lg:col-span-4 rounded-4xl p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px]">
+            <FilmInfo />
+          </div>
 
-            <div className="lg:col-span-7 flex flex-col gap-8 bg-[#191B24] border border-zinc-800 rounded-[20px] p-5 md:p-6 shadow-md">
-              {/* <Playbar activeTab={activeTab} setActiveTab={setActiveTab} />
-              <TabsSection
+          <div className="lg:col-span-8 flex flex-col gap-8 rounded-4xl p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px]">
+            <PlayBar activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* <TabsSection
                 actor={filmActorData as any}
                 film={filmData}
                 part={filmPartData as any}
-              />
-              <CommentRatingTabs
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
               /> */}
-            </div>
+            <CommentRatingTabs
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
           </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
