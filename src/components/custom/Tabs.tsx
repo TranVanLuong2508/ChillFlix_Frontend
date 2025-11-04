@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FilmActorSimpleData } from "@/types/filmActorData";
-import { FilmData } from "@/types/filmData";
-import { PartData, EpisodeData } from "@/types/partData";
+import { FilmActorSimpleData, FilmData, PartData, EpisodeData } from "@/types/backend.type";
 import { Menu } from "lucide-react";
 import {
   DropdownMenu,
@@ -12,8 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
+import { useAppRouter } from "@/hooks/filmRouter";
 import { useRouter } from "next/navigation";
-
 
 const tabs = [
   { id: "episodes", label: "Tập phim" },
@@ -34,7 +32,9 @@ export default function TabsSection({ film, part, filmActor }: TabsSectionProps)
   const [activeTab, setActiveTab] = useState("episodes");
   const [selectedPart, setSelectedPart] = useState<PartData | null>();
   const [isLoadingPart, setIsLoadingPart] = useState(false);
-  const route = useRouter();
+  const { goActorDetail } = useAppRouter();
+  const { goWatchNow } = useAppRouter();
+
 
   const handleSelectPart = (p: PartData) => {
     setIsLoadingPart(true);
@@ -43,15 +43,6 @@ export default function TabsSection({ film, part, filmActor }: TabsSectionProps)
       setIsLoadingPart(false);
     }, 300);
   };
-
-  const handleChooseEpisode = (ep: EpisodeData) => {
-    setIsLoadingPart(true);
-    route.push(`/play/${ep.id}`);
-  }
-
-  const handleChooseCast = (actorId: number) => {
-    route.push(`/actor-detail/${actorId}`);
-  }
 
   useEffect(() => {
     if (part?.parts?.length) {
@@ -111,7 +102,7 @@ export default function TabsSection({ film, part, filmActor }: TabsSectionProps)
                     </h3>
 
                     <button
-                      onClick={() => handleChooseEpisode(part.parts[0].episodes[0])}
+                      onClick={() => goWatchNow(part.parts[0].episodes[0].id)}
                       className="absolute bottom-3 right-4 text-xs font-semibold 
                    bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
                    hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
@@ -160,7 +151,7 @@ export default function TabsSection({ film, part, filmActor }: TabsSectionProps)
                         onClick={() => {
                           setSelectedPart(p);
                           handleSelectPart(p);
-                          route.push(`/play/${p.episodes[0].id}`);
+                          // route.push(`/play/${p.episodes[0].id}`);
                         }}
                         className={`flex items-center justify-between w-full my-1 px-3 py-2 rounded-lg 
                             text-sm font-medium cursor-pointer select-none transition-all duration-200 ease-in-out 
@@ -194,7 +185,7 @@ export default function TabsSection({ film, part, filmActor }: TabsSectionProps)
                     selectedPart?.episodes?.map((ep, index) => (
                       <div
                         key={`${ep.id}-${index}`}
-                        onClick={() => handleChooseEpisode(ep)}
+                        onClick={() => goWatchNow(ep.id)}
                         className="relative overflow-hidden rounded-xl border border-zinc-800 
                                   bg-zinc-900 hover:border-yellow-400 transition-all duration-300
                                   shadow-[0_0_12px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(250,204,21,0.3)]
@@ -272,7 +263,7 @@ export default function TabsSection({ film, part, filmActor }: TabsSectionProps)
                   a.actorId ? (
                     <div
                       key={`${a.actorId}-${index}`}
-                      onClick={() => handleChooseCast(a.actorId)}
+                      onClick={() => goActorDetail(a.actorId)}
                       className="flex flex-col items-center cursor-pointer"
                     >
                       <div className="relative hover:scale-105 transition-transform duration-300">

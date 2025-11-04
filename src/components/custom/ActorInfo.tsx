@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Heart, Send } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { ActorData } from "@/types/actorData";
+import { ActorData } from "@/types/backend.type";
 import { formatDate } from "@/lib/dateFomat";
 
 interface ActorProps {

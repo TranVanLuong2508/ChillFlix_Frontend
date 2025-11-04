@@ -1,12 +1,8 @@
 "use client";
 
-
-import { ActorData } from "@/types/actorData";
-import { FilmData } from "@/types/filmData";
-import { FilmDirectorSimpleData } from "@/types/filmDirectorData";
-import { RatingData } from "@/types/ratingData";
+import { FilmData, FilmDirectorSimpleData, ActorData, RatingData } from "@/types/backend.type";
 import { Star } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from "@/hooks/filmRouter";
 
 interface FilmInfoProps {
   film: FilmData;
@@ -17,15 +13,9 @@ interface FilmInfoProps {
 
 
 export default function FilmInfo({ film, director, actor, rating }: FilmInfoProps) {
+  const { goActorDetail, goDirectorDetail } = useAppRouter();
 
-  const router = useRouter();
 
-  const handleFilmClick = (actorId: number) => {
-    router.push(`/actor-detail/${actorId}`);
-  };
-  const handleDirectorClick = (directorId: number) => {
-    router.push(`/director-detail/${directorId}`);
-  }
 
   return (
     <div className="flex flex-col gap-4 px-6 -mx-4 py-6 rounded-lg ">
@@ -43,7 +33,7 @@ export default function FilmInfo({ film, director, actor, rating }: FilmInfoProp
       <div className="flex items-center gap-2 text-sm text-gray-300">
 
         <span className="inline-flex items-center bg-[#facc15] text-black px-2 py-0.5 rounded font-semibold">
-          {rating.averageRating > 0 ? `${rating.averageRating}` : 'Chưa có'}
+          {rating?.averageRating > 0 ? `${rating.averageRating}` : 'Chưa có'}
           <Star size={14} className="ml-1" />
         </span>
 
@@ -97,7 +87,7 @@ export default function FilmInfo({ film, director, actor, rating }: FilmInfoProp
         {director?.length ? (
           director.map((d) => (
             <div key={d.directorId}
-              onClick={() => handleDirectorClick(d.directorId)}
+              onClick={() => goDirectorDetail(d.directorId)}
               className="flex items-center gap-2">
               <button className="text-gray-300 cursor-pointer hover:text-yellow-400">{d.directorName}</button>
             </div>
@@ -114,7 +104,7 @@ export default function FilmInfo({ film, director, actor, rating }: FilmInfoProp
               {actor.map((a, index) => (
                 <div
                   key={`${a.actorId}-${index}`}
-                  onClick={() => handleFilmClick(a.actorId)}
+                  onClick={() => goActorDetail(a.actorId)}
                   className="flex flex-col items-center text-center cursor-pointer group hover:scale-105 transition-transform duration-300"
                 >
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg mt-6 hover:scale-105 transition-transform duration-300">

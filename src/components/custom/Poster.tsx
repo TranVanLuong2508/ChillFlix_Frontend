@@ -1,4 +1,4 @@
-import { FilmData } from "@/types/filmData";
+import { FilmData } from "@/types/backend.type";
 
 type PosterProps = {
   film: FilmData;

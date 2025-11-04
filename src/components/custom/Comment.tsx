@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, Reply, Send, Trash2 } from "lucide-react";
+import { ChevronRight, MessageSquare, Reply, Send, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 
 export default function Comment() {
     const [comment, setComment] = useState("");
@@ -134,6 +134,16 @@ export default function Comment() {
                                                 <Reply size={16} /> Trả lời
                                             </button>
                                             <button
+                                                onClick={() => { }}
+                                                className="flex items-center gap-2 hover:text-yellow-400 transition">
+                                                <ThumbsUp size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => { }}
+                                                className="flex items-center gap-2 hover:text-yellow-400 transition">
+                                                <ThumbsDown size={16} />
+                                            </button>
+                                            <button
                                                 onClick={() => handleDeleteComment(cmt.id)}
                                                 className="flex items-center gap-2 hover:text-red-400 transition"
                                             >
@@ -182,9 +192,13 @@ export default function Comment() {
                                                         <div className="flex items-center gap-2">
                                                             <p className="text-sm font-semibold text-white">{rep.name}</p>
                                                             {rep.replyToName && (
-                                                                <p className="text-sm text-gray-400">→ {rep.replyToName}</p>
+                                                                <div className="flex items-center text-sm text-gray-400 gap-1">
+                                                                    <ChevronRight size={13} className="relative top-[1px]" />
+                                                                    <span>{rep.replyToName}</span>
+                                                                </div>
                                                             )}
                                                         </div>
+
                                                         <p className="text-gray-300 text-sm mt-1 leading-relaxed">{rep.text}</p>
 
                                                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
@@ -199,6 +213,22 @@ export default function Comment() {
                                                                 className="flex items-center gap-2 hover:text-yellow-400 transition"
                                                             >
                                                                 <Reply size={16} /> Trả lời
+                                                            </button>
+                                                            <button
+                                                                onClick={() => { }}
+                                                                className="flex items-center gap-2 hover:text-yellow-400 transition">
+                                                                <ThumbsUp size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => { }}
+                                                                className="flex items-center gap-2 hover:text-yellow-400 transition">
+                                                                <ThumbsDown size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteComment(cmt.id)}
+                                                                className="flex items-center gap-2 hover:text-red-400 transition"
+                                                            >
+                                                                <Trash2 size={16} /> Xóa
                                                             </button>
                                                         </div>
                                                     </div>

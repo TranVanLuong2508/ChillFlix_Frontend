@@ -1,24 +1,25 @@
 "use client";
 import { useRef, useState } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode } from "swiper/modules";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import "swiper/css";
 import "swiper/css/free-mode";
-import { FilmData } from "@/types/filmData";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode } from "swiper/modules";
+import { FilmData } from "@/types/backend.type";
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from "@/hooks/filmRouter";
+import { useFilmStore } from "@/stores/filmStore";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useFilmClick } from "@/hooks/handleFiilmClick";
 
 interface FilmDirectorProps {
     filmDirectorData: FilmData[] | null;
-
 }
-
 
 export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
     const swiperRef = useRef<any>(null);
-    const router = useRouter();
+    const { goFilmDetail } = useAppRouter();
+    const { handleFilmClick } = useFilmClick();
 
     if (!filmDirectorData || filmDirectorData.length === 0) {
         return (
@@ -27,9 +28,7 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
             </p>
         );
     }
-    const handleFilmClick = (filmId: string) => {
-        router.push(`/film-detail/${filmId}`);
-    }
+
 
     const filmsByYear = filmDirectorData.reduce((acc: Record<string, FilmData[]>, film) => {
         const year = film.year || "Không rõ";
@@ -37,7 +36,7 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
         acc[year].push(film);
         return acc;
     }, {}) || {};
-    console.log(filmsByYear);
+
     const sorted = Object.entries(filmsByYear)
         .map(([year, films]) => ({ year, films }))
         .sort((a, b) => Number(a.year) - Number(b.year));
@@ -66,16 +65,14 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
                 </TabsList>
             </div>
 
-            {/*  TẤT CẢ */}
+            {/* TẤT CẢ */}
             <TabsContent value="all" className="mt-2">
                 <div className="px-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
                     {filmDirectorData.map((f, i) => {
                         const thumb = f.thumbUrl || f.filmImages?.[0]?.url || "/images/small.jpg";
-
                         return (
                             <motion.div
                                 key={i}
-                                onClick={() => handleFilmClick(f.filmId)}
                                 whileHover={{
                                     scale: 1.08,
                                     zIndex: 10,
@@ -83,13 +80,13 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
                                 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                 className="group relative overflow-hidden rounded-xl aspect-[3/4] md:aspect-[2/3] h-72 md:h-80 min-w-[220px] bg-zinc-800/50 cursor-pointer"
+                                onClick={() => goFilmDetail(f.filmId)}
                             >
                                 <img
                                     src={thumb}
                                     alt={f.title}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
-
                                 <div
                                     className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent
                                                 opacity-0 group-hover:opacity-100 transition-opacity duration-500
@@ -106,39 +103,38 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
                                         {f.duration && <span> - {f.duration} phút</span>}
                                     </div>
                                     <button
-                                        onClick={() => handleFilmClick(f.filmId)}
+
+
                                         className="absolute bottom-3 right-4 text-xs font-semibold 
-                                                bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
-                                                hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
-                                                transition-all duration-300 ease-in-out"
+                                                    bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
+                                                    hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
+                                                    transition-all duration-300 ease-in-out"
                                     >
                                         Xem ngay
                                     </button>
                                 </div>
                             </motion.div>
+
                         );
                     })}
+
+
                 </div>
             </TabsContent>
-
 
             {/* THEO THỜI GIAN */}
             <TabsContent
                 value="time"
                 className="mt-6 relative w-full max-w-[1440px] mx-auto px-4"
-
             >
-
                 <div className="relative w-full">
                     <div className="absolute top-[52px] left-0 right-0 h-[2px] bg-yellow-400/70 rounded-full z-0" />
-
                     <button
                         onClick={() => swiperRef.current?.slidePrev()}
                         className="absolute left-3 top-1/2 -translate-y-1/2 bg-zinc-900/80 hover:bg-zinc-800 text-yellow-400 p-3 rounded-full z-20 transition"
                     >
                         <ChevronLeft size={20} />
                     </button>
-
                     <button
                         onClick={() => swiperRef.current?.slideNext()}
                         className="absolute right-3 top-1/2 -translate-y-1/2 bg-zinc-900/80 hover:bg-zinc-800 text-yellow-400 p-3 rounded-full z-20 transition"
@@ -192,14 +188,13 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
                     </Swiper>
                 </div>
             </TabsContent>
-
         </Tabs>
     );
 }
 
 function HoverFilmCard({ f, handleFilmClick, thumb }: any) {
     const [hovered, setHovered] = useState(false);
-
+    const { goFilmDetail } = useAppRouter();
     return (
         <div
             className="relative flex items-center gap-3"
@@ -207,7 +202,7 @@ function HoverFilmCard({ f, handleFilmClick, thumb }: any) {
             onMouseLeave={() => setHovered(false)}
         >
             <div
-                onClick={() => handleFilmClick(f.filmId)}
+                onClick={() => goFilmDetail(f.filmId)}
                 className="rounded-xl overflow-hidden aspect-[2/3] w-40 sm:w-44 
                    bg-zinc-800/60 cursor-pointer border border-zinc-700/60 
                    hover:border-yellow-400/60 hover:shadow-[0_0_15px_rgba(250,204,21,0.3)]
@@ -229,9 +224,9 @@ function HoverFilmCard({ f, handleFilmClick, thumb }: any) {
                         transition={{ duration: 0.25 }}
                         onClick={() => handleFilmClick(f.filmId)}
                         className="text-[10px] font-semibold bg-yellow-400 text-black px-3 py-1.5 
-                       rounded-full shadow-[0_0_12px_rgba(250,204,21,0.4)] 
-                       hover:bg-yellow-300 hover:scale-105 
-                       transition-all duration-300 whitespace-nowrap"
+                           rounded-full shadow-[0_0_12px_rgba(250,204,21,0.4)] 
+                           hover:bg-yellow-300 hover:scale-105 
+                           transition-all duration-300 whitespace-nowrap"
                     >
                         Xem ngay
                     </motion.button>

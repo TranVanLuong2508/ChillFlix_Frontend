@@ -2,3 +2,8 @@ export * from "./userService";
 export * from "./allCodeService";
 export * from "./filmService";
 export * from "./partService";
+export * from "./actorService";
+export * from "./directorService";
+export * from "./episodeService";
+export * from "./filmActorService";
+export * from "./filmDirectorService";

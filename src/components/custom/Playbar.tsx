@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { Heart, Plus, Send, MessageSquare, Star } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useRouter } from "next/navigation";
-import { EpisodeData } from "@/types/partData";
+import { EpisodeData } from "@/types/backend.type";
+import { useAppRouter } from "@/hooks/filmRouter";
+import { toast } from "sonner";
 
 interface PlayBarProps {
     activeTab: "comments" | "ratings";
@@ -12,18 +13,50 @@ interface PlayBarProps {
     episodes: EpisodeData[];
 }
 
-export default function PlayBar({ activeTab, setActiveTab, episodes }: PlayBarProps) {
+export default function PlayBar({ setActiveTab, episodes }: PlayBarProps) {
     const [liked, setLiked] = useState(false);
-    const router = useRouter();
+    const { goWatchNow } = useAppRouter();
 
-    const handleChooseWatchNow = () => {
-        if (!episodes?.length) return;
-        const firstEp = episodes[0];
-        router.push(`/play/${firstEp.id}`);
-    };
 
     const actions = [
-        { id: "like", label: "Yêu thích", icon: Heart, onClick: () => setLiked(!liked) },
+        {
+            id: "like",
+            label: liked ? "Đã thích" : "Yêu thích",
+            icon: Heart,
+            onClick: () => {
+                setLiked((prev) => !prev);
+
+                if (!liked) {
+                    toast.success("Đã thêm vào danh sách yêu thích", {
+                        description: "Phim đã được thêm vào mục yêu thích của bạn.",
+                        duration: 2500,
+                        position: "bottom-right",
+                        style: {
+                            fontWeight: 500,
+                            borderRadius: "10px",
+                            backdropFilter: "blur(12px)",
+                            WebkitBackdropFilter: "blur(12px)",
+                        },
+                        className: "bg-white/10 backdrop-blur-lg border border-white/20 text-yellow-300 shadow-[0_0_25px_rgba(250,204,21,0.25)] rounded-xl px-5 py-4 hover:shadow-[0_0_35px_rgba(250,204,21,0.45)] hover:scale-[1.02] transition-all duration-500 ease-out animate-[liquid_0.8s_ease-in-out]"
+
+                    });
+                } else {
+                    toast.error("Đã bỏ khỏi danh sách yêu thích", {
+                        description: "Phim đã được gỡ khỏi danh sách yêu thích.",
+                        duration: 2500,
+                        position: "bottom-right",
+                        style: {
+                            fontWeight: 500,
+                            borderRadius: "10px",
+                            backdropFilter: "blur(12px)",
+                            WebkitBackdropFilter: "blur(12px)",
+                        },
+                        className: "bg-white/10 backdrop-blur-lg border border-white/20 text-yellow-300 shadow-[0_0_25px_rgba(250,204,21,0.25)] rounded-xl px-5 py-4 hover:shadow-[0_0_35px_rgba(250,204,21,0.45)] hover:scale-[1.02] transition-all duration-500 ease-out animate-[liquid_0.8s_ease-in-out]"
+                    });
+                }
+            },
+        },
+
         { id: "add", label: "Thêm vào", icon: Plus, popoverAdd: true },
         { id: "share", label: "Chia sẻ", icon: Send, popoverShare: true },
         {
@@ -49,12 +82,12 @@ export default function PlayBar({ activeTab, setActiveTab, episodes }: PlayBarPr
     return (
         <div className="flex items-center justify-between w-full mt-4 md:px-12">
             <button
-                onClick={handleChooseWatchNow}
+                onClick={() => goWatchNow(episodes?.[0]?.id?.toString() || "")}
                 className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full 
-        text-black bg-gradient-to-r from-yellow-300 to-yellow-500
-        hover:from-yellow-400 hover:to-yellow-200 
-        hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]
-        transition-all duration-300 ease-in-out cursor-pointer"
+                            text-black bg-gradient-to-r from-yellow-300 to-yellow-500
+                            hover:from-yellow-400 hover:to-yellow-200 
+                            hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]
+                            transition-all duration-300 ease-in-out cursor-pointer"
             >
                 <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent"></span>
                 Xem Ngay
@@ -71,8 +104,8 @@ export default function PlayBar({ activeTab, setActiveTab, episodes }: PlayBarPr
                                 <PopoverTrigger asChild>
                                     <button
                                         className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl
-                    bg-[#191B24] text-gray-400 transition-all duration-300 ease-in-out cursor-pointer
-                    hover:text-yellow-400 hover:shadow-[0_0_25px_rgba(250,204,21,0.4)] hover:bg-[#1F212A]"
+                                                    bg-[#191B24] text-gray-400 transition-all duration-300 ease-in-out cursor-pointer
+                                                    hover:text-yellow-400 hover:shadow-[0_0_25px_rgba(250,204,21,0.4)] hover:bg-[#1F212A]"
                                     >
                                         <Icon size={24} strokeWidth={2} />
                                         <span className="text-sm mt-1">{action.label}</span>
@@ -82,8 +115,7 @@ export default function PlayBar({ activeTab, setActiveTab, episodes }: PlayBarPr
                                     align="center"
                                     side="bottom"
                                     sideOffset={10}
-                                    className="w-auto bg-[#191B24] text-white rounded-2xl border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.5)] p-4
-                  animate-in fade-in slide-in-from-top-2 flex flex-col items-center"
+                                    className="w-auto bg-[#191B24] text-white rounded-2xl border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.5)] p-4 animate-in fade-in slide-in-from-top-2 flex flex-col items-center"
                                 >
                                     <h2 className="text-base font-semibold mb-4">Chia sẻ</h2>
                                     <div className="flex justify-center gap-4">
@@ -114,8 +146,8 @@ export default function PlayBar({ activeTab, setActiveTab, episodes }: PlayBarPr
                                 <PopoverTrigger asChild>
                                     <button
                                         className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl
-                    bg-[#191B24] text-gray-400 transition-all duration-300 ease-in-out cursor-pointer
-                    hover:text-yellow-400 hover:shadow-[0_0_25px_rgba(250,204,21,0.4)] hover:bg-[#1F212A]"
+                                                    bg-[#191B24] text-gray-400 transition-all duration-300 ease-in-out cursor-pointer
+                                                    hover:text-yellow-400 hover:shadow-[0_0_25px_rgba(250,204,21,0.4)] hover:bg-[#1F212A]"
                                     >
                                         <Icon size={24} strokeWidth={2} />
                                         <span className="text-sm mt-1">{action.label}</span>
@@ -126,8 +158,8 @@ export default function PlayBar({ activeTab, setActiveTab, episodes }: PlayBarPr
                                     align="center"
                                     sideOffset={10}
                                     className="w-52 bg-[#191B24] border border-zinc-800/70 text-gray-200 rounded-2xl p-2 
-                  shadow-[0_0_20px_rgba(0,0,0,0.6)] backdrop-blur-sm
-                  animate-in fade-in slide-in-from-bottom-2 duration-200 ease-out"
+                                                shadow-[0_0_20px_rgba(0,0,0,0.6)] backdrop-blur-sm
+                                                animate-in fade-in slide-in-from-bottom-2 duration-200 ease-out"
                                 >
                                     <div className="flex justify-between text-xs uppercase tracking-wide text-gray-400 px-1">
                                         <span>Danh sách</span>
@@ -136,10 +168,10 @@ export default function PlayBar({ activeTab, setActiveTab, episodes }: PlayBarPr
                                     <div className="my-1 h-px bg-zinc-800/70" />
                                     <button
                                         className="w-full text-center py-2 font-medium rounded-md cursor-pointer
-                    text-yellow-400 bg-transparent 
-                    hover:bg-yellow-400 hover:text-black 
-                    hover:shadow-[0_0_12px_rgba(250,204,21,0.45)]
-                    transition-all duration-200 ease-in-out"
+                                                    text-yellow-400 bg-transparent 
+                                                    hover:bg-yellow-400 hover:text-black 
+                                                    hover:shadow-[0_0_12px_rgba(250,204,21,0.45)]
+                                                    transition-all duration-200 ease-in-out"
                                     >
                                         + Thêm mới
                                     </button>
@@ -153,8 +185,8 @@ export default function PlayBar({ activeTab, setActiveTab, episodes }: PlayBarPr
                             key={action.id}
                             onClick={action.onClick}
                             className={`flex flex-col items-center justify-center w-20 h-16 rounded-2xl
-              transition-all duration-300 ease-in-out cursor-pointer bg-[#191B24]
-              ${isLiked
+                                         transition-all duration-300 ease-in-out cursor-pointer bg-[#191B24]
+                               ${isLiked
                                     ? "text-yellow-400 hover:text-yellow-400 hover:bg-[#1F212A] hover:shadow-[0_0_25px_rgba(250,204,21,0.4)]"
                                     : "text-gray-400 hover:text-yellow-400 hover:bg-[#1F212A] hover:shadow-[0_0_25px_rgba(250,204,21,0.4)]"
                                 }`}

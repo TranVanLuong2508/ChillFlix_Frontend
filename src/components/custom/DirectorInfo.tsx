@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Heart, Send } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { formatDate } from "@/lib/dateFomat";
-import { DirectorData } from "@/types/directorData";
+import { DirectorData } from "@/types/backend.type";
 
 interface DirectorProps {
     director: DirectorData;
@@ -30,8 +30,8 @@ export default function DirectorInfo({ director }: DirectorProps) {
                 <button
                     onClick={() => setLiked(!liked)}
                     className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full
-           bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
-           hover:bg-zinc-800 hover:text-yellow-400 transition-all"
+                                bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
+                                hover:bg-zinc-800 hover:text-yellow-400 transition-all"
                 >
                     <Heart size={14} className={liked ? "fill-yellow-400 text-yellow-400" : "fill-none"} />
                     <span>Yêu thích</span>
@@ -41,8 +41,8 @@ export default function DirectorInfo({ director }: DirectorProps) {
                     <PopoverTrigger asChild>
                         <button
                             className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full
-               bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
-               hover:bg-zinc-800 hover:text-yellow-400 transition-all"
+                                        bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
+                                        hover:bg-zinc-800 hover:text-yellow-400 transition-all"
                         >
                             <Send size={14} />
                             <span>Chia sẻ</span>
@@ -54,7 +54,7 @@ export default function DirectorInfo({ director }: DirectorProps) {
                         side="bottom"
                         sideOffset={10}
                         className="w-auto bg-[#191B24] text-white rounded-2xl border border-zinc-700 p-4
-             shadow-[0_0_20px_rgba(0,0,0,0.5)] flex flex-col items-center"
+                                    shadow-[0_0_20px_rgba(0,0,0,0.5)] flex flex-col items-center"
                     >
                         <h2 className="text-center text-base font-semibold mb-3">Chia sẻ</h2>
                         <div className="flex justify-center gap-2">
