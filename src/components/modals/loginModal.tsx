@@ -5,22 +5,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import modalVariants from "@/constants/modalVariants";
 import Atropos from "atropos/react";
 import "atropos/css";
-import { useLoginModal } from "@/contexts/LoginModalContext";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { LoginInput } from "@/types/authen.type";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader } from "lucide-react";
 import { authService } from "@/services";
 import { AuthenticationsMessage } from "@/constants/message";
 import { useAuthStore } from "@/stores/authStore";
-import { useModalStore } from "@/stores/authModalStore";
+import { useAuthModalStore } from "@/stores/authModalStore";
 
 export default function LoginModal() {
   const [showPassword, setShowPassword] = useState(false);
-  const { isAuthenticated, setAuthenticated, loginAction } = useAuthStore();
-  const { isLoginModalOpen, closeLoginModal, openRegisterModal } =
-    useModalStore();
+  const { loginAction, setIsLoggingIn, isLoggingIn } = useAuthStore();
+  const { isLoginModalOpen, closeLoginModal, switchToRegister } =
+    useAuthModalStore();
 
   const {
     register,
@@ -33,31 +32,39 @@ export default function LoginModal() {
   });
 
   const handleLogin = async (userLoginInput: LoginInput) => {
+    setIsLoggingIn(true);
     try {
       const loginResponse = await authService.callLogin(userLoginInput);
       if (loginResponse && loginResponse.EC === 1) {
-        toast(AuthenticationsMessage.success);
         if (loginResponse.data) {
           const loginData = loginResponse.data;
           loginAction(loginData);
         }
-        reset();
-        closeLoginModal();
+        setTimeout(() => {
+          handleCloseLoginModal();
+          setIsLoggingIn(false);
+          toast.success(AuthenticationsMessage.success);
+        }, 1000);
       }
     } catch (error) {
       console.log("error login", error);
+      setIsLoggingIn(false);
       toast.error(AuthenticationsMessage.errorLogin);
     }
   };
 
   const handleCloseLoginModal = () => {
+    reset();
     closeLoginModal();
-    setShowPassword(!showPassword);
+    setShowPassword(false);
   };
 
   useEffect(() => {
-    if (!isLoginModalOpen) clearErrors();
-  }, [isLoginModalOpen, clearErrors]);
+    if (!isLoginModalOpen) {
+      reset();
+      clearErrors();
+    }
+  }, [isLoginModalOpen, clearErrors, reset]);
 
   return (
     <AnimatePresence>
@@ -148,11 +155,7 @@ export default function LoginModal() {
                 Nếu bạn chưa có tài khoản,{" "}
                 <span
                   onClick={() => {
-                    closeLoginModal();
-                    console.log("check click");
-                    setTimeout(() => {
-                      openRegisterModal();
-                    }, 300);
+                    switchToRegister();
                   }}
                   className="text-yellow-400 cursor-pointer hover:underline"
                 >
@@ -192,6 +195,7 @@ export default function LoginModal() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Mật khẩu"
+                    autoComplete="off"
                     className="w-full bg-[#252d3d] text-white border-[#2a3040] h-12
                focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 
               input-selection-yellow pr-10"
@@ -219,9 +223,21 @@ export default function LoginModal() {
                 </div>
                 <button
                   type="submit"
-                  className=" cursor-pointer w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-bold py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all"
+                  disabled={isLoggingIn}
+                  className={`w-full py-3 rounded-lg font-bold text-[#0f1419] transition-all 
+                    bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600
+                    flex items-center justify-center gap-2
+                    ${isLoggingIn ? "cursor-not-allowed" : "cursor-pointer"}
+                  `}
                 >
-                  Đăng nhập
+                  {isLoggingIn ? (
+                    <>
+                      <Loader className="animate-spin" size={20} />
+                      Đang đăng nhập...
+                    </>
+                  ) : (
+                    "Đăng nhập"
+                  )}
                 </button>
 
                 <div className="text-center">

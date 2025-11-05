@@ -1,7 +1,11 @@
 export const AuthenticationsMessage = {
   success: "Đăng nhập thành công",
+  registerSuccess: "Đăng ký tài khoản thành công",
   invalid: "Sai Email/Mật khẩu",
   errorLogin: "Có lỗi xảy ra khi đăng nhập",
   errorLogout: "Có lỗi xảy ra khi đăng xuất",
+  errorRegister: "Có lỗi xảy ra khi đăng ký",
   registerSucess: "Đăng ký tài khoản người dùng thành công",
+  registerExistEmail:
+    "Email này đã tồn tại trong hệ thống, vui lòng sử dụng Email khác",
 } as const;

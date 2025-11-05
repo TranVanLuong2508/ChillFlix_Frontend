@@ -116,6 +116,8 @@ export default function VipUpgradeContent() {
     }
   };
 
+  console.log("check authenticated", isAuthenticated);
+
   return (
     <div className="w-full">
       {isLoading && <LoadingSpinner />}

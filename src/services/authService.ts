@@ -27,6 +27,6 @@ export const authService = {
   },
 
   callRegister: (data: RegisterInput): Promise<IBackendRes<IGetAccount>> => {
-    return privateAxios.post(`${baseURL}/auth/register`, data);
+    return publicAxios.post(`${baseURL}/auth/register`, data);
   },
 };

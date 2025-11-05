@@ -19,6 +19,8 @@ export interface IAuthUser {
 }
 
 interface IAuthState {
+  isLoggingIn: boolean;
+  isSigningUp: boolean;
   isAuthenticated: boolean;
   isLoading: boolean;
   isRefreshToken: boolean;
@@ -28,6 +30,8 @@ interface IAuthState {
 }
 
 const initialAuthState: IAuthState = {
+  isLoggingIn: false,
+  isSigningUp: false,
   isAuthenticated: false,
   isLoading: true,
   isRefreshToken: false,
@@ -48,6 +52,8 @@ const initialAuthState: IAuthState = {
 type authAction = {
   setAuthenticated: (value: boolean) => void;
   setLoading: (value: boolean) => void;
+  setIsLoggingIn: (value: boolean) => void;
+  setIsSigningUp: (value: boolean) => void;
   loginAction: (data: { access_token: string; user: IAuthUser }) => void;
   logOutAction: () => void;
   setRefreshTokenAction: (status: boolean, message: string) => void;
@@ -132,6 +138,10 @@ export const useAuthStore = create<IAuthState & authAction>()(
           isLoading: false,
         });
       },
+
+      setIsLoggingIn: (value) => set({ isLoggingIn: value }),
+
+      setIsSigningUp: (value) => set({ isSigningUp: value }),
     }),
     {
       name: "auth-storage",

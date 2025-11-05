@@ -5,20 +5,27 @@ import { motion, AnimatePresence } from "framer-motion";
 import modalVariants from "@/constants/modalVariants";
 import Atropos from "atropos/react";
 import "atropos/css";
-import { useLoginModal } from "@/contexts/LoginModalContext";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
+import type { RegisterInput } from "@/types/authen.type";
+import { Eye, EyeOff, Loader } from "lucide-react";
 import { authService } from "@/services";
 import { AuthenticationsMessage } from "@/constants/message";
 import { useAuthStore } from "@/stores/authStore";
-import { RegisterInput } from "@/types/authen.type";
-import { useModalStore } from "@/stores/authModalStore";
+import { useAuthModalStore } from "@/stores/authModalStore";
 
-export default function RegisterModal() {
-  const { isRegisterModalOpen, closeRegisterModal } = useModalStore();
+export default function LoginModal() {
   const [showPassword, setShowPassword] = useState(false);
+  const {
+    isAuthenticated,
+    setAuthenticated,
+    loginAction,
+    setIsSigningUp,
+    isSigningUp,
+  } = useAuthStore();
+  const { isRegisterModalOpen, closeRegisterModal, switchToLogin } =
+    useAuthModalStore();
 
   const {
     register,
@@ -30,41 +37,63 @@ export default function RegisterModal() {
     mode: "onSubmit",
   });
 
-  const handleRegister = async (data: RegisterInput) => {
+  const handleRegister = async (userRegisterInput: RegisterInput) => {
+    setIsSigningUp(true);
     try {
-      const res = await authService.callRegister(data);
-      if (res && res.EC === 1) {
-        toast.success(AuthenticationsMessage.registerSucess);
-        reset();
-        closeRegisterModal();
+      const registerResponse = await authService.callRegister(
+        userRegisterInput
+      );
+
+      if (registerResponse && registerResponse.EC === 1) {
+        setTimeout(() => {
+          handleCloseRegisterModal();
+          setIsSigningUp(false);
+          toast.success(AuthenticationsMessage.registerSuccess);
+        }, 1000);
+      }
+      if (registerResponse && registerResponse.EC === 0) {
+        toast.error(AuthenticationsMessage.registerExistEmail);
+        console.log("check res exist email", registerResponse);
+        setIsSigningUp(false);
       }
     } catch (error) {
-      console.log("register error:", error);
-      toast.error("Đăng ký thất bại, vui lòng thử lại.");
+      console.log("error sign up", error);
+      setIsSigningUp(false);
+      toast.error(AuthenticationsMessage.errorRegister);
     }
   };
 
-  const handleClose = () => {
+  const handleCloseRegisterModal = () => {
+    reset();
     closeRegisterModal();
     setShowPassword(false);
   };
 
   useEffect(() => {
-    if (!isRegisterModalOpen) clearErrors();
-  }, [isRegisterModalOpen, clearErrors]);
+    if (!isRegisterModalOpen) {
+      reset();
+      clearErrors();
+    }
+  }, [isRegisterModalOpen, clearErrors, reset]);
 
   return (
     <AnimatePresence>
       {isRegisterModalOpen && (
+        // Overlay
         <motion.div
+          key="overlay"
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          onClick={handleClose}
+          onClick={() => {
+            handleCloseRegisterModal();
+          }}
         >
+          {/* Modal Box */}
           <motion.div
+            key="modal"
             variants={modalVariants}
             initial="hidden"
             animate="visible"
@@ -73,9 +102,11 @@ export default function RegisterModal() {
             className="relative w-full max-w-5xl h-[600px] bg-[#1a1f2e]/95 backdrop-blur-md 
                        rounded-2xl shadow-2xl overflow-hidden flex"
           >
-            {/* Close */}
+            {/* Close Button */}
             <button
-              onClick={handleClose}
+              onClick={() => {
+                handleCloseRegisterModal();
+              }}
               className="absolute top-4 right-4 z-10 text-gray-400 hover:text-white transition cursor-pointer"
             >
               <svg
@@ -93,39 +124,88 @@ export default function RegisterModal() {
               </svg>
             </button>
 
-            {/* Left Poster */}
-            <div className="hidden md:flex w-1/2 bg-[#151a25] items-center justify-center">
+            {/*Left Side: Atropos 3D Card */}
+            <div className="hidden md:flex w-1/2 bg-[#151a25] items-center justify-center relative">
               <Atropos
-                className="my-atropos w-[85%] h-[85%] rounded-2xl overflow-hidden"
+                className="my-atropos w-[85%] h-[85%] rounded-2xl shadow-2xl bg-white overflow-hidden"
                 activeOffset={40}
+                shadowScale={1.05}
+                highlight={true}
+                rotateTouch="scroll-y"
+                shadow={true}
+                style={{ backgroundColor: "#0f1419" }}
               >
-                <img
-                  src="/images/login_poster.webp"
-                  className="w-full h-full object-cover"
-                />
+                <div className="relative w-full h-full">
+                  <img
+                    data-atropos-offset="-5"
+                    src="/images/login_poster.webp"
+                    alt="Cinematic scene"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div
+                    data-atropos-offset="10"
+                    className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-8 text-white"
+                  ></div>
+                  <div
+                    data-atropos-offset="15"
+                    className="absolute top-6 right-6 px-3 py-1 text-xs font-semibold drop-shadow-[0_0_8px_rgba(255,100,0,0.6)]
+                      text-white rounded-full shadow-[0_0_10px_rgba(255,0,128,0.6)]
+                      bg-gradient-to-r from-pink-600 via-fuchsia-500 to-purple-500"
+                  >
+                    HOT
+                  </div>
+                </div>
               </Atropos>
             </div>
 
-            {/* Form */}
+            {/* Right Side: Login Form */}
             <div className="flex-1 p-8 md:p-12 flex flex-col justify-center">
               <h2 className="text-white text-3xl font-bold mb-2">Đăng ký</h2>
-              <p className="text-gray-400 mb-6">Tạo tài khoản để tiếp tục</p>
+              <p className="text-gray-400 mb-6">
+                Nếu bạn đã có tài khoản,{" "}
+                <span
+                  onClick={() => {
+                    switchToLogin();
+                  }}
+                  className="text-yellow-400 cursor-pointer hover:underline"
+                >
+                  đăng nhập ngay
+                </span>
+              </p>
 
               <form
-                onSubmit={handleSubmit(handleRegister)}
                 className="space-y-4"
+                onSubmit={handleSubmit((data: RegisterInput) => {
+                  console.log("Form submit data:", data);
+                  // Login(data);
+                  handleRegister(data);
+                })}
               >
                 <Input
-                  {...register("fullName", { required: "Tên là bắt buộc" })}
+                  {...register("fullName", {
+                    required: "Tên người dùng là bắt buộc",
+                    pattern: {
+                      value: /^(?!\d+$)[A-Za-zÀ-ỹ0-9\s]+$/u,
+                      message:
+                        "Tên không được chứa ký tự đặc biệt và không được chỉ toàn số",
+                    },
+                    minLength: {
+                      value: 3,
+                      message: "Tên phải có ít nhất 3 ký tự",
+                    },
+                  })}
+                  type="text"
                   placeholder="Tên người dùng"
-                  className="input-login"
+                  className="w-full bg-[#252d3d] border-[#2a3040] text-white placeholder:text-gray-500 h-12 mb-0
+                             focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 input-selection-yellow caret-color"
                 />
-                {errors.fullName && (
-                  <p className="text-red-400 text-xs">
-                    {errors.fullName.message}
-                  </p>
-                )}
-
+                <div className="min-h-[16px] my-[16px]">
+                  {errors.fullName && (
+                    <p className="text-red-400 text-xs animate-in fade-in slide-in-from-top-1 duration-200 ">
+                      {errors.fullName?.message || " "}
+                    </p>
+                  )}
+                </div>
                 <Input
                   {...register("email", {
                     required: "Email là bắt buộc",
@@ -134,23 +214,31 @@ export default function RegisterModal() {
                       message: "Email không hợp lệ",
                     },
                   })}
+                  type="text"
                   placeholder="Email"
-                  className="input-login"
+                  className="w-full bg-[#252d3d] border-[#2a3040] text-white placeholder:text-gray-500 h-12 mb-0
+                             focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 input-selection-yellow caret-color"
                 />
-                {errors.email && (
-                  <p className="text-red-400 text-xs">{errors.email.message}</p>
-                )}
-
-                <div className="relative">
+                <div className="min-h-[16px] my-[16px]">
+                  {errors.email && (
+                    <p className="text-red-400 text-xs animate-in fade-in slide-in-from-top-1 duration-200 ">
+                      {errors.email?.message || " "}
+                    </p>
+                  )}
+                </div>
+                <div className="relative w-full">
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Mật khẩu"
-                    className="input-login pr-10"
+                    autoComplete="off"
+                    className="w-full bg-[#252d3d] text-white border-[#2a3040] h-12
+               focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 
+              input-selection-yellow pr-10"
                     {...register("password", {
                       required: "Mật khẩu là bắt buộc",
                       minLength: {
                         value: 6,
-                        message: "Mật khẩu phải có it nhất 6 ký tự",
+                        message: "Mật khẩu phải có ít nhất 6 ký tự",
                       },
                     })}
                   />
@@ -161,18 +249,52 @@ export default function RegisterModal() {
                     {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                   </div>
                 </div>
-                {errors.password && (
-                  <p className="text-red-400 text-xs">
-                    {errors.password.message}
-                  </p>
-                )}
-
+                <div className="min-h-[16px] my-[16px]">
+                  {errors.password && (
+                    <p className="text-red-400 text-xs  animate-in fade-in slide-in-from-top-1 duration-200  ">
+                      {errors.password?.message || " "}
+                    </p>
+                  )}
+                </div>
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-black font-bold py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-400 transition"
+                  // disabled={isSigningUp}
+                  className={`w-full py-3 rounded-lg font-bold text-[#0f1419] transition-all 
+                    bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600
+                    flex items-center justify-center gap-2
+                    ${isSigningUp ? "cursor-not-allowed" : "cursor-pointer"}
+                  `}
                 >
-                  Đăng ký
+                  {isSigningUp ? (
+                    <>
+                      <Loader className="animate-spin" size={20} />
+                      Đang tạo tài khoản...
+                    </>
+                  ) : (
+                    "Đăng ký"
+                  )}
                 </button>
+
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[#2a3040]" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-[#1a1f2e] text-gray-400">
+                      Hoặc
+                    </span>
+                  </div>
+                </div>
+
+                {/* <button
+                  type="button"
+                  className="w-full bg-white text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-3"
+                >
+                  <span>Sign in as Trần Văn</span>
+                  <span className="text-xs text-gray-500 ml-auto">
+                    tranvanluong032020@gmail.com
+                  </span>
+                </button> */}
               </form>
             </div>
           </motion.div>
