@@ -1,3 +1,4 @@
+
 export const userPath = {
   HOME: "/",
   UPGRADE_VIP: "/user/upgrade_vip",
@@ -6,4 +7,13 @@ export const userPath = {
   NOTIFICATION: "/user/notifications",
   PLAYLIST: "/user/playlists",
   PROFILE: "/user/profile",
+}
+export const filmPath = {
+  ACTOR_DETAIL: (id: number | string) => `/actor-detail/${id}`,
+  DIRECTOR_DETAIL: (id: number | string) => `/director-detail/${id}`,
+  FILM_DETAIL: (id: string) => `/film-detail/${id}`,
+};
+
+export const playPath = {
+  WATCHNOW: (id: string) => `/play/${id}`,
 };

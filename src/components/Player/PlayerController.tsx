@@ -4,8 +4,29 @@ import Hls from "hls.js";
 import Artplayer from "artplayer";
 import artplayerPluginVttThumbnail from "@artplayer/plugin-vtt-thumbnail";
 
-const PlayerController = () => {
+import "@/components/Player/artplayer-custom.css";
+
+interface PlayerControllerProps {
+  videoUrl: string;
+  posterUrl: string;
+}
+
+const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
   const artRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (artRef.current) {
+      artRef.current.setAttribute("tabindex", "0");
+      artRef.current.focus();
+
+      const headerHeight = 88;
+      const y =
+        artRef.current.getBoundingClientRect().top +
+        window.scrollY -
+        headerHeight;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  }, []);
 
   const playM3u8 = (video: HTMLVideoElement, url: string, art: Artplayer) => {
     if (Hls.isSupported()) {
@@ -81,11 +102,12 @@ const PlayerController = () => {
   };
 
   useEffect(() => {
-    if (!artRef.current) return;
+    if (!artRef.current || !videoUrl) return;
 
     const art = new Artplayer({
       container: artRef.current,
-      url: "https://stream.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ.m3u8",
+      url: videoUrl,
+      // url: "https://stream.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ.m3u8",
       type: "m3u8",
       customType: {
         m3u8: playM3u8,
@@ -97,18 +119,19 @@ const PlayerController = () => {
         }),
       ],
 
-      poster:
-        "https://res.cloudinary.com/chillfliximage/image/upload/v1759825558/w22bp3nhojglsz8xco5h.jpg",
+      poster: posterUrl,
 
       // config common
       theme: "#00B2FF", // #B20710
-      autoSize: true,
+      // autoSize: true,
       autoMini: true,
       playbackRate: true,
       setting: true,
       hotkey: true,
       pip: true,
       fullscreen: true,
+      aspectRatio: true,
+      fullscreenWeb: true,
 
       // config mobile
       gesture: false,
@@ -138,6 +161,7 @@ const PlayerController = () => {
         info.style.right = "auto";
         info.style.transform = "translate(-50%, -50%)";
       }
+
       console.info(art.hls);
     });
 
@@ -148,7 +172,12 @@ const PlayerController = () => {
     };
   }, []);
 
-  return <div ref={artRef} className="aspect-video"></div>;
+  return (
+    <div
+      ref={artRef}
+      className="artplayer-app hide-scrollbar h-[90vh] aspect-auto"
+    ></div>
+  );
 };
 
 export default PlayerController;
