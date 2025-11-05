@@ -1,23 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import filmServices from "@/services/filmService";
-import Background from "@/components/custom/Background";
-import FilmInfo from "@/components/custom/FilmInfo";
-import TabsSection from "@/components/custom/Tabs";
+import FilmInfo from "@/components/custom/FilmInfo"
 import CommentRatingTabs from "@/components/custom/CommentRatingTabs";
 import { useParams } from "next/navigation";
-import { partServices } from "@/services/partService";
-import { RatingData } from "@/types/ratingData";
-
-import { PartData } from "@/types/partData";
 import { useFilmStore } from "@/stores/filmStore";
 import PlayBar from "@/components/film/detail/playbar";
+import Background from "@/components/film/detail/Background";
+import TabsSection from "@/components/film/detail/Tabs";
 
 export default function FilmDetailPage() {
   const { filmSlug }: { filmSlug: string } = useParams();
-  // const params = useParams();
-  // console.log(">>Check: ", params)
 
   const { loading, error, filmData, getDetailFilm } = useFilmStore();
 
@@ -25,32 +18,11 @@ export default function FilmDetailPage() {
     "comments"
   );
 
-  const [filmRatingData, setFilmRatingData] = useState<RatingData | null>();
-  const [filmPartData, setFilmPartData] = useState<{
-    parts: PartData[];
-  } | null>(null);
-
-  // console.log("Check filmSlug: ", filmSLug);
-
-  // const fetchFilm = async () => {
-  //   try {
-  //     const ratingRes = await filmServices.getRatingsByFilmId(filmId as string);
-  //     const partRes = await partServices.getPartsByFilmId(filmId as string);
-
-  //     setFilmRatingData(ratingRes.data.result);
-  //     setFilmPartData({
-  //       parts: Array.isArray(partRes.data) ? partRes.data : [],
-  //     });
-  //   } catch (error) {
-  //     console.error("Failed to fetch film:", error);
-  //   }
-  // };
-
   useEffect(() => {
     if (!filmSlug) return;
-    // fetchFilm();
     getDetailFilm(filmSlug);
   }, [filmSlug]);
+
 
   if (loading || !filmData) {
     return <div className="text-center py-20">Đang tải dữ liệu...</div>;
@@ -59,8 +31,6 @@ export default function FilmDetailPage() {
   if (error) {
     return <div className="text-center py-20">Has error !</div>;
   }
-
-  console.log("Check data film: ", filmData);
 
   return (
     <main className="bg-[#191B24]">

@@ -8,7 +8,7 @@ interface Action {
     setActiveTab: (tab: "comments" | "ratings") => void;
 }
 
-export default function TabsSection({ activeTab, setActiveTab }: Action) {
+export default function CommentRatingTabs({ activeTab, setActiveTab }: Action) {
     return (
         <div className="mt-10 bg-gradient-to-b from-[#1A1B23] to-[#111217] rounded-2xl border border-zinc-800/70 p-6 shadow-[0_4px_25px_rgba(0,0,0,0.45)] text-white transition-all duration-300 ease-in-out">
 

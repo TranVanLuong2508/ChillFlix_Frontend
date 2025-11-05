@@ -2,26 +2,33 @@ import { create } from "zustand";
 
 import { FilmDetail, FilmImages } from "@/types/film.type";
 import filmServices from "@/services/filmService";
+import { partServices } from "@/services";
+import { DetailPart } from "@/types/part.type";
 
 interface State {
   loading: boolean;
+  loadingPart: boolean;
   error: string | null;
 
   filmData: FilmDetail | null;
+  partDetail: DetailPart | null;
 }
 
 interface Action {
   resetFilmDetail: () => void;
   getDetailFilm: (filmId: string) => Promise<void>;
+  getPartData: (filmId: string) => Promise<void>;
 }
 
 const initialFilmDetail = {
   filmData: null,
+  partDetail: null,
 };
 
 export const useFilmStore = create<State & Action>((set, get) => ({
   ...initialFilmDetail,
   loading: false,
+  loadingPart: false,
   error: null,
 
   resetFilmDetail: () => set(initialFilmDetail),
@@ -51,4 +58,25 @@ export const useFilmStore = create<State & Action>((set, get) => ({
       set({ loading: false });
     }
   },
+
+  getPartData: async (filmId) => {
+    set({ loadingPart: true, error: null });
+    try {
+      const res = await partServices.getPartsByFilmId(filmId);
+
+      if (res.EC !== 0) {
+        set({ error: res.EM });
+        console.error("Error FilmStore getDetailFilm: ", res.EM);
+      }
+
+      if (res.data) {
+        set({ partDetail: res.data })
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      set({ error: "Something went wrong" });
+    } finally {
+      set({ loadingPart: false });
+    }
+  }
 }));
