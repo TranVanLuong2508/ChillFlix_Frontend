@@ -8,4 +8,9 @@ export const AuthenticationsMessage = {
   registerSucess: "Đăng ký tài khoản người dùng thành công",
   registerExistEmail:
     "Email này đã tồn tại trong hệ thống, vui lòng sử dụng Email khác",
+  logoutSucess: "Đăng xuất thành công",
 } as const;
+
+export const UpgradeVipMessage = {
+  basicMember: "Bạn đang là thành viên miễn phí",
+};

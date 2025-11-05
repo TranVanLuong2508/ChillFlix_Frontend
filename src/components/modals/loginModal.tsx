@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import type { LoginInput } from "@/types/authen.type";
 import { Eye, EyeOff, Loader } from "lucide-react";
 import { authService } from "@/services";
-import { AuthenticationsMessage } from "@/constants/message";
+import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
 
@@ -44,7 +44,7 @@ export default function LoginModal() {
           handleCloseLoginModal();
           setIsLoggingIn(false);
           toast.success(AuthenticationsMessage.success);
-        }, 1000);
+        }, 500);
       }
     } catch (error) {
       console.log("error login", error);

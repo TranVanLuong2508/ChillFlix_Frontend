@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 
-export default function LoadingSpinner() {
+export default function Loading() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md">
       <div className="relative p-8 rounded-3xl border border-yellow-400/20 bg-gradient-to-br from-black/40 to-yellow-900/10 shadow-xl flex flex-col items-center gap-5">
@@ -9,10 +9,7 @@ export default function LoadingSpinner() {
         </div>
         <div className="text-center">
           <p className="text-yellow-300 font-bold text-xl tracking-wide drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]">
-            Đang chuyển đến trang thanh toán...
-          </p>
-          <p className="text-yellow-100/80 text-sm mt-1">
-            Vui lòng chờ một chút
+            Đang tải...
           </p>
         </div>
       </div>

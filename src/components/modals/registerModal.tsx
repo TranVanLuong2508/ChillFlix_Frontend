@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import type { RegisterInput } from "@/types/authen.type";
 import { Eye, EyeOff, Loader } from "lucide-react";
 import { authService } from "@/services";
-import { AuthenticationsMessage } from "@/constants/message";
+import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
 
@@ -49,7 +49,7 @@ export default function LoginModal() {
           handleCloseRegisterModal();
           setIsSigningUp(false);
           toast.success(AuthenticationsMessage.registerSuccess);
-        }, 1000);
+        }, 500);
       }
       if (registerResponse && registerResponse.EC === 0) {
         toast.error(AuthenticationsMessage.registerExistEmail);

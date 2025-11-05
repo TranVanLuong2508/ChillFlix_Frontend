@@ -1,14 +1,19 @@
 "use client";
-import { useSession } from "next-auth/react";
-import { Check } from "lucide-react";
+
+import { Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { paymentService } from "@/services";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/layout/loadingSpinner";
 import { useAuthStore } from "@/stores/authStore";
 import { subsciptionPlanService } from "@/services/subscriptionPlanService";
-import { toast } from "sonner";
+
+// ✅ Swiper imports
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination } from "swiper/modules";
 
 interface VipPackage {
   id: string;
@@ -77,16 +82,9 @@ export default function VipUpgradeContent() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string>("sixmonths");
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    isRefreshToken,
-    errorRefreshToken,
-    setRefreshTokenAction,
-    isAuthenticated,
-  } = useAuthStore();
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN").format(price);
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("vi-VN").format(price);
 
   const handleUpgrade = async () => {
     const selected = VIP_PACKAGES.find((pkg) => pkg.id === selectedPackage);
@@ -95,221 +93,156 @@ export default function VipUpgradeContent() {
     const res = await paymentService.createPaymentURL(selected.price);
     const redirectURL: string = res.data.metadata.redirectUrl;
     if (redirectURL) {
-      // redirect to vnpay
-      setTimeout(() => {
-        router.push(redirectURL);
-      }, 1000);
+      router.push(redirectURL);
     } else {
       alert("Không lấy được link thanh toán");
       setIsLoading(false);
     }
   };
 
-  const fetchPlanList = async () => {
-    try {
-      const res = await subsciptionPlanService.getSubscriptionsPlanList();
-      if (res && res.EC === 1) {
-        console.log("check plans", res);
-      }
-    } catch (error) {
-      console.log("error fetch plan", error);
-    }
-  };
-
-  console.log("check authenticated", isAuthenticated);
-
   return (
     <div className="w-full">
       {isLoading && <LoadingSpinner />}
-      {/* Hero Section */}
-      <section className="py-12 px-4 text-center border-b border-[#1a1f2e]">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-balance">
-          Tài khoản ChillFlix
+
+      {/* Hero */}
+      <section className="py-8 px-4 text-center">
+        <h1 className="text-4xl font-extrabold text-yellow-300 drop-shadow-[0_0_12px_rgba(255,215,0,0.7)]">
+          Tài khoản ChillFlix VIP
         </h1>
-        <p className="text-gray-400 text-lg max-w-2xl mx-auto text-balance">
-          Số hữu tài khoản ChillFlix để nhận nhiều quyền lợi và tăng trải nghiệm
-          xem phim.
+        <p className="text-gray-400 text-sm mt-2 max-w-xl mx-auto">
+          Nâng cấp để mở khóa quyền lợi và trải nghiệm xem phim không giới hạn
         </p>
       </section>
+      {/* User status */}
+      <section className="px-4 mt-4">
+        <div className="max-w-xl mx-auto flex items-center gap-4 bg-white/5 backdrop-blur-lg p-4 rounded-2xl border border-white/10 shadow-lg">
+          <img
+            src={"/images/vn_flag.svg"}
+            alt="avatar"
+            className="w-14 h-14 rounded-full object-cover border border-yellow-400/40"
+          />
 
-      {/* User Info Section */}
-      <section className="py-12 px-4 border-b border-[#1a1f2e]">
-        <div className="max-w-4xl mx-auto flex flex-col items-center">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl">👤</span>
-            </div>
-            <div className="text-left">
-              <h2 className="text-white font-semibold text-lg flex items-center gap-2">
-                Trần Văn Lương
-                <span className="text-yellow-400 text-sm">∞</span>
-              </h2>
-              <p className="text-gray-400 text-sm">
-                Bạn đang là thành viên miễn phí.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 flex-wrap justify-center">
-            <div className="flex items-center gap-2 bg-[#1a1f2e] px-4 py-2 rounded-lg">
-              <span className="text-gray-400 text-sm">Số dư</span>
-              <span className="text-yellow-400 font-semibold">0</span>
-              <span className="text-yellow-400 text-xs">₽</span>
-            </div>
-            <Button
-              onClick={() => {
-                fetchPlanList();
-              }}
-              className="bg-white text-[#0f1419] hover:bg-gray-200 font-semibold"
-            >
-              + Nạp
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4 text-balance">
-            Nâng cấp tài khoản ChillFlix ngay bây giờ
-          </h2>
-          <p className="text-gray-400 text-center mb-12">
-            Chọn gói phù hợp với nhu cầu của bạn
-          </p>
-
-          {/* Pricing Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {VIP_PACKAGES.map((pkg) => (
-              <div
-                key={pkg.id}
-                className={`relative rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer ${
-                  selectedPackage === pkg.id
-                    ? "ring-2 ring-yellow-400 scale-105"
-                    : "hover:scale-102"
-                } ${
-                  pkg.highlighted
-                    ? "bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-500/50"
-                    : "bg-gradient-to-br from-blue-700 to-blue-900 border border-blue-600/30"
-                }`}
-                onClick={() => setSelectedPackage(pkg.id)}
-              >
-                {/* Discount Badge */}
-                {pkg.discount > 0 && (
-                  <div className="absolute top-4 right-4 bg-white text-[#0f1419] px-3 py-1 rounded-full text-sm font-semibold">
-                    Giảm {pkg.discount}%
-                  </div>
-                )}
-
-                {/* Highlight Badge */}
-                {pkg.highlighted && (
-                  <div className="absolute top-4 left-4 bg-yellow-400 text-[#0f1419] px-3 py-1 rounded-full text-xs font-bold">
-                    PHỔ BIẾN
-                  </div>
-                )}
-
-                <div className="p-8">
-                  {/* Duration */}
-                  <h3 className="text-3xl font-bold text-white mb-4">
-                    {pkg.duration}
-                  </h3>
-
-                  {/* Price */}
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-4xl font-bold text-yellow-300">
-                        {formatPrice(pkg.price)}
-                      </span>
-                      <span className="text-yellow-400 text-sm">₽</span>
-                    </div>
-                    {pkg.discount > 0 && (
-                      <p className="text-gray-300 text-sm line-through">
-                        {formatPrice(pkg.originalPrice)} ₽
-                      </p>
-                    )}
-                  </div>
-
-                  {/* CTA Button */}
-                  <Button
-                    className={`w-full mb-8 font-semibold py-3 rounded-lg transition-all ${
-                      selectedPackage === pkg.id
-                        ? "bg-yellow-400 text-[#0f1419] hover:bg-yellow-500"
-                        : "bg-white/20 text-white hover:bg-white/30 border border-white/30"
-                    }`}
-                  >
-                    {selectedPackage === pkg.id ? "Đã chọn" : "Chọn gói"}
-                  </Button>
-
-                  {/* Features List */}
-                  <div className="space-y-3">
-                    {pkg.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                        <span className="text-white text-sm">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Section */}
-          <div className="mt-12 text-center">
-            <Button
-              onClick={() => {
-                handleUpgrade();
-              }}
-              className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] hover:from-yellow-500 hover:to-yellow-600 font-bold py-3 px-8 rounded-lg text-lg transition-all hover:scale-105"
-            >
-              Nâng cấp ngay
-            </Button>
-            <p className="text-gray-400 text-sm mt-4">
-              Bạn có thể hủy bất cứ lúc nào. Không có phí ẩn.
+          <div className="flex-1">
+            <h3 className="text-white font-semibold text-lg flex items-center gap-2">
+              {"Người dùng"}
+              <span className="text-yellow-300 text-sm">
+                ★ {true ? "VIP" : "Free"}
+              </span>
+            </h3>
+            <p className="text-gray-400 text-xs">
+              {true
+                ? "Bạn đang là thành viên VIP."
+                : "Bạn đang là thành viên miễn phí."}
             </p>
           </div>
+
+          <Button
+            className="bg-yellow-400 text-black font-bold hover:bg-yellow-500 px-4 py-2 rounded-lg"
+            size="sm"
+            onClick={() => router.push("/nap-tien")}
+          >
+            + Nạp
+          </Button>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-12 px-4 bg-[#1a1f2e]/50 border-t border-[#1a1f2e]">
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold text-white mb-8 text-center">
-            Tại sao nâng cấp ChillFlix?
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* VIP Benefits Banner */}
+      <section className="px-4 my-6">
+        <div className="max-w-5xl mx-auto backdrop-blur-xl bg-black/40 border border-yellow-500/30 p-6 rounded-2xl shadow-[0_0_45px_rgba(255,215,0,0.25)]">
+          <h2 className="text-yellow-300 font-semibold text-center mb-4 text-lg">
+            Quyền lợi VIP bao gồm
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
             {[
-              {
-                title: "Xem không quảng cáo",
-                desc: "Thưởng thức phim yêu thích mà không bị gián đoạn",
-              },
-              {
-                title: "Chất lượng 4K",
-                desc: "Xem phim với độ phân giải cao nhất",
-              },
-              {
-                title: "Tải xuống phim",
-                desc: "Tải phim để xem offline bất cứ khi nào",
-              },
-              {
-                title: "Ưu tiên hỗ trợ",
-                desc: "Nhận hỗ trợ nhanh chóng từ đội ngũ của chúng tôi",
-              },
-            ].map((benefit, idx) => (
-              <div key={idx} className="flex gap-4">
-                <div className="w-10 h-10 bg-yellow-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Check className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div>
-                  <h4 className="text-white font-semibold mb-1">
-                    {benefit.title}
-                  </h4>
-                  <p className="text-gray-400 text-sm">{benefit.desc}</p>
-                </div>
+              "Tắt toàn bộ quảng cáo",
+              "Xem phim chất lượng 4K UHD",
+              "Chat không delay - ưu tiên tốc độ",
+              "Dùng sticker & GIF cực xịn",
+              "Đổi avatar cá nhân không giới hạn",
+              "Tên được gắn huy hiệu VIP ROX sáng chói",
+            ].map((f, i) => (
+              <div key={i} className="flex items-center gap-2 text-yellow-200">
+                <Check className="w-4 h-4 text-yellow-400" />
+                {f}
               </div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Swiper Carousel */}
+      <section className="py-10 px-4">
+        <Swiper
+          modules={[Pagination]}
+          pagination={{ clickable: true }}
+          spaceBetween={20}
+          slidesPerView={1.1}
+          centeredSlides={true}
+          loop={true}
+          breakpoints={{
+            640: { slidesPerView: 2.2 },
+            1024: { slidesPerView: 3.3 },
+          }}
+          className="pb-12"
+        >
+          {VIP_PACKAGES.map((pkg) => (
+            <SwiperSlide key={pkg.id}>
+              <div
+                onClick={() => setSelectedPackage(pkg.id)}
+                className={`relative p-6 rounded-2xl backdrop-blur-xl bg-black/50 cursor-pointer border transition-all ${
+                  selectedPackage === pkg.id
+                    ? "border-yellow-400 shadow-[0_0_35px_rgba(255,215,0,0.6)] scale-[1.05]"
+                    : "border-white/10 hover:border-yellow-400/40 hover:scale-[1.03]"
+                }`}
+              >
+                {pkg.discount > 0 && (
+                  <span className="absolute top-3 right-3 bg-yellow-500/20 border border-yellow-400/40 text-yellow-300 px-2 py-1 text-xs rounded-md font-bold">
+                    -{pkg.discount}%
+                  </span>
+                )}
+
+                <h3 className="text-white font-bold text-xl mb-3">
+                  {pkg.duration}
+                </h3>
+
+                <p className="text-yellow-300 text-2xl font-extrabold">
+                  {formatPrice(pkg.price)}₽
+                </p>
+
+                {pkg.discount > 0 && (
+                  <p className="text-gray-500 text-xs line-through mb-2">
+                    {formatPrice(pkg.originalPrice)}₽
+                  </p>
+                )}
+
+                <Button
+                  size="sm"
+                  className={`w-full mt-4 font-semibold ${
+                    selectedPackage === pkg.id
+                      ? "bg-yellow-400 text-black hover:bg-yellow-500"
+                      : "bg-white/10 text-white border border-white/20 hover:bg-white/20"
+                  }`}
+                >
+                  {selectedPackage === pkg.id ? "✓ Đã chọn" : "Chọn gói"}
+                </Button>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </section>
+
+      {/* Confirm Purchase */}
+      <div className="text-center pb-10">
+        <Button
+          onClick={handleUpgrade}
+          className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black hover:scale-105 font-bold py-3 px-10 rounded-xl transition-all"
+        >
+          Thanh Toán Ngay
+        </Button>
+        <p className="text-gray-500 text-xs mt-3">
+          Bạn có thể hủy bất kỳ lúc nào — không phí ẩn.
+        </p>
+      </div>
     </div>
   );
 }

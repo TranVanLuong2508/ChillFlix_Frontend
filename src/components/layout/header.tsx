@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { useAppRouter } from "@/hooks/useAppRouter";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
+import { AuthenticationsMessage } from "@/constants/messages/user.message";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
@@ -59,23 +60,14 @@ export default function Header() {
   const haneleLogOut = async () => {
     try {
       const res = await authService.callLogout();
-      console.log("check res", res);
 
       if (res && res.EC === 1) {
         goHome();
-        toast.success("Đăng xuất thành công");
+        toast.success(AuthenticationsMessage.logoutSucess);
         logOutAction();
       }
-    } catch (error) {}
-  };
-
-  const handleRefreshToken = async () => {
-    console.log("refres");
-    try {
-      const res = await authService.CallRefreshToken();
-      console.log("check resfresh", res);
     } catch (error) {
-      console.log("error when refresh token", error);
+      console.log("Error Logout: ", error);
     }
   };
 
@@ -118,12 +110,7 @@ export default function Header() {
 
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center gap-0">
-            <button
-              onClick={() => {
-                handleRefreshToken();
-              }}
-              className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md"
-            >
+            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim Lẻ
             </button>
             <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
@@ -365,8 +352,6 @@ export default function Header() {
                         />
                       </button>
                     </DropdownMenuTrigger>
-
-                    {/* giữ nguyên DropdownMenuContent như cũ */}
                     <DropdownMenuContent
                       align="end"
                       className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
