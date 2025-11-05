@@ -3,18 +3,11 @@
 import { useState, useRef } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import MovieCard from "./movie-card"
+import type { Film } from "@/types/filmType"
 
 interface ContentCarouselProps {
     title: string
-    items: Array<{
-        id: number
-        title: string
-        englishTitle?: string
-        image: string
-        progress?: number
-        rating?: number
-        badges?: Array<{ text: string; color: string }>
-    }>
+    items: Film[]
     badgeColor?: string
 }
 
@@ -56,7 +49,7 @@ export default function ContentCarousel({ title, items, badgeColor = "bg-blue-60
 
                     {/* Right Section - Carousel */}
                     <div className="flex-1 min-w-0">
-                        <div className="relative group overflow-hidden">
+                        <div className="relative group ">
                             {/* Left Arrow */}
                             {canScrollLeft && (
                                 <button
@@ -70,10 +63,10 @@ export default function ContentCarousel({ title, items, badgeColor = "bg-blue-60
                             <div
                                 ref={scrollContainerRef}
                                 onScroll={checkScroll}
-                                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pr-4"
+                                className="flex gap-4 scrollbar-hide scroll-smooth pr-4"
                             >
                                 {items.map((item) => (
-                                    <MovieCard key={item.id} item={item} badgeColor={badgeColor} showProgress={!!item.progress} />
+                                    <MovieCard key={item.filmId} item={item} badgeColor={badgeColor} showProgress={!!item.progress} />
                                 ))}
                             </div>
 

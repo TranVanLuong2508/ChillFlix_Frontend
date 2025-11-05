@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Play, Heart, Info, ChevronLeft, ChevronRight } from "lucide-react"
 import { filmService } from "@/services/filmService"
+import type { Film } from "@/types/filmType"
 
 interface HeroSlide {
     filmId: string
@@ -22,7 +23,7 @@ export default function HeroCarousel() {
     const [autoPlay, setAutoPlay] = useState(true)
     const [isDragging, setIsDragging] = useState(false)
     const [dragStart, setDragStart] = useState(0)
-    const [films, setFilms] = useState<HeroSlide[]>([])
+    const [films, setFilms] = useState<Film[]>([])
     const [loading, setLoading] = useState(true)
     const containerRef = useRef<HTMLDivElement>(null)
 
@@ -30,17 +31,19 @@ export default function HeroCarousel() {
         const fetchFilms = async () => {
             try {
                 const res = await filmService.getHeroSlides()
-                // Map API response to HeroSlide format
-                const heroFilms = res.data.result.map((film: any) => ({
-                    filmId: film.filmId,
-                    title: film.title,
-                    originalTitle: film.originalTitle,
-                    description: film.description,
-                    posterUrl: film.posterUrl,
-                    year: film.year,
-                    ageRating: film.age.valueVi,
-                    genres: film.genres,
-                }))
+                const heroFilms = res.data.result.map(
+                    (film: any) =>
+                        ({
+                            filmId: film.filmId,
+                            title: film.title,
+                            originalTitle: film.originalTitle,
+                            description: film.description,
+                            posterUrl: film.posterUrl,
+                            year: film.year,
+                            age: film.age.valueVi,
+                            genres: film.genres,
+                        }) as Film,
+                )
                 setFilms(heroFilms)
             } catch (error) {
                 console.error("Lỗi khi tải dữ liệu phim:", error)
@@ -50,7 +53,6 @@ export default function HeroCarousel() {
         }
         fetchFilms()
     }, [])
-    console.log(">>> check state film: ", films)
 
     useEffect(() => {
         if (!autoPlay || films.length === 0) return
@@ -97,6 +99,11 @@ export default function HeroCarousel() {
         setCurrentSlide(index)
     }
 
+    const getGenreText = (genre: any): string => {
+        if (typeof genre === "string") return genre
+        return genre?.valueVi || genre?.valueEn || ""
+    }
+
     if (loading || films.length === 0) {
         return (
             <section className="relative w-full h-[500px] md:h-[550px] lg:h-[600px] bg-slate-950 flex items-center justify-center">
@@ -137,7 +144,7 @@ export default function HeroCarousel() {
             ))}
 
             {/* Content Container */}
-            <div className="relative h-[500px] md:h-[550px] lg:h-[600px] flex items-center select-non">
+            <div className="relative h-[500px] md:h-[550px] lg:h-[600px] flex items-center select-none">
                 <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
                     <div className="max-w-xl space-y-2 md:space-y-3">
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
@@ -145,52 +152,54 @@ export default function HeroCarousel() {
                         </h1>
 
                         {/* Original Title */}
-                        <p className="text-sm md:text-base text-amber-400 font-semibold select-none">{slide.originalTitle}</p>
+                        {slide.originalTitle && (
+                            <p className="text-sm md:text-base text-amber-400 font-semibold select-none">{slide.originalTitle}</p>
+                        )}
 
                         <div className="flex flex-wrap items-center gap-2 pt-1 select-none">
-                            < div className=" flex items-center gap-1 bg-slate-800/80 backdrop-blur-sm px-2 py-1 rounded border border-slate-700 " >
-                                < span className=" text-amber-400 font-bold text-xs " > IMDb </ span >
-                                < span className=" text-white font-bold text-xs " > 7.5 </ span >
+                            < div className=" flex items-center gap-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-[#f0d25c]" >
+                                < span className=" text-amber-400 font-bold text-xs " > IMDb </ span > < span className=" text-white font-bold text-xs " > 7.5 </ span >
                             </ div >
-                            <div className="bg-slate-800/80 backdrop-blur-sm px-2 py-1 rounded border border-slate-700 text-white font-semibold text-xs">
-                                {slide.ageRating}
-                            </div>
-                            <div className="bg-slate-800/80 backdrop-blur-sm px-2 py-1 rounded border border-slate-700 text-white font-semibold text-xs">
-                                {slide.year}
-                            </div>
-                            < div className=" bg-slate-800/80 backdrop-blur-sm px-2 py-1 rounded border border-slate-700 text-white font-semibold text-xs " >
-                                1h48
-                            </ div >
+                            {slide.age && (
+                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white font-semibold text-xs">
+                                    {slide.age}
+                                </div>
+                            )}
+                            {slide.year && (
+                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white font-semibold text-xs">
+                                    {slide.year}
+                                </div>
+                            )}
                         </div>
 
-                        <div className="flex flex-wrap gap-1.5 pt-1">
-                            {slide.genres.map((genre) => (
-                                <span
-                                    key={genre.valueVi}
-                                    className="px-2 py-1 bg-slate-800/60 backdrop-blur-sm text-white text-xs font-medium rounded border border-slate-700 hover:border-slate-600 transition-colors"
-                                >
-                                    {genre.valueVi}
-                                </span>
-                            ))}
-                        </div>
+                        {slide.genres && slide.genres.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                                {slide.genres.map((genre, idx) => (
+                                    <span
+                                        key={idx}
+                                        className="px-2 py-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm text-white text-xs font-medium rounded border border-slate-700 hover:border-slate-600 transition-colors"
+                                    >
+                                        {getGenreText(genre)}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Description */}
-                        <p className="text-xs md:text-sm text-gray-300 max-w-xl leading-relaxed pt-1 line-clamp-2 select-none">
-                            {slide.description}
-                        </p>
+                        {slide.description && (
+                            <p className="text-xs md:text-sm text-white max-w-xl leading-relaxed pt-1 line-clamp-2 select-none">
+                                {slide.description}
+                            </p>
+                        )}
 
                         <div className="flex items-center gap-2 pt-3">
                             <button
-                                className="flex items-center justify-center w-15 h-15 rounded-full bg-gradient-to-b 
-                                            from-amber-300 
-                                            to-amber-500 
-                                            shadow-[0_4px_12px_rgba(255,180,50,0.35)]
-                                            hover:from-amber-400 
-                                            hover:to-amber-600 
-                                            hover:shadow-[0_6px_18px_rgba(255,180,50,0.45)] transition-all
-                             duration-300 ease-out mr-4"
+                                className="flex items-center justify-center w-17 h-17 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-500
+                            hover:from-yellow-400 hover:to-yellow-200 
+                            hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]
+                            transition-all duration-300 ease-in-out cursor-pointer mr-4"
                             >
-                                <Play className="w-7 h-7 fill-current" />
+                                <Play className="w-8 h-8 fill-current" />
                             </button>
                             <button className="flex items-center justify-center w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all duration-300 backdrop-blur-sm">
                                 <Heart className="w-4 h-4" />

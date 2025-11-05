@@ -1,357 +1,89 @@
-// import Header from "@/app/components/header"
-import HeroCarousel from "@/components/homepage/hero-carousel";
-import ContentCarousel from "@/components/homepage/content-carousel";
-// import Footer from "@/app/components/footer"
+"use client"
+
+import { useEffect, useState } from "react"
+import HeroCarousel from "@/components/homepage/hero-carousel"
+import ContentCarousel from "@/components/homepage/content-carousel"
+import { filmService } from "@/services/filmService"
+import type { Film } from "@/types/filmType"
 
 export default function Home() {
+  const [koreanItems, setKoreanItems] = useState<Film[]>([])
+  const [chineseItems, setChineseItems] = useState<Film[]>([])
+  const [usukItems, setUsukItems] = useState<Film[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchFilms = async () => {
+      try {
+        setLoading(true)
+        const response = await filmService.getAll()
+        const films = response.data?.result || []
+        const transformedFilms = films.map(
+          (film: any) =>
+            ({
+              filmId: film.filmId,
+              id: film.filmId,
+              title: film.title,
+              originalTitle: film.originalTitle,
+              posterUrl: film.posterUrl,
+              imdbRating: 7.5,
+              age: film.age,
+              year: film.year,
+              genres:
+                film.genres
+                  ?.map((genre: any) =>
+                    typeof genre === "string" ? genre : genre.valueEn || genre.valueVi || genre.keyMap || "",
+                  )
+                  .filter(Boolean) || [],
+              badges: [
+                { text: "PD.8", color: "bg-blue-600" },
+                { text: "TM.4", color: "bg-green-600" },
+              ],
+              episodes: "Phần 1, Tập 12",
+            }) as Film,
+        )
+        const itemsPerCategory = Math.ceil(transformedFilms.length / 3)
+        setKoreanItems(transformedFilms.slice(0, itemsPerCategory))
+        setChineseItems(transformedFilms.slice(itemsPerCategory, itemsPerCategory * 2))
+        setUsukItems(transformedFilms.slice(itemsPerCategory * 2))
+
+        setError(null)
+      } catch (err) {
+        setError("Không thể tải dữ liệu phim")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFilms()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-white text-lg">Đang tải dữ liệu...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-red-500 text-lg">{error}</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* <Header /> */}
       <HeroCarousel />
 
       <main className="space-y-4 pb-12">
-        <ContentCarousel title="Phim Hàn Quốc mới" items={koreanItems} />
-        <ContentCarousel title="Phim Trung Quốc mới" items={chineseItems} />
-        <ContentCarousel title="Phim US-UK mới" items={usukItems} />
+        {koreanItems.length > 0 && <ContentCarousel title="Phim Hàn Quốc mới" items={koreanItems} />}
+        {chineseItems.length > 0 && <ContentCarousel title="Phim Trung Quốc mới" items={chineseItems} />}
+        {usukItems.length > 0 && <ContentCarousel title="Phim US-UK mới" items={usukItems} />}
       </main>
-
-      {/* <Footer /> */}
     </div>
-  );
+  )
 }
-
-const koreanItems = [
-  {
-    id: 1,
-    title: "Để Nhật Phi Nhân",
-    englishTitle: "First Lady",
-    image: "/korean-drama-first-lady.jpg",
-    badges: [
-      { text: "PD.8", color: "bg-blue-600" },
-      { text: "TM.4", color: "bg-green-600" },
-    ],
-    imdbRating: 7.8,
-    ageRating: "T16",
-    year: 2024,
-    episodes: "Phần 1, Tập 12",
-    genres: ["Chính Kịch", "Tình Cảm", "Gia Đình"],
-  },
-  {
-    id: 2,
-    title: "Tính Yêu Quá Cảnh",
-    englishTitle: "Exchange",
-    image: "/korean-drama-exchange.jpg",
-    badges: [{ text: "PD.7", color: "bg-blue-600" }],
-    imdbRating: 8.1,
-    ageRating: "T13",
-    year: 2023,
-    episodes: "Phần 1, Tập 16",
-    genres: ["Tình Cảm", "Hài Hước"],
-  },
-  {
-    id: 3,
-    title: "Quỷ Có Ái Danh",
-    englishTitle: "Ms. Incognito",
-    image: "/korean-drama-incognito.jpg",
-    badges: [
-      { text: "PD.8", color: "bg-pink-600" },
-      { text: "TM.4", color: "bg-green-600" },
-    ],
-    imdbRating: 7.5,
-    ageRating: "T18",
-    year: 2024,
-    episodes: "Phần 1, Tập 20",
-    genres: ["Bí Ẩn", "Tình Cảm"],
-  },
-  {
-    id: 4,
-    title: "Hãy Lấy Em Đi",
-    englishTitle: "Would You Marry Me?",
-    image: "/korean-drama-marry.jpg",
-    badges: [
-      { text: "PD.4", color: "bg-blue-600" },
-      { text: "TM.4", color: "bg-green-600" },
-    ],
-    imdbRating: 8.3,
-    ageRating: "T13",
-    year: 2023,
-    episodes: "Phần 1, Tập 18",
-    genres: ["Tình Cảm", "Hài Hước", "Gia Đình"],
-  },
-  {
-    id: 5,
-    title: "Thời Vàng Son",
-    englishTitle: "Our Golden Days",
-    image: "/korean-drama-golden.jpg",
-    badges: [
-      { text: "PD.22", color: "bg-blue-600" },
-      { text: "TM.22", color: "bg-green-600" },
-    ],
-    imdbRating: 8.0,
-    ageRating: "T13",
-    year: 2024,
-    episodes: "Phần 1, Tập 22",
-    genres: ["Tình Cảm", "Gia Đình"],
-  },
-  {
-    id: 6,
-    title: "Tình Yêu Bất Tận",
-    englishTitle: "Eternal Love",
-    image: "/korean-drama-eternal.jpg",
-    badges: [
-      { text: "PD.16", color: "bg-purple-600" },
-      { text: "TM.16", color: "bg-pink-600" },
-    ],
-    imdbRating: 7.9,
-    ageRating: "T16",
-    year: 2023,
-    episodes: "Phần 1, Tập 16",
-    genres: ["Tình Cảm", "Chính Kịch"],
-  },
-  {
-    id: 7,
-    title: "Mùa Hè Rực Rỡ",
-    englishTitle: "Bright Summer",
-    image: "/korean-drama-summer.jpg",
-    badges: [{ text: "PD.12", color: "bg-yellow-600" }],
-    imdbRating: 7.6,
-    ageRating: "T13",
-    year: 2024,
-    episodes: "Phần 1, Tập 12",
-    genres: ["Tình Cảm", "Hài Hước"],
-  },
-  {
-    id: 8,
-    title: "Lời Hứa Vĩnh Viễn",
-    englishTitle: "Forever Promise",
-    image: "/korean-drama-promise.jpg",
-    badges: [
-      { text: "PD.20", color: "bg-blue-600" },
-      { text: "TM.20", color: "bg-green-600" },
-    ],
-    imdbRating: 8.2,
-    ageRating: "T16",
-    year: 2023,
-    episodes: "Phần 1, Tập 20",
-    genres: ["Tình Cảm", "Chính Kịch", "Gia Đình"],
-  },
-];
-
-const chineseItems = [
-  {
-    id: 1,
-    title: "Nhà Hàng Lưu Đỏ",
-    englishTitle: "Fragrance of the Pomegranates",
-    image: "/chinese-drama-pomegranate.jpg",
-    badges: [{ text: "PD.8", color: "bg-blue-600" }],
-    imdbRating: 7.7,
-    ageRating: "T13",
-    year: 2024,
-    episodes: "Phần 1, Tập 30",
-    genres: ["Tình Cảm", "Gia Đình"],
-  },
-  {
-    id: 2,
-    title: "Cô Ấy Trong Đêm Tối",
-    englishTitle: "Queen of Darkness",
-    image: "/chinese-drama-darkness.jpg",
-    badges: [{ text: "PD.7", color: "bg-purple-600" }],
-    imdbRating: 8.4,
-    ageRating: "T16",
-    year: 2023,
-    episodes: "Phần 1, Tập 24",
-    genres: ["Bí Ẩn", "Chính Kịch"],
-  },
-  {
-    id: 3,
-    title: "Nhập Thành Văn",
-    englishTitle: "Love in the Clouds",
-    image: "/chinese-drama-clouds.jpg",
-    badges: [
-      { text: "PD.23", color: "bg-blue-600" },
-      { text: "TM.23", color: "bg-green-600" },
-    ],
-    imdbRating: 8.0,
-    ageRating: "T13",
-    year: 2024,
-    episodes: "Phần 1, Tập 23",
-    genres: ["Tình Cảm", "Kỳ Ảo"],
-  },
-  {
-    id: 4,
-    title: "Âm Hà Truyện",
-    englishTitle: "Blood River",
-    image: "/placeholder-9sxw1.png",
-    badges: [
-      { text: "PD.10", color: "bg-blue-600" },
-      { text: "TM.7", color: "bg-green-600" },
-    ],
-    imdbRating: 7.8,
-    ageRating: "T18",
-    year: 2023,
-    episodes: "Phần 1, Tập 10",
-    genres: ["Hành Động", "Chính Kịch"],
-  },
-  {
-    id: 5,
-    title: "Dị Phí Xương Thiên",
-    englishTitle: "Search for Soul Stone",
-    image: "/chinese-drama-soul.jpg",
-    badges: [{ text: "PD.15", color: "bg-blue-600" }],
-    imdbRating: 7.9,
-    ageRating: "T16",
-    year: 2024,
-    episodes: "Phần 1, Tập 15",
-    genres: ["Kỳ Ảo", "Hành Động"],
-  },
-  {
-    id: 6,
-    title: "Tình Yêu Thời Cổ Đại",
-    englishTitle: "Ancient Love",
-    image: "/chinese-drama-ancient.jpg",
-    badges: [
-      { text: "PD.30", color: "bg-red-600" },
-      { text: "TM.30", color: "bg-orange-600" },
-    ],
-    imdbRating: 8.1,
-    ageRating: "T13",
-    year: 2023,
-    episodes: "Phần 1, Tập 30",
-    genres: ["Tình Cảm", "Kỳ Ảo", "Chính Kịch"],
-  },
-  {
-    id: 7,
-    title: "Kiếm Hiệp Giang Hồ",
-    englishTitle: "Sword and Chivalry",
-    image: "/chinese-drama-sword.jpg",
-    badges: [{ text: "PD.24", color: "bg-blue-600" }],
-    imdbRating: 7.5,
-    ageRating: "T16",
-    year: 2024,
-    episodes: "Phần 1, Tập 24",
-    genres: ["Hành Động", "Kiếm Hiệp"],
-  },
-  {
-    id: 8,
-    title: "Mộng Hồi Đại Đường",
-    englishTitle: "Dream of Tang Dynasty",
-    image: "/chinese-drama-tang.jpg",
-    badges: [
-      { text: "PD.28", color: "bg-indigo-600" },
-      { text: "TM.28", color: "bg-cyan-600" },
-    ],
-    imdbRating: 8.2,
-    ageRating: "T13",
-    year: 2023,
-    episodes: "Phần 1, Tập 28",
-    genres: ["Tình Cảm", "Chính Kịch", "Kỳ Ảo"],
-  },
-];
-
-const usukItems = [
-  {
-    id: 1,
-    title: "Gen V",
-    englishTitle: "Gen V",
-    image: "/gen-v-series.jpg",
-    badges: [{ text: "PD.8", color: "bg-yellow-600" }],
-    imdbRating: 8.0,
-    ageRating: "T18",
-    year: 2024,
-    episodes: "Phần 1, Tập 8",
-    genres: ["Hành Động", "Siêu Anh Hùng"],
-  },
-  {
-    id: 2,
-    title: "Điệp Vụ Tử Thần",
-    englishTitle: "Splinter Cell: Deathwatch",
-    image: "/splinter-cell-deathwatch.jpg",
-    badges: [
-      { text: "PD.8", color: "bg-blue-600" },
-      { text: "TM.8", color: "bg-green-600" },
-    ],
-    imdbRating: 7.6,
-    ageRating: "T18",
-    year: 2024,
-    episodes: "Phần 1, Tập 8",
-    genres: ["Hành Động", "Gián Điệp"],
-  },
-  {
-    id: 3,
-    title: "Ông Trùm Giang Hồ",
-    englishTitle: "Tulsa King",
-    image: "/tulsa-king-series.jpg",
-    badges: [{ text: "PD.8", color: "bg-blue-600" }],
-    imdbRating: 8.3,
-    ageRating: "T16",
-    year: 2023,
-    episodes: "Phần 2, Tập 10",
-    genres: ["Hài Hước", "Chính Kịch"],
-  },
-  {
-    id: 4,
-    title: "Vương Quyền David",
-    englishTitle: "House of David",
-    image: "/house-of-david.jpg",
-    badges: [{ text: "PD.4", color: "bg-blue-600" }],
-    imdbRating: 7.9,
-    ageRating: "T16",
-    year: 2024,
-    episodes: "Phần 1, Tập 4",
-    genres: ["Chính Kịch", "Lịch Sử"],
-  },
-  {
-    id: 5,
-    title: "Sát Nhân Trong Tòa Nhà",
-    englishTitle: "Only Murders in the Building",
-    image: "/only-murders-building.jpg",
-    badges: [{ text: "PD.8", color: "bg-blue-600" }],
-    imdbRating: 8.5,
-    ageRating: "T16",
-    year: 2023,
-    episodes: "Phần 3, Tập 10",
-    genres: ["Bí Ẩn", "Hài Hước"],
-  },
-  {
-    id: 6,
-    title: "Người Nhện Vũ Trụ",
-    englishTitle: "Spider-Verse",
-    image: "/spiderverse-series.jpg",
-    badges: [
-      { text: "PD.12", color: "bg-red-600" },
-      { text: "TM.12", color: "bg-blue-600" },
-    ],
-    imdbRating: 8.7,
-    ageRating: "T13",
-    year: 2024,
-    episodes: "Phần 1, Tập 12",
-    genres: ["Hành Động", "Siêu Anh Hùng"],
-  },
-  {
-    id: 7,
-    title: "Thế Giới Khác",
-    englishTitle: "Alternate World",
-    image: "/alternate-world.jpg",
-    badges: [{ text: "PD.10", color: "bg-purple-600" }],
-    imdbRating: 7.4,
-    ageRating: "T16",
-    year: 2023,
-    episodes: "Phần 1, Tập 10",
-    genres: ["Khoa Học Viễn Tưởng", "Chính Kịch"],
-  },
-  {
-    id: 8,
-    title: "Cuộc Chiến Tương Lai",
-    englishTitle: "Future Wars",
-    image: "/future-wars.jpg",
-    badges: [
-      { text: "PD.14", color: "bg-orange-600" },
-      { text: "TM.14", color: "bg-yellow-600" },
-    ],
-    imdbRating: 7.8,
-    ageRating: "T18",
-    year: 2024,
-    episodes: "Phần 1, Tập 14",
-    genres: ["Hành Động", "Khoa Học Viễn Tưởng"],
-  },
-];

@@ -149,18 +149,17 @@ body {
   scrollbar-width: none;
 }
 @keyframes popup-in {
-  from {
+  0% {
     opacity: 0;
-    transform: translateX(-50%) scale(0.5) translateY(-100%);
+    transform: translate(-50%, -40%) scale(0);
   }
-  to {
+  100% {
     opacity: 1;
-    transform: translateX(-50%) scale(1) translateY(-100%);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
-
-@layer utilities {
+ @layer utilities {
   .animate-popup-in {
-    animation: popup-in 0.3s ease-in;
+    animation: popup-in 0.3s ease-out forwards;
   }
 }
