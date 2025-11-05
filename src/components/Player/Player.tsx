@@ -46,7 +46,7 @@ const Player = ({ episodeData }: PlayerProps) => {
   return (
     <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
       <div className="relative group">
-        <PlayerInfo onOpenChange={setIsOpen} />
+        {/* <PlayerInfo onOpenChange={setIsOpen} title={video.title} episodeNumber={video.episodeNumber} /> */}
         <PlayListNav open={isOpen} onOpenChange={setIsOpen} />
         <div className="relative">
           <PlayerController

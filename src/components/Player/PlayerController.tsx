@@ -105,6 +105,7 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
     const art = new Artplayer({
       container: artRef.current,
       url: videoUrl,
+      // url: "https://stream.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ.m3u8",
       type: "m3u8",
       customType: {
         m3u8: playM3u8,
