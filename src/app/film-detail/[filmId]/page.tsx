@@ -5,19 +5,13 @@ import filmServices from "@/services/filmService";
 import Background from "@/components/custom/Background";
 import FilmInfo from "@/components/custom/FilmInfo";
 import TabsSection from "@/components/custom/Tabs";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
 import CommentRatingTabs from "@/components/custom/CommentRatingTabs";
 import { useParams } from "next/navigation";
-import { FilmDirectorData } from "@/types/filmDirectorData";
-import { FilmActorData } from "@/types/filmActorData";
 import { partServices } from "@/services/partService";
 import { RatingData } from "@/types/ratingData";
 
 import { PartData } from "@/types/partData";
-import { FilmDetail } from "@/types/film.type";
 import { useFilmStore } from "@/stores/filmStore";
-import ErrorPage from "@/app/error";
 import PlayBar from "@/components/film/detail/playbar";
 
 export default function FilmDetailPage() {
@@ -77,11 +71,7 @@ export default function FilmDetailPage() {
 
           <div className="lg:col-span-7 flex flex-col gap-8 rounded-4xl p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px]">
             <PlayBar activeTab={activeTab} setActiveTab={setActiveTab} />
-            {/* <TabsSection
-                actor={filmActorData as any}
-                film={filmData}
-                part={filmPartData as any}
-              /> */}
+            <TabsSection />
             <CommentRatingTabs
               activeTab={activeTab}
               setActiveTab={setActiveTab}
