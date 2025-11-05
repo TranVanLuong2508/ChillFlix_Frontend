@@ -7,17 +7,6 @@ import { Play, Heart, Info, ChevronLeft, ChevronRight } from "lucide-react"
 import { filmService } from "@/services/filmService"
 import type { Film } from "@/types/filmType"
 
-interface HeroSlide {
-    filmId: string
-    title: string
-    originalTitle: string
-    description: string
-    posterUrl: string
-    year: string
-    ageRating: string
-    genres: Array<{ valueVi: string }>
-}
-
 export default function HeroCarousel() {
     const [currentSlide, setCurrentSlide] = useState(0)
     const [autoPlay, setAutoPlay] = useState(true)
