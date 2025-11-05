@@ -26,10 +26,10 @@ export const useFilmStore = create<State & Action>((set, get) => ({
 
   resetFilmDetail: () => set(initialFilmDetail),
 
-  getDetailFilm: async (filmId) => {
+  getDetailFilm: async (filmSlug) => {
     set({ loading: true, error: null });
     try {
-      const res = await filmServices.getFilmById(filmId);
+      const res = await filmServices.getFilmBySlug(filmSlug);
 
       if (res.EC !== 0) {
         set({ error: res.EM });

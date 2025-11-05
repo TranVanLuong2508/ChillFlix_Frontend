@@ -15,7 +15,9 @@ import { useFilmStore } from "@/stores/filmStore";
 import PlayBar from "@/components/film/detail/playbar";
 
 export default function FilmDetailPage() {
-  const { filmId }: { filmId: string } = useParams();
+  const { filmSlug }: { filmSlug: string } = useParams();
+  // const params = useParams();
+  // console.log(">>Check: ", params)
 
   const { loading, error, filmData, getDetailFilm } = useFilmStore();
 
@@ -28,27 +30,27 @@ export default function FilmDetailPage() {
     parts: PartData[];
   } | null>(null);
 
-  console.log("Check filmId: ", filmId);
+  // console.log("Check filmSlug: ", filmSLug);
 
-  const fetchFilm = async () => {
-    try {
-      const ratingRes = await filmServices.getRatingsByFilmId(filmId as string);
-      const partRes = await partServices.getPartsByFilmId(filmId as string);
+  // const fetchFilm = async () => {
+  //   try {
+  //     const ratingRes = await filmServices.getRatingsByFilmId(filmId as string);
+  //     const partRes = await partServices.getPartsByFilmId(filmId as string);
 
-      setFilmRatingData(ratingRes.data.result);
-      setFilmPartData({
-        parts: Array.isArray(partRes.data) ? partRes.data : [],
-      });
-    } catch (error) {
-      console.error("Failed to fetch film:", error);
-    }
-  };
+  //     setFilmRatingData(ratingRes.data.result);
+  //     setFilmPartData({
+  //       parts: Array.isArray(partRes.data) ? partRes.data : [],
+  //     });
+  //   } catch (error) {
+  //     console.error("Failed to fetch film:", error);
+  //   }
+  // };
 
   useEffect(() => {
-    if (!filmId) return;
+    if (!filmSlug) return;
     // fetchFilm();
-    getDetailFilm(filmId);
-  }, [filmId]);
+    getDetailFilm(filmSlug);
+  }, [filmSlug]);
 
   if (loading || !filmData) {
     return <div className="text-center py-20">Đang tải dữ liệu...</div>;

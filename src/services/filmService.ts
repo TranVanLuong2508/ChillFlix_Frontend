@@ -7,6 +7,10 @@ const filmServices = {
     return axios.get(`/films/${filmId}`);
   },
 
+  getFilmBySlug: (filmSLug: string): Promise<IBackendRes<FilmDetailRes>> => {
+    return axios.get(`/films/slug/${filmSLug}`);
+  },
+
   getActorByFilmId: (filmId: string) => {
     return axios.get(`/film-actor/get-actors-by-film/${filmId}`);
   },
