@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import HeroCarousel from "@/components/homepage/hero-carousel"
 import ContentCarousel from "@/components/homepage/content-carousel"
-import { filmService } from "@/services/filmService"
 import type { Film } from "@/types/filmType"
+import filmServices from "@/services/filmService"
 
 export default function Home() {
   const [koreanItems, setKoreanItems] = useState<Film[]>([])
@@ -17,7 +17,7 @@ export default function Home() {
     const fetchFilms = async () => {
       try {
         setLoading(true)
-        const response = await filmService.getAll()
+        const response = await filmServices.getAll()
         const films = response.data?.result || []
         const transformedFilms = films.map(
           (film: any) =>
