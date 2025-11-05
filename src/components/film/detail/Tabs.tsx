@@ -92,8 +92,6 @@ export default function TabsSection() {
               <>
                 <h2 className="text-xl font-semibold mb-3 text-yellow-400">Bản chiếu</h2>
 
-                <h2 className="text-xl font-semibold mb-3 text-yellow-400">Bản chiếu</h2>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div
                     className="relative overflow-hidden rounded-xl border border-zinc-800  bg-zinc-900 transition-all duration-300 cursor-pointer"
@@ -225,12 +223,12 @@ export default function TabsSection() {
           <div>
             <h2 className="text-xl font-semibold mb-3 text-yellow-400">Hình ảnh</h2>
 
-            {Array.isArray(filmData?.filmImages) && (filmData?.filmImages.length > 0 || filmData.film.thumbUrl) ? (
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 md:gap-2">
+            {filmData && (filmData?.filmImages || filmData.film.thumbUrl) ? (
+              <div className="flex items-center gap-2">
                 {filmData.film.thumbUrl && (
                   <div
                     key="thumb"
-                    className="aspect-[2/3] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                    className="aspect-[16/9] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
                   >
                     <img
                       src={filmData.film.thumbUrl}
@@ -240,18 +238,36 @@ export default function TabsSection() {
                   </div>
                 )}
 
-                {filmData.filmImages.map((img, index) => (
-                  <div
-                    key={index}
-                    className="aspect-[2/3] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
-                  >
-                    <img
-                      src={img.url || "/images/small.jpg"}
-                      alt={`${filmData.film.title} - ${img.type}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
+                <div
+                  className="aspect-[16/9] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                >
+                  <img
+                    src={filmData?.filmImages.backdrop || "/images/small.jpg"}
+                    alt={`${filmData.film.title}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div
+                  className="aspect-[2/3] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                >
+                  <img
+                    src={filmData?.filmImages.horizontal || "/images/small.jpg"}
+                    alt={`${filmData.film.title}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div
+                  className="aspect-[2/3] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                >
+                  <img
+                    src={filmData?.filmImages.poster || "/images/small.jpg"}
+                    alt={`${filmData.film.title}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+
+
               </div>
             ) : (
               <p className="text-gray-400 italic mt-2">Chưa có hình ảnh cho phim này</p>
