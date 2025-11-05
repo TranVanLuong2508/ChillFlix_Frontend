@@ -183,8 +183,20 @@ input:-webkit-autofill:active {
     transform: translate(-50%, -50%) scale(1);
   }
 }
- @layer utilities {
+@layer utilities {
   .animate-popup-in {
     animation: popup-in 0.3s ease-out forwards;
   }
+}
+
+.swiper {
+  overflow: visible !important;
+}
+
+.swiper-wrapper {
+  overflow: visible !important;
+}
+
+.swiper-slide {
+  overflow: visible !important;
 }

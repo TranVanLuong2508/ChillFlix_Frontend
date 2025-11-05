@@ -9,7 +9,6 @@ import LoadingSpinner from "@/components/layout/loadingSpinner";
 import { useAuthStore } from "@/stores/authStore";
 import { subsciptionPlanService } from "@/services/subscriptionPlanService";
 
-// ✅ Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -80,7 +79,7 @@ const VIP_PACKAGES: VipPackage[] = [
 
 export default function VipUpgradeContent() {
   const router = useRouter();
-  const [selectedPackage, setSelectedPackage] = useState<string>("sixmonths");
+  const [selectedPackage, setSelectedPackage] = useState<string>("yearly");
   const [isLoading, setIsLoading] = useState(false);
 
   const formatPrice = (price: number) =>
@@ -171,53 +170,76 @@ export default function VipUpgradeContent() {
       </section>
 
       {/* Swiper Carousel */}
-      <section className="py-10 px-4">
+      <section className="py-10 px-4 !overflow-visible m-auto">
         <Swiper
           modules={[Pagination]}
           pagination={{ clickable: true }}
-          spaceBetween={20}
-          slidesPerView={1.1}
+          spaceBetween={24}
+          slidesPerView={1.3}
           centeredSlides={true}
+          centeredSlidesBounds={true} // Quan trọng
           loop={true}
+          loopAdditionalSlides={VIP_PACKAGES.length} //Fix lệch khi loop
+          initialSlide={VIP_PACKAGES.findIndex((p) => p.id === selectedPackage)} //Đặt đúng slide giữa
           breakpoints={{
-            640: { slidesPerView: 2.2 },
-            1024: { slidesPerView: 3.3 },
+            640: { slidesPerView: 2.1 },
+            1024: { slidesPerView: 3 },
           }}
-          className="pb-12"
+          className="pb-12 !overflow-visible"
         >
           {VIP_PACKAGES.map((pkg) => (
             <SwiperSlide key={pkg.id}>
               <div
                 onClick={() => setSelectedPackage(pkg.id)}
-                className={`relative p-6 rounded-2xl backdrop-blur-xl bg-black/50 cursor-pointer border transition-all ${
-                  selectedPackage === pkg.id
-                    ? "border-yellow-400 shadow-[0_0_35px_rgba(255,215,0,0.6)] scale-[1.05]"
-                    : "border-white/10 hover:border-yellow-400/40 hover:scale-[1.03]"
-                }`}
+                className={`relative rounded-3xl p-6 cursor-pointer transition-all duration-300
+                    backdrop-blur-xl border 
+                    ${
+                      selectedPackage === pkg.id
+                        ? "border-yellow-400 shadow-[0_0_40px_rgba(255,215,0,0.55)] scale-[1.04] z-20"
+                        : "border-white/10 hover:border-yellow-400/40 hover:scale-[1.02]"
+                    }
+                    bg-gradient-to-b from-[#1b1f2a] to-[#0d0f14]
+                  `}
               >
+                {/* Discount Badge */}
                 {pkg.discount > 0 && (
-                  <span className="absolute top-3 right-3 bg-yellow-500/20 border border-yellow-400/40 text-yellow-300 px-2 py-1 text-xs rounded-md font-bold">
-                    -{pkg.discount}%
+                  <span className="absolute top-4 right-4 bg-yellow-500/15 border border-yellow-400/60 text-yellow-300 px-2 py-1 text-xs rounded-md font-bold">
+                    Giảm {pkg.discount}%
                   </span>
                 )}
 
-                <h3 className="text-white font-bold text-xl mb-3">
+                {/* Duration */}
+                <h3 className="text-white font-bold text-2xl mb-1 tracking-wide">
                   {pkg.duration}
                 </h3>
 
-                <p className="text-yellow-300 text-2xl font-extrabold">
-                  {formatPrice(pkg.price)}₽
-                </p>
-
-                {pkg.discount > 0 && (
-                  <p className="text-gray-500 text-xs line-through mb-2">
-                    {formatPrice(pkg.originalPrice)}₽
+                {/* Price */}
+                <div className="flex items-end gap-2 mb-3">
+                  <p className="text-yellow-300 text-3xl font-extrabold leading-none">
+                    {formatPrice(pkg.price)}₫
                   </p>
-                )}
 
+                  {pkg.discount > 0 && (
+                    <p className="text-gray-500 text-xs line-through">
+                      {formatPrice(pkg.originalPrice)}₫
+                    </p>
+                  )}
+                </div>
+
+                {/* Features */}
+                <ul className="text-sm text-gray-300 space-y-2 mb-6">
+                  {pkg.features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-yellow-400" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Select Button */}
                 <Button
                   size="sm"
-                  className={`w-full mt-4 font-semibold ${
+                  className={`w-full font-bold py-2 rounded-xl transition-all ${
                     selectedPackage === pkg.id
                       ? "bg-yellow-400 text-black hover:bg-yellow-500"
                       : "bg-white/10 text-white border border-white/20 hover:bg-white/20"
