@@ -41,15 +41,14 @@ const ModalAdd = ({ action }: { action: actionType }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl text-white transition-all duration-300 ease-in-out cursor-pointer hover:text-yellow-400 hover:text-shadow-[0_0_25px_rgba(250,204,21,0.4)] focus:outline-none focus:ring-0">
-          <Icon size={24} strokeWidth={2} />
-          <span className="text-sm mt-1">{action.label}</span>
+          <Icon size={18} strokeWidth={2} />
+          <span className="text-xs mt-1">{action.label}</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         side="bottom"
         align="center"
-        sideOffset={10}
-        // className="w-52 bg-[#191B24] border border-zinc-800/70 text-gray-200 rounded-2xl p-2 shadow-[0_0_20px_rgba(0,0,0,0.6)] backdrop-blur-smanimate-in fade-in slide-in-from-bottom-2 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95  duration-200 ease-out"
+        sideOffset={0}
         className="w-52 bg-zinc-600/10 backdrop-blur-md border border-white/25 text-gray-200 rounded-2xl fade-in slide-in-from-bottom-2 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 duration-160 ease-in-out p-3"
       >
         <DropdownMenuLabel className="flex justify-between text-xs uppercase tracking-wide text-gray-400 px-1">
@@ -158,60 +157,68 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
         if (section) section.scrollIntoView({ behavior: "smooth" });
       },
     },
-    {
-      id: "rating",
-      label: "Đánh giá",
-      icon: Star,
-      onClick: () => {
-        setActiveTab("ratings");
-        const section = document.getElementById("rating-section");
-        if (section) section.scrollIntoView({ behavior: "smooth" });
-      },
-    },
   ];
 
   return (
     <>
-      <div className="flex items-center justify-between w-full mt-4 md:px-12">
-        <button
-          onClick={() => { }}
-          className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 ease-in-out cursor-pointer"
-        >
-          <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent"></span>
-          Xem Ngay
-        </button>
+      <div className="flex items-center justify-between w-full mt-4 md:px-6">
+        <div className="flex items-center justify-center">
+          <button
+            onClick={() => { }}
+            className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 ease-in-out cursor-pointer"
+          >
+            <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent">
+            </span>
+            Xem Ngay
+          </button>
 
-        <div className="flex items-center gap-8 justify-center px-12">
-          {actions.map((action) => {
-            const Icon = action.icon;
-            const isLiked = action.id === "like" && liked;
+          <div className="flex items-center gap-8 justify-center px-12">
+            {actions.map((action) => {
+              const Icon = action.icon;
+              const isLiked = action.id === "like" && liked;
 
-            if (action.id === 'add') {
-              return <ModalAdd key={action.id} action={action} />
-            }
+              if (action.id === 'add') {
+                return <ModalAdd key={action.id} action={action} />
+              }
 
-            return (
-              <button
-                key={action.id}
-                onClick={action.onClick}
-                className={cn(
-                  "flex flex-col items-center justify-center w-20 h-16 rounded-2xl transition-all duration-180 ease-in-out cursor-pointer",
-                  isLiked
-                    ? "text-yellow-400 hover:text-yellow-400"
-                    : "text-white hover:text-yellow-400"
-                )}
-              >
-                <Icon
-                  size={24}
-                  strokeWidth={isLiked ? 0 : 2}
-                  fill={isLiked ? "#facc15" : "none"}
-                  className={`${isLiked ? "text-yellow-400" : ""}`}
-                />
-                <span className="text-sm mt-1">{action.label}</span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={action.id}
+                  onClick={action.onClick}
+                  className={cn(
+                    "flex flex-col items-center justify-center w-20 h-16 rounded-2xl transition-all duration-180 ease-in-out cursor-pointer",
+                    isLiked
+                      ? "text-yellow-400 hover:text-yellow-400"
+                      : "text-white hover:text-yellow-400"
+                  )}
+                >
+                  <Icon
+                    size={18}
+                    strokeWidth={isLiked ? 0 : 2}
+                    fill={isLiked ? "#facc15" : "none"}
+                    className={`${isLiked ? "text-yellow-400" : ""}`}
+                  />
+                  <span className="text-xs mt-1">{action.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
+        <Button
+          variant={"default"}
+          className="px-3 py-4 bg-indigo-800 hover:bg-indigo-800/90 rounded-full group"
+          onClick={() => {
+            setActiveTab("ratings");
+            const section = document.getElementById("rating-section");
+            if (section) section.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          <p className="flex items-center justify-center gap-1">
+            <Star className="text-yellow-500" />
+            4.0
+          </p>
+          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:bottom-0  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">Đánh giá</p>
+        </Button>
       </div>
 
       {showShare && <ModalShare open={showShare} onOpenChange={setShowShare} />}
