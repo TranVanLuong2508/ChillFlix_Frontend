@@ -35,6 +35,7 @@ export default function LoginModal() {
     setIsLoggingIn(true);
     try {
       const loginResponse = await authService.callLogin(userLoginInput);
+      console.log("res", loginResponse)
       if (loginResponse && loginResponse.EC === 1) {
         if (loginResponse.data) {
           const loginData = loginResponse.data;
