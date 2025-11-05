@@ -161,12 +161,12 @@ export default function HeroCarousel() {
                                 < span className=" text-amber-400 font-bold text-xs " > IMDb </ span > < span className=" text-white font-bold text-xs " > 7.5 </ span >
                             </ div >
                             {slide.age && (
-                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white font-semibold text-xs">
+                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white  text-xs">
                                     {slide.age}
                                 </div>
                             )}
                             {slide.year && (
-                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white font-semibold text-xs">
+                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white  text-xs">
                                     {slide.year}
                                 </div>
                             )}
