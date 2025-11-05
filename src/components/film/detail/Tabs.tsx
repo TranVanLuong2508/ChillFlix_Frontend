@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EpisodeData } from "@/types/partData";
 import { Menu } from "lucide-react";
 import {
   DropdownMenu,
@@ -10,9 +9,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
+import { useAppRouter } from "@/hooks/filmRouter";
 import { useRouter } from "next/navigation";
 import { useFilmStore } from "@/stores/filmStore";
 import { PartRes } from "@/types/part.type";
+import { EpisodeData } from "@/types/backend.type";
 
 const tabs = [
   { id: "episodes", label: "Tập phim" },
@@ -24,18 +25,21 @@ const tabs = [
 export default function TabsSection() {
   const { filmData, partDetail, getPartData } = useFilmStore();
 
+  const route = useRouter();
 
   const [activeTab, setActiveTab] = useState("episodes");
   const [selectedPart, setSelectedPart] = useState<PartRes>();
   const [isLoadingPart, setIsLoadingPart] = useState(false);
-  const route = useRouter();
+  const { goActorDetail } = useAppRouter();
+  const { goWatchNow } = useAppRouter();
+
 
   const handleSelectPart = (p: PartRes) => {
     setIsLoadingPart(true);
     setTimeout(() => {
       setSelectedPart(p);
       setIsLoadingPart(false);
-    }, 500);
+    }, 300);
   };
 
   const handleChooseEpisode = (ep: EpisodeData) => {
@@ -88,6 +92,8 @@ export default function TabsSection() {
               <>
                 <h2 className="text-xl font-semibold mb-3 text-yellow-400">Bản chiếu</h2>
 
+                <h2 className="text-xl font-semibold mb-3 text-yellow-400">Bản chiếu</h2>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div
                     className="relative overflow-hidden rounded-xl border border-zinc-800  bg-zinc-900 transition-all duration-300 cursor-pointer"
@@ -114,6 +120,10 @@ export default function TabsSection() {
                   </div>
                 </div>
               </>
+
+
+
+
             ) : (
               <>
                 <DropdownMenu>
@@ -149,7 +159,7 @@ export default function TabsSection() {
                         onClick={() => {
                           setSelectedPart(p);
                           handleSelectPart(p);
-                          route.push(`/play/${p.episodes[0].id}`);
+                          // route.push(`/play/${p.episodes[0].id}`);
                         }}
                         className={`flex items-center justify-between w-full my-1 px-3 py-2 rounded-lg 
                             text-sm font-medium cursor-pointer select-none transition-all duration-200 ease-in-out 
@@ -184,17 +194,21 @@ export default function TabsSection() {
                     selectedPart?.episodes?.map((ep, index) => (
                       <div
                         key={`${ep.id}-${index}`}
-                        className="bg-zinc-900 rounded-lg border border-zinc-800 hover:border-yellow-400 transition-all duration-300 cursor-pointer overflow-hidden group"
+                        onClick={() => goWatchNow(ep.id)}
+                        className="relative overflow-hidden rounded-xl border border-zinc-800 
+                                  bg-zinc-900 hover:border-yellow-400 transition-all duration-300
+                                  shadow-[0_0_12px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(250,204,21,0.3)]
+                                  cursor-pointer"
                       >
                         <div className="relative w-full h-32">
                           <img
                             src={ep.thumbUrl || "/images/small.jpg"}
                             alt={ep.title}
-                            className="w-full h-full object-cover rounded-t-lg group-hover:brightness-110 transition-all duration-300"
+                            className="w-full h-full object-cover rounded-t-lg group-hover:brightness-110 transition-all duration-300 hover:scale-105"
                           />
                         </div>
                         <div className="p-2 text-center">
-                          <span className="text-gray-300 text-sm group-hover:text-yellow-400 transition-colors duration-200">
+                          <span className="text-gray-300 text-sm group-hover:text-yellow-400 transition-colors duration-200 hover:text-yellow-400 font-medium">
                             {ep.title || `Tập ${ep.episodeNumber}`}
                           </span>
                         </div>
@@ -209,17 +223,43 @@ export default function TabsSection() {
 
         {activeTab === "gallery" && (
           <div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-zinc-900 rounded-lg w-40 h-48  overflow-hidden border border-zinc-800 hover:border-yellow-400 transition-all cursor-pointer">
-                <img
-                  src={filmData?.filmImages.poster || "/images/small.jpg"}
-                  alt={filmData?.film.title}
-                  className="w-full h-full object-cover rounded-lg"
-                />
+            <h2 className="text-xl font-semibold mb-3 text-yellow-400">Hình ảnh</h2>
+
+            {Array.isArray(filmData?.filmImages) && (filmData?.filmImages.length > 0 || filmData.film.thumbUrl) ? (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 md:gap-2">
+                {filmData.film.thumbUrl && (
+                  <div
+                    key="thumb"
+                    className="aspect-[2/3] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                  >
+                    <img
+                      src={filmData.film.thumbUrl}
+                      alt={`${filmData.film.title} - Thumbnail`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                {filmData.filmImages.map((img, index) => (
+                  <div
+                    key={index}
+                    className="aspect-[2/3] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                  >
+                    <img
+                      src={img.url || "/images/small.jpg"}
+                      alt={`${filmData.film.title} - ${img.type}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
               </div>
-            </div>
+            ) : (
+              <p className="text-gray-400 italic mt-2">Chưa có hình ảnh cho phim này</p>
+            )}
           </div>
         )}
+
+
 
         {activeTab === "cast" && (
           <div>

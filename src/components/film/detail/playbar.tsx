@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button";
+import { eventBus } from "@/lib/eventBus";
 
 interface PlayBarProps {
   activeTab: "comments" | "ratings";
@@ -152,9 +153,8 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
       label: "Bình luận",
       icon: MessageSquare,
       onClick: () => {
-        setActiveTab("comments");
-        const section = document.getElementById("comment-section");
-        if (section) section.scrollIntoView({ behavior: "smooth" });
+        eventBus.emit("switchTab", "comments");
+        document.getElementById("comment-section")?.scrollIntoView({ behavior: "smooth" });
       },
     },
   ];
@@ -208,9 +208,8 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
           variant={"default"}
           className="px-3 py-4 bg-indigo-800 hover:bg-indigo-800/90 rounded-full group"
           onClick={() => {
-            setActiveTab("ratings");
-            const section = document.getElementById("rating-section");
-            if (section) section.scrollIntoView({ behavior: "smooth" });
+            eventBus.emit("switchTab", "ratings");
+            document.getElementById("rating-section")?.scrollIntoView({ behavior: "smooth" });
           }}
         >
           <p className="flex items-center justify-center gap-1">

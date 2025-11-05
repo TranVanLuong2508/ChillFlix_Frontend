@@ -4,8 +4,12 @@ import { useFilmStore } from "@/stores/filmStore";
 import { AllCodeValue } from "@/types/allcode.type";
 import { Star } from "lucide-react";
 
+import { useAppRouter } from "@/hooks/filmRouter";
+
 export default function FilmInfo({ }) {
   const { loading, error, filmData } = useFilmStore();
+
+  const { goActorDetail } = useAppRouter();
 
   if (loading || !filmData) {
     return <div className="text-center py-20">Đang tải dữ liệu...</div>;
@@ -77,6 +81,11 @@ export default function FilmInfo({ }) {
       </div>
 
       <div className="flex items-center gap-2 text-sm">
+        <h3 className="font-semibold text-white">Thời lượng: </h3>
+        <span className="text-gray-300"> {Math.floor(film.duration / 60)}h {film.duration % 60}m</span>
+      </div>
+
+      <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Quốc gia: </h3>
         <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
           {film.country?.valueVi}
@@ -108,6 +117,7 @@ export default function FilmInfo({ }) {
               {actors.map((a, index) => (
                 <div
                   key={`${a.actorId}-${index}`}
+                  onClick={() => goActorDetail(a.actorId)}
                   className="flex flex-col items-center text-center cursor-pointer group hover:scale-105 transition-transform duration-300"
                 >
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg mt-6 hover:scale-105 transition-transform duration-300">

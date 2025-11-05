@@ -44,10 +44,7 @@ export default function FilmDetailPage() {
           <div className="lg:col-span-7 flex flex-col gap-8 rounded-4xl p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px]">
             <PlayBar activeTab={activeTab} setActiveTab={setActiveTab} />
             <TabsSection />
-            <CommentRatingTabs
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
+            <CommentRatingTabs />
           </div>
         </div>
       </div>
