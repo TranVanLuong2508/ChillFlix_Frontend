@@ -31,10 +31,9 @@ export default function Home() {
               age: film.age,
               year: film.year,
               genres:
-                film.genres
-                  ?.map((genre: any) =>
-                    typeof genre === "string" ? genre : genre.valueEn || genre.valueVi || genre.keyMap || "",
-                  )
+                film.genres?.map((genre: any) =>
+                  typeof genre === "string" ? genre : genre.valueEn || genre.valueVi || genre.keyMap || "",
+                )
                   .filter(Boolean) || [],
               badges: [
                 { text: "PD.8", color: "bg-blue-600" },
@@ -76,6 +75,7 @@ export default function Home() {
   }
 
   return (
+
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       <HeroCarousel />
 
