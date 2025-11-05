@@ -4,6 +4,7 @@ import { Heart, Send } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { formatDate } from "@/lib/dateFomat";
 import { DirectorData } from "@/types/backend.type";
+import { toast } from "sonner";
 
 interface DirectorProps {
     director: DirectorData;
@@ -28,7 +29,9 @@ export default function DirectorInfo({ director }: DirectorProps) {
 
             <div className="flex items-center justify-center gap-3 mb-6">
                 <button
-                    onClick={() => setLiked(!liked)}
+                    onClick={() => {
+                        setLiked(!liked);
+                    }}
                     className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full
                                 bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
                                 hover:bg-zinc-800 hover:text-yellow-400 transition-all"

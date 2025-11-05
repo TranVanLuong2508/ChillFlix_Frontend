@@ -7,7 +7,6 @@ import { FreeMode } from "swiper/modules";
 import { FilmData } from "@/types/backend.type";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAppRouter } from "@/hooks/filmRouter";
-import { useFilmStore } from "@/stores/filmStore";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFilmClick } from "@/hooks/handleFiilmClick";
@@ -117,7 +116,40 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
 
                         );
                     })}
+                    <div className="col-span-full flex items-center justify-center mt-3">
+                        <div className="flex items-center justify-center gap-4">
 
+                            <button
+                                onClick={() => console.log("Prev page")}
+                                className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 
+                                            text-gray-300 hover:text-yellow-400 transition-all disabled:opacity-50
+                                            hover:shadow-[0_0_10px_rgba(250,204,21,0.3)]"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+
+
+                            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full 
+                                            bg-zinc-900 border border-zinc-700 text-gray-200 font-medium text-sm
+                                            shadow-[0_0_6px_rgba(0,0,0,0.3)]">
+                                <span>Trang</span>
+                                <span className="bg-zinc-800 px-2 py-0.5 rounded-md text-yellow-400 font-semibold text-sm shadow-[0_0_6px_rgba(250,204,21,0.25)]">
+                                    1
+                                </span>
+                                <span className="text-gray-400">/ 3</span>
+                            </div>
+
+
+                            <button
+                                onClick={() => console.log("Next page")}
+                                className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 
+                                            text-gray-300 hover:text-yellow-400 transition-all disabled:opacity-50
+                                            hover:shadow-[0_0_10px_rgba(250,204,21,0.3)]"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
 
                 </div>
             </TabsContent>

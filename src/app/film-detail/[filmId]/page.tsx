@@ -13,7 +13,6 @@ import { useParams } from "next/navigation";
 
 export default function FilmDetailPage() {
     const filmId = useParams().filmId as string;
-    const [activeTab, setActiveTab] = useState<"comments" | "ratings">("comments");
 
     const {
         film,
@@ -46,9 +45,9 @@ export default function FilmDetailPage() {
                         </div>
 
                         <div className="lg:col-span-7 flex flex-col gap-8 bg-[#191B24] border border-zinc-800 rounded-[20px] p-5 md:p-6 shadow-md">
-                            <Playbar activeTab={activeTab} setActiveTab={setActiveTab} episodes={filmParts?.parts?.[0]?.episodes || []} />
+                            <Playbar episodes={filmParts?.parts?.[0]?.episodes || []} />
                             <TabsSection filmActor={filmActors as any} film={film} part={filmParts as any} />
-                            <CommentRatingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+                            <CommentRatingTabs />
                         </div>
                     </div>
                 </div>

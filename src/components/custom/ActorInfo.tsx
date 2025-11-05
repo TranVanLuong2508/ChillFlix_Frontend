@@ -4,6 +4,7 @@ import { Heart, Send } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { ActorData } from "@/types/backend.type";
 import { formatDate } from "@/lib/dateFomat";
+import { toast } from "sonner";
 
 interface ActorProps {
     actor: ActorData;
@@ -28,10 +29,12 @@ export default function ActorInfo({ actor }: ActorProps) {
 
             <div className="flex items-center justify-center gap-3 mb-6">
                 <button
-                    onClick={() => setLiked(!liked)}
+                    onClick={() => {
+                        setLiked(!liked);
+                    }}
                     className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full
-           bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
-           hover:bg-zinc-800 hover:text-yellow-400 transition-all"
+                                bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
+                                hover:bg-zinc-800 hover:text-yellow-400 transition-all"
                 >
                     <Heart size={14} className={liked ? "fill-yellow-400 text-yellow-400" : "fill-none"} />
                     <span>Yêu thích</span>
@@ -41,9 +44,8 @@ export default function ActorInfo({ actor }: ActorProps) {
                     <PopoverTrigger asChild>
                         <button
                             className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full
-               bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
-               hover:bg-zinc-800 hover:text-yellow-400 transition-all"
-                        >
+                                        bg-transparent border border-zinc-700 text-zinc-200 text-xs font-medium
+                                        hover:bg-zinc-800 hover:text-yellow-400 transition-all">
                             <Send size={14} />
                             <span>Chia sẻ</span>
                         </button>
@@ -53,9 +55,7 @@ export default function ActorInfo({ actor }: ActorProps) {
                         align="center"
                         side="bottom"
                         sideOffset={10}
-                        className="w-auto bg-[#191B24] text-white rounded-2xl border border-zinc-700 p-4
-             shadow-[0_0_20px_rgba(0,0,0,0.5)] flex flex-col items-center"
-                    >
+                        className="w-auto bg-[#191B24] text-white rounded-2xl border border-zinc-700 p-4 shadow-[0_0_20px_rgba(0,0,0,0.5)] flex flex-col items-center" >
                         <h2 className="text-center text-base font-semibold mb-3">Chia sẻ</h2>
                         <div className="flex justify-center gap-2">
                             <button className="bg-blue-600 hover:bg-blue-700 rounded-full w-9 h-9 flex items-center justify-center transition-transform hover:scale-110">

@@ -6,14 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { EpisodeData } from "@/types/backend.type";
 import { useAppRouter } from "@/hooks/filmRouter";
 import { toast } from "sonner";
-
+import { useCommentStore } from "@/stores/comentStore";
+import { eventBus } from "@/lib/eventBus";
+import SharePopover from "./ShareApp";
 interface PlayBarProps {
-    activeTab: "comments" | "ratings";
-    setActiveTab: (tab: "comments" | "ratings") => void;
     episodes: EpisodeData[];
 }
 
-export default function PlayBar({ setActiveTab, episodes }: PlayBarProps) {
+export default function PlayBar({ episodes }: PlayBarProps) {
     const [liked, setLiked] = useState(false);
     const { goWatchNow } = useAppRouter();
 
@@ -24,36 +24,7 @@ export default function PlayBar({ setActiveTab, episodes }: PlayBarProps) {
             label: liked ? "Đã thích" : "Yêu thích",
             icon: Heart,
             onClick: () => {
-                setLiked((prev) => !prev);
-
-                if (!liked) {
-                    toast.success("Đã thêm vào danh sách yêu thích", {
-                        description: "Phim đã được thêm vào mục yêu thích của bạn.",
-                        duration: 2500,
-                        position: "bottom-right",
-                        style: {
-                            fontWeight: 500,
-                            borderRadius: "10px",
-                            backdropFilter: "blur(12px)",
-                            WebkitBackdropFilter: "blur(12px)",
-                        },
-                        className: "bg-white/10 backdrop-blur-lg border border-white/20 text-yellow-300 shadow-[0_0_25px_rgba(250,204,21,0.25)] rounded-xl px-5 py-4 hover:shadow-[0_0_35px_rgba(250,204,21,0.45)] hover:scale-[1.02] transition-all duration-500 ease-out animate-[liquid_0.8s_ease-in-out]"
-
-                    });
-                } else {
-                    toast.error("Đã bỏ khỏi danh sách yêu thích", {
-                        description: "Phim đã được gỡ khỏi danh sách yêu thích.",
-                        duration: 2500,
-                        position: "bottom-right",
-                        style: {
-                            fontWeight: 500,
-                            borderRadius: "10px",
-                            backdropFilter: "blur(12px)",
-                            WebkitBackdropFilter: "blur(12px)",
-                        },
-                        className: "bg-white/10 backdrop-blur-lg border border-white/20 text-yellow-300 shadow-[0_0_25px_rgba(250,204,21,0.25)] rounded-xl px-5 py-4 hover:shadow-[0_0_35px_rgba(250,204,21,0.45)] hover:scale-[1.02] transition-all duration-500 ease-out animate-[liquid_0.8s_ease-in-out]"
-                    });
-                }
+                setLiked(!liked)
             },
         },
 
@@ -64,7 +35,7 @@ export default function PlayBar({ setActiveTab, episodes }: PlayBarProps) {
             label: "Bình luận",
             icon: MessageSquare,
             onClick: () => {
-                setActiveTab("comments");
+                eventBus.emit("switchTab", "comments");
                 document.getElementById("comment-section")?.scrollIntoView({ behavior: "smooth" });
             },
         },
@@ -73,7 +44,7 @@ export default function PlayBar({ setActiveTab, episodes }: PlayBarProps) {
             label: "Đánh giá",
             icon: Star,
             onClick: () => {
-                setActiveTab("ratings");
+                eventBus.emit("switchTab", "ratings");
                 document.getElementById("rating-section")?.scrollIntoView({ behavior: "smooth" });
             },
         },
@@ -117,24 +88,8 @@ export default function PlayBar({ setActiveTab, episodes }: PlayBarProps) {
                                     sideOffset={10}
                                     className="w-auto bg-[#191B24] text-white rounded-2xl border border-zinc-700 shadow-[0_0_25px_rgba(0,0,0,0.5)] p-4 animate-in fade-in slide-in-from-top-2 flex flex-col items-center"
                                 >
-                                    <h2 className="text-base font-semibold mb-4">Chia sẻ</h2>
-                                    <div className="flex justify-center gap-4">
-                                        <button className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 flex items-center justify-center transition-transform hover:scale-110">
-                                            <i className="fa-brands fa-facebook-f text-white text-xl"></i>
-                                        </button>
-                                        <button className="bg-black hover:bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center transition-transform hover:scale-110">
-                                            <i className="fa-brands fa-x-twitter text-white text-xl"></i>
-                                        </button>
-                                        <button className="bg-sky-500 hover:bg-sky-600 rounded-full w-10 h-10 flex items-center justify-center transition-transform hover:scale-110">
-                                            <i className="fa-brands fa-telegram text-white text-xl"></i>
-                                        </button>
-                                        <button className="bg-orange-600 hover:bg-orange-700 rounded-full w-10 h-10 flex items-center justify-center transition-transform hover:scale-110">
-                                            <i className="fa-brands fa-reddit-alien text-white text-xl"></i>
-                                        </button>
-                                        <button className="bg-green-500 hover:bg-green-600 rounded-full w-10 h-10 flex items-center justify-center transition-transform hover:scale-110">
-                                            <i className="fa-solid fa-share-nodes text-white text-xl"></i>
-                                        </button>
-                                    </div>
+                                    <h2 className="text-base font-semibold mb-4">Chia sẻ phim</h2>
+                                    <SharePopover filmTitle="Tên phim của bạn" />
                                 </PopoverContent>
                             </Popover>
                         );

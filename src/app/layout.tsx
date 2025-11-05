@@ -2,7 +2,6 @@
 import { Metadata } from "next";
 import "./globals.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: {
@@ -21,10 +20,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`font-sans antialiased text-white`}>
         {/* {bg-[#0f1419]} */}
         {children}
-        <Toaster
-          richColors
-          theme="dark"
-        />
       </body>
     </html>
   );

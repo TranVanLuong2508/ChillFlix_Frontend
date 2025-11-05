@@ -19,7 +19,7 @@ interface FilmActorProps {
 
 export default function FilmActor({ filmActorData }: FilmActorProps) {
     const swiperRef = useRef<any>(null);
-    const { goFilmDetail} = useAppRouter();
+    const { goFilmDetail } = useAppRouter();
     const { handleFilmClick } = useFilmClick();
 
     if (!filmActorData || filmActorData.length === 0) {
@@ -114,9 +114,44 @@ export default function FilmActor({ filmActorData }: FilmActorProps) {
                                         Xem ngay
                                     </button>
                                 </div>
+                                <div>
+
+                                </div>
                             </motion.div>
                         );
                     })}
+                    <div className="col-span-full flex items-center justify-center mt-3">
+                        <div className="flex items-center justify-center gap-4">
+
+                            <button
+                                onClick={() => console.log("Prev page")}
+                                className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 
+                                            text-gray-300 hover:text-yellow-400 transition-all disabled:opacity-50
+                                            "
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+
+
+                            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full 
+                                            bg-zinc-900 border border-zinc-700 text-gray-200 font-medium text-sm ">
+                                <span>Trang</span>
+                                <span className="bg-zinc-800 px-2 py-0.5 rounded-md text-yellow-400 font-semibold text-sm">
+                                    1
+                                </span>
+                                <span className="text-gray-400">/ 3</span>
+                            </div>
+
+
+                            <button
+                                onClick={() => console.log("Next page")}
+                                className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 
+                                            text-gray-300 hover:text-yellow-400 transition-all disabled:opacity-50"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </TabsContent>
 
@@ -186,7 +221,7 @@ export default function FilmActor({ filmActorData }: FilmActorProps) {
                     </Swiper>
                 </div>
             </TabsContent>
-        </Tabs>
+        </Tabs >
     );
 }
 
