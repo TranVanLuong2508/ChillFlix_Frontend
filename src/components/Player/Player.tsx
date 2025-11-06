@@ -9,7 +9,6 @@ import PlayerLineConfig from "./playerLineConfig";
 import PlayListNav from "./playListNav";
 import { EpisodesData } from "@/types/episodesData";
 
-
 const PlayerController = dynamic(
   () => import("@/components/Player/PlayerController"),
   {
@@ -36,20 +35,24 @@ const PlayerController = dynamic(
 // shadow-[0_0_30px_rgba(0,0,0,0.6)] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]
 //  shadow-[-8px_-8px_40px_10px_rgba(255,255,255,0.1),_8px_8px_40px_10px_rgba(255,255,255,0.1)]
 // shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),_8px_8px_40px_10px_rgba(0,0,0,0.3)]
+
 interface PlayerProps {
-  video: EpisodesData;
+  episodeData: EpisodesData;
 }
 
-const Player = ({ video }: PlayerProps) => {
+const Player = ({ episodeData }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
       <div className="relative group">
-        <PlayerInfo onOpenChange={setIsOpen} title={video.title} episodeNumber={video.episodeNumber} />
+        {/* <PlayerInfo onOpenChange={setIsOpen} title={video.title} episodeNumber={video.episodeNumber} /> */}
         <PlayListNav open={isOpen} onOpenChange={setIsOpen} />
         <div className="relative">
-          <PlayerController video={video} />
+          <PlayerController
+            videoUrl={episodeData.videoUrl}
+            posterUrl={episodeData.thumbUrl}
+          />
         </div>
       </div>
       <PlayerLineConfig />
