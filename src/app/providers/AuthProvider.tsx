@@ -34,7 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchAccountAction(res.data.user);
       } else {
         resetAuthAction();
-        goHome();
       }
       setLoading(false);
     } catch (errr) {
