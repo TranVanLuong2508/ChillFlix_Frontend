@@ -41,7 +41,7 @@ export default function TabsSection({ film, part, filmActor }: TabsSectionProps)
     setTimeout(() => {
       setSelectedPart(p);
       setIsLoadingPart(false);
-    }, 300);
+    }, 1000);
   };
 
   useEffect(() => {
