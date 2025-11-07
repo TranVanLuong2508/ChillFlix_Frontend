@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased text-white bg-[#191B24] m-0 p-0`}>
+      <body className={`font-sans antialiased text-white bg-[#191B24] m-0 p-0 overflow-x-hidden`}>
         <AuthProvider>
           <Header />
           {children}

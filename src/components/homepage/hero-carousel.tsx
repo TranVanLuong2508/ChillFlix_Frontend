@@ -1,11 +1,21 @@
 "use client"
 
 import type React from "react"
-
+import { useFilmStore } from "@/stores/filmStore";
 import { useState, useEffect, useRef } from "react"
 import { Play, Heart, Info, ChevronLeft, ChevronRight } from "lucide-react"
-import { filmService } from "@/services/filmService"
+import filmService from "@/services/filmService";
 import type { Film } from "@/types/filmType"
+
+const getBackdropUrl = (film: any): string => {
+    if (film.posterUrl) return film.posterUrl // fallback for old format
+    if (film.filmImages && Array.isArray(film.filmImages)) {
+        const backdropImage = film.filmImages.find((img: any) => img.type === "backdrop")
+        if (backdropImage) return backdropImage.url
+        if (film.filmImages.length > 0) return film.filmImages[2].url
+    }
+    return "/placeholder.svg"
+}
 
 export default function HeroCarousel() {
     const [currentSlide, setCurrentSlide] = useState(0)
@@ -15,7 +25,6 @@ export default function HeroCarousel() {
     const [films, setFilms] = useState<Film[]>([])
     const [loading, setLoading] = useState(true)
     const containerRef = useRef<HTMLDivElement>(null)
-
     useEffect(() => {
         const fetchFilms = async () => {
             try {
@@ -27,7 +36,7 @@ export default function HeroCarousel() {
                             title: film.title,
                             originalTitle: film.originalTitle,
                             description: film.description,
-                            posterUrl: film.posterUrl,
+                            posterUrl: getBackdropUrl(film), // Use helper function to extract posterUrl
                             year: film.year,
                             age: film.age.valueVi,
                             genres: film.genres,

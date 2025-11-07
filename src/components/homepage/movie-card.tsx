@@ -56,7 +56,7 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
 
             {isHovered && (
                 <div
-                    className={`absolute z-50 w-80 bg-slate-900 rounded-lg overflow-hidden shadow-2xl border border-slate-700 pointer-events-auto animate-popup-in`}
+                    className={`absolute z-50 w-80 bg-[#191B24] rounded-lg overflow-hidden shadow-2xl border border-slate-700 pointer-events-auto animate-popup-in`}
                     style={{
                         top: 10,
                         left: "50%",
