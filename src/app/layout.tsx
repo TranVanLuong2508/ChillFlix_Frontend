@@ -7,6 +7,7 @@ import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "./providers/AuthProvider";
 import RegisterModal from "@/components/modals/registerModal";
+import FlixAIChatDrawer from "@/components/chat/FlixAIChatDrawer";
 
 export const metadata: Metadata = {
   title: {
@@ -30,6 +31,7 @@ export default function RootLayout({
           <LoginModal />
           <RegisterModal />
           <Toaster />
+          <FlixAIChatDrawer />
         </AuthProvider>
       </body>
     </html>

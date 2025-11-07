@@ -28,6 +28,8 @@ import { useAppRouter } from "@/hooks/useAppRouter";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
 import { AuthenticationsMessage } from "@/constants/messages/user.message";
+import FlixAIChatDrawer from "../chat/FlixAIChatDrawer";
+import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
@@ -35,6 +37,7 @@ export default function Header() {
   const [activeTab, setActiveTab] = useState("film");
   const { openLoginModal } = useAuthModalStore();
   const { goHome, goProfile, goUpgradeVip } = useAppRouter();
+  const { openDrawer } = useChatDrawerStore();
   const { logOutAction, setTokenToTestApi, isAuthenticated, isLoading } =
     useAuthStore();
 
@@ -215,9 +218,7 @@ export default function Header() {
           {/* Right Section */}
           <div className="flex items-center gap-4">
             <button
-              onClick={() => {
-                setTokenToTestApi();
-              }}
+              onClick={openDrawer}
               className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md"
             >
               <span>Chat với FlixAI</span>
@@ -318,144 +319,139 @@ export default function Header() {
             </DropdownMenu>
 
             {/* User Menu Dropdown */}
-            {isLoading ? (
-              <div className="w-10 h-10 rounded-full bg-[#2a3040]/60 animate-pulse" />
-            ) : (
-              <>
-                {!isAuthenticated ? (
-                  <button
-                    onClick={openLoginModal}
-                    className="
-                      px-5 py-2.5 rounded-full
-                      text-[#0f1419] font-semibold text-sm
-                      bg-gradient-to-r from-[#f7d658] to-[#d4af37]
-                      shadow-[0_0_10px_rgba(245,213,71,0.35)]
-                      border border-[#d4af37]/50
-                      transition-all duration-300 cursor-pointer
-                      hover:shadow-[0_0_22px_rgba(245,213,71,0.75)]
-                      hover:from-[#ffe897] hover:to-[#f7d658]
-                      active:scale-[0.97]
-                    "
-                  >
-                    Thành viên
-                  </button>
-                ) : (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="focus:outline-none focus:ring-0 flex items-center">
-                        <Image
-                          src="/images/vn_flag.svg"
-                          alt="User Avatar"
-                          width={30}
-                          height={30}
-                          className="w-8 h-8 rounded-full cursor-pointer hover:scale-105 transition border-2 border-yellow-400/50"
-                        />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
-                        w-64 p-0 rounded-2xl shadow-xl overflow-hidden mt-2
-                        transition-all duration-300 ease-out
-                        transform origin-top-right scale-95 opacity-0 
-                        data-[state=open]:scale-100 data-[state=open]:opacity-100"
+
+            <div className="w-[120px] flex justify-end">
+              {isLoading ? (
+                <div className="w-10 h-10 rounded-full bg-[#2a3040]/60 animate-pulse" />
+              ) : (
+                <>
+                  {!isAuthenticated ? (
+                    <button
+                      onClick={openLoginModal}
+                      className="px-5 py-2.5 rounded-full text-[#0f1419] font-semibold text-sm
+            bg-gradient-to-r from-[#f7d658] to-[#d4af37] cursor-pointer"
                     >
-                      {/* User Info Section */}
-                      <div className="p-4 border-b border-[#2a3040]/50">
-                        <div className="flex items-center gap-3 mb-3">
+                      Thành viên
+                    </button>
+                  ) : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="focus:outline-none focus:ring-0 flex items-center cursor-pointer">
                           <Image
                             src="/images/vn_flag.svg"
                             alt="User Avatar"
                             width={30}
                             height={30}
-                            className="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer hover:scale-105 transition-transform object-cover border-2 border-yellow-400/50"
+                            className="w-10 h-10 rounded-full border-2 border-yellow-400/50"
                           />
-                          <div>
-                            <h3 className="text-white font-semibold flex items-center gap-1">
-                              Trần Văn Lương
-                            </h3>
-                            <p className="text-gray-400 text-xs">
-                              Nâng cấp tài khoản ChillFlix để có trải nghiệm
-                              đẳng cấp hơn.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            goUpgradeVip();
-                          }}
-                          className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-semibold py-2 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all cursor-pointer"
-                        >
-                          Nâng cấp ngay
                         </button>
-                      </div>
-                      {/* Balance Section */}
-                      <div className="px-4 py-3 border-b border-[#2a3040]/50 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded flex items-center justify-center">
-                            <span className="text-[#0f1419] text-xs font-bold">
-                              $
-                            </span>
+                      </DropdownMenuTrigger>
+                      {/* menu content */}{" "}
+                      <DropdownMenuContent
+                        align="end"
+                        className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
+                        w-64 p-0 rounded-2xl shadow-xl overflow-hidden mt-2
+                        transition-all duration-300 ease-out
+                        transform origin-top-right scale-95 opacity-0 
+                        data-[state=open]:scale-100 data-[state=open]:opacity-100"
+                      >
+                        {/* User Info Section */}
+                        <div className="p-4 border-b border-[#2a3040]/50">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Image
+                              src="/images/vn_flag.svg"
+                              alt="User Avatar"
+                              width={30}
+                              height={30}
+                              className="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer hover:scale-105 transition-transform object-cover border-2 border-yellow-400/50"
+                            />
+                            <div>
+                              <h3 className="text-white font-semibold flex items-center gap-1">
+                                Trần Văn Lương
+                              </h3>
+                              <p className="text-gray-400 text-xs">
+                                Nâng cấp tài khoản ChillFlix để có trải nghiệm
+                                đẳng cấp hơn.
+                              </p>
+                            </div>
                           </div>
-                          <span className="text-gray-300 text-sm">Số dư</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-yellow-400 font-semibold">
-                            0
-                          </span>
-                          <div className="w-5 h-5 bg-[#2a3040] rounded-full flex items-center justify-center">
-                            <span className="text-yellow-400 text-xs font-bold">
-                              ₽
-                            </span>
-                          </div>
-                          <button className="bg-[#2a3040] text-yellow-400 text-xs font-medium px-2 py-1 rounded hover:bg-[#3a4050] transition flex items-center text-[12px]">
-                            <Plus strokeWidth={1} /> Nạp
+                          <button
+                            onClick={() => {
+                              goUpgradeVip();
+                            }}
+                            className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-semibold py-2 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all cursor-pointer"
+                          >
+                            Nâng cấp ngay
                           </button>
                         </div>
-                      </div>
-                      {/* Menu Items */}
-                      <div className="py-2">
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                        {/* Balance Section */}
+                        <div className="px-4 py-3 border-b border-[#2a3040]/50 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded flex items-center justify-center">
+                              <span className="text-[#0f1419] text-xs font-bold">
+                                $
+                              </span>
+                            </div>
+                            <span className="text-gray-300 text-sm">Số dư</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-yellow-400 font-semibold">
+                              0
+                            </span>
+                            <div className="w-5 h-5 bg-[#2a3040] rounded-full flex items-center justify-center">
+                              <span className="text-yellow-400 text-xs font-bold">
+                                ₽
+                              </span>
+                            </div>
+                            <button className="bg-[#2a3040] text-yellow-400 text-xs font-medium px-2 py-1 rounded hover:bg-[#3a4050] transition flex items-center text-[12px]">
+                              <Plus strokeWidth={1} /> Nạp
+                            </button>
+                          </div>
+                        </div>
+                        {/* Menu Items */}
+                        <div className="py-2">
+                          <button className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                            <span className="text-lg">
+                              <Heart />
+                            </span>
+                            <span>Yêu thích</span>
+                          </button>
+                          <button className="w-full flex cursor-pointer items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                            <span className="text-lg">
+                              <Plus />
+                            </span>
+                            <span>Danh sách</span>
+                          </button>
+                          <button className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                            <span className="text-lg">
+                              <RotateCw />
+                            </span>
+                            <span>Xem tiếp</span>
+                          </button>
+                          <button className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                            <span className="text-lg">
+                              <CircleUserRound />
+                            </span>
+                            <span>Tài khoản</span>
+                          </button>
+                        </div>
+                        <DropdownMenuSeparator className="bg-[#2a3040]/50 m-0" />
+                        {/* Logout */}
+                        <button
+                          onClick={() => haneleLogOut()}
+                          className="w-full cursor-pointer flex items-center gap-3 px-4 py-3 hover:bg-[#2a3040]/60 hover:text-yellow-400 text-gray-300 transition text-sm hover:shadow-[0_0_10px_rgba(245,213,71,0.2)] cursor-pointer"
+                        >
                           <span className="text-lg">
-                            <Heart />
+                            <LogOut />
                           </span>
-                          <span>Yêu thích</span>
+                          <span>Thoát</span>
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
-                          <span className="text-lg">
-                            <Plus />
-                          </span>
-                          <span>Danh sách</span>
-                        </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
-                          <span className="text-lg">
-                            <RotateCw />
-                          </span>
-                          <span>Xem tiếp</span>
-                        </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
-                          <span className="text-lg">
-                            <CircleUserRound />
-                          </span>
-                          <span>Tài khoản</span>
-                        </button>
-                      </div>
-                      <DropdownMenuSeparator className="bg-[#2a3040]/50 m-0" />
-                      {/* Logout */}
-                      <button
-                        onClick={() => haneleLogOut()}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#2a3040]/60 hover:text-yellow-400 text-gray-300 transition text-sm hover:shadow-[0_0_10px_rgba(245,213,71,0.2)] cursor-pointer"
-                      >
-                        <span className="text-lg">
-                          <LogOut />
-                        </span>
-                        <span>Thoát</span>
-                      </button>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </>
-            )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
