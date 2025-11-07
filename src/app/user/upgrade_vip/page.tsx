@@ -2,7 +2,7 @@
 
 import { Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { paymentService } from "@/services";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/layout/loadingSpinner";
@@ -13,7 +13,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
-
+import { useAppRouter } from "@/hooks/useAppRouter";
 interface VipPackage {
   id: string;
   duration: string;
@@ -39,7 +39,7 @@ const VIP_PACKAGES: VipPackage[] = [
       "Chat không cần chờ",
       "Chat sử dụng stickers và Gifs",
       "Tải lên ảnh đại diện của bạn",
-      "Tên được gắn nhãn ROX",
+      "Tên được gắn nhãn VIP",
     ],
   },
   {
@@ -55,7 +55,7 @@ const VIP_PACKAGES: VipPackage[] = [
       "Chat không cần chờ",
       "Chat sử dụng stickers và Gifs",
       "Tải lên ảnh đại diện của bạn",
-      "Tên được gắn nhãn ROX",
+      "Tên được gắn nhãn VIP",
     ],
     highlighted: true,
   },
@@ -72,7 +72,7 @@ const VIP_PACKAGES: VipPackage[] = [
       "Chat không cần chờ",
       "Chat sử dụng stickers và Gifs",
       "Tải lên ảnh đại diện của bạn",
-      "Tên được gắn nhãn ROX",
+      "Tên được gắn nhãn VIP",
     ],
   },
 ];
@@ -81,6 +81,8 @@ export default function VipUpgradeContent() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string>("yearly");
   const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated } = useAuthStore();
+  const { replaceToHome } = useAppRouter();
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("vi-VN").format(price);
@@ -98,6 +100,12 @@ export default function VipUpgradeContent() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      replaceToHome();
+    }
+  }, [isAuthenticated]);
 
   return (
     <div className="w-full">
@@ -158,7 +166,7 @@ export default function VipUpgradeContent() {
               "Chat không delay - ưu tiên tốc độ",
               "Dùng sticker & GIF cực xịn",
               "Đổi avatar cá nhân không giới hạn",
-              "Tên được gắn huy hiệu VIP ROX sáng chói",
+              "Tên được gắn huy hiệu VIP sáng chói",
             ].map((f, i) => (
               <div key={i} className="flex items-center gap-2 text-yellow-200">
                 <Check className="w-4 h-4 text-yellow-400" />
@@ -257,7 +265,7 @@ export default function VipUpgradeContent() {
       <div className="text-center pb-10">
         <Button
           onClick={handleUpgrade}
-          className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black hover:scale-105 font-bold py-3 px-10 rounded-xl transition-all"
+          className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black hover:scale-105 font-bold py-3 px-10 rounded-xl transition-all cursor-pointer"
         >
           Thanh Toán Ngay
         </Button>
