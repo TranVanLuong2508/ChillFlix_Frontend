@@ -15,6 +15,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     errorRefreshToken,
     setRefreshTokenAction,
     setLoading,
+    access_token,
   } = useAuthStore();
   useEffect(() => {
     fetchAccount();
@@ -27,16 +28,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isRefreshToken]);
   const fetchAccount = async () => {
-    setLoading(true);
     try {
-      const res = await authService.callFetchAccount();
-      if (res && res.data) {
-        fetchAccountAction(res.data.user);
-      } else {
-        resetAuthAction();
-        goHome();
+      const accessToken = useAuthStore.getState().access_token;
+      console.log("check acess", accessToken);
+      if (accessToken) {
+        setLoading(true);
+        const res = await authService.callFetchAccount();
+        if (res && res.EC === 1 && res.data) {
+          console.log("check res sucess", res);
+          fetchAccountAction(res.data.user);
+        } else {
+          console.log("check fail", res);
+          resetAuthAction();
+        }
+        setLoading(false);
       }
-      setLoading(false);
     } catch (errr) {
       console.log(errr);
       setLoading(false);
