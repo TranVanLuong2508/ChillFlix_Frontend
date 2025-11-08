@@ -1,24 +1,24 @@
 import { create } from "zustand";
 
 interface PlayerStoreState {
-  videoUrl: string;
-  thumbUrl: string;
-  previewThumbUrl: string;
+  part: string;
+  episode: string;
 }
 
 interface PlayerStoreAcion {
-  handleDataPlayer: (vUrl: string, tUrl: string, ptUrl: string) => void;
-
-
+  handleInfoPlayer: (part: string, episode: string) => void,
+  resetInfoPlayer: () => void,
 }
 
 export const usePlayerStore = create<PlayerStoreState & PlayerStoreAcion>()((set, get) => ({
-  videoUrl: "",
-  thumbUrl: "",
-  previewThumbUrl: "",
+  part: "",
+  episode: "",
 
-  handleDataPlayer: (vUrl, tUrl, ptUrl) => {
-
+  handleInfoPlayer: (part, episode) => {
+    set({ part: part, episode: episode });
   },
 
+  resetInfoPlayer: () => {
+    set({ part: "", episode: "" });
+  }
 }))

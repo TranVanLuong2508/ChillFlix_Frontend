@@ -13,6 +13,7 @@ import FilmInfo from "@/components/film/player/film-info";
 import SuggestList from "@/components/film/player/suggest-list";
 
 import { useFilmStore } from "@/stores/filmStore";
+import { usePlayerStore } from "@/stores/playerStore";
 
 export default function PlayPage() {
   const { playSlug }: { playSlug: string } = useParams();
@@ -22,6 +23,7 @@ export default function PlayPage() {
   const p = searchParams.get("p");
 
   const { loading, filmData, partData, getDetailFilm, getPartData } = useFilmStore();
+  const { handleInfoPlayer, resetInfoPlayer } = usePlayerStore();
 
   const [episodeDetail, setEpisodeDetail] = useState<EpisodeDetail | null>(null);
   const [partDetail, setPartDetail] = useState<PartDetail | null>(null);
@@ -40,6 +42,8 @@ export default function PlayPage() {
   useEffect(() => {
     if (!partData || !p || !ep) return;
 
+    resetInfoPlayer();
+
     const foundPart = partData.find((part: PartDetail) => part.partNumber === +p);
 
     if (foundPart) {
@@ -52,6 +56,8 @@ export default function PlayPage() {
       if (foundEpisode) {
         setEpisodeDetail(foundEpisode);
       }
+
+      handleInfoPlayer(p, ep);
     }
   }, [partData, ep, p]);
 

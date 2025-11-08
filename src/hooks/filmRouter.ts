@@ -16,5 +16,7 @@ export const useAppRouter = () => {
       router.push(playPath.WATCHNOW(episodeId)),
 
     goFilmDetail: (filmId: string) => router.push(filmPath.FILM_DETAIL(filmId)),
+
+    goPlayerFilm: (filmSlug: string, part: string, episode: string) => router.push(filmPath.PLAYER_DETAIL(filmSlug, part, episode))
   };
 };
