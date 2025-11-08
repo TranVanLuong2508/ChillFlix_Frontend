@@ -16,6 +16,7 @@ import { PartDetail } from "@/types/part.type";
 import { useFilmStore } from "@/stores/filmStore";
 import { useEffect, useState } from "react";
 import { EpisodeDetail } from "@/types/episode.type";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface PlayListNavProps {
   open: boolean;
@@ -69,11 +70,24 @@ const Content = ({
   listEpisode,
   currentEpisode,
   isActive,
+  selectedPart,
 }: {
   listEpisode: EpisodeDetail[],
   currentEpisode: string,
   isActive: boolean,
+  selectedPart: string,
 }) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  // Hàm thay đổi searchParams
+  const handleClickEpisode = (episodeNumber: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("ep", episodeNumber.toString());
+    params.set("p", selectedPart);
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <>
@@ -86,6 +100,7 @@ const Content = ({
             return (
               <div
                 key={i}
+                onClick={() => handleClickEpisode(episode.episodeNumber)}
                 className={cn(
                   "flex items-center justify-center px-3 py-2 rounded-md bg-zinc-800 text-white font-normal text-xs cursor-pointer border-3 border-zinc-800",
                   "hover:shadow-[0_3px_3px_rgba(253,153,0,1)] transition-all duration-200 ease",
@@ -142,7 +157,7 @@ const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayLi
       >
         <Header part={partData!} onOpenChange={onOpenChange} selectedPart={selectedPart} onChangeSelectPart={setSelectedPart} />
         {listEpisode ?
-          <Content listEpisode={listEpisode!} currentEpisode={currentEpisode} isActive={isActive} />
+          <Content listEpisode={listEpisode!} currentEpisode={currentEpisode} isActive={isActive} selectedPart={selectedPart} />
           :
           <div className="font-semibold text-red-500">
             Đã xảy ra lỗi. Vui lòng thử lại sau!

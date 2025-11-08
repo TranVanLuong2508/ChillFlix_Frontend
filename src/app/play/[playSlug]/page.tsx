@@ -72,11 +72,13 @@ export default function PlayPage() {
     );
   }
 
+  console.log('>> Part: ', p)
+  console.log('>> Episode: ', episodeDetail)
 
   return (
     <div className="w-full bg-zinc-950 text-white">
       <div className="px-[20px] pt-4">
-        <Player currentPart={p!} currentEpisode={ep!} episodeDetail={episodeDetail} partDetail={partDetail} />
+        <Player currentPart={p!} currentEpisode={ep!} episodeDetail={episodeDetail} partDetail={partDetail} key={searchParams.toString()} />
         <div className="py-10">
           <div className="grid grid-cols-10 gap-4">
             <div className="col-span-7 ">
