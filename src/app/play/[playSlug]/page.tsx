@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import Player from "@/components/Player/Player";
-import { EpisodeDetail } from "@/types/episode.type";
-import { useFilmStore } from "@/stores/filmStore";
-import { PartDetail } from "@/types/part.type";
 import { useParams, useSearchParams } from "next/navigation";
 
+import { PartDetail } from "@/types/part.type";
+import { EpisodeDetail } from "@/types/episode.type";
+
+import Player from "@/components/Player/Player";
+import TabsSection from "@/components/film/detail/Tabs";
+import CommentRatingTabs from "@/components/custom/CommentRatingTabs";
+import FilmInfo from "@/components/film/player/film-info";
+import SuggestList from "@/components/film/player/suggest-list";
+
+import { useFilmStore } from "@/stores/filmStore";
 
 export default function PlayPage() {
   const { playSlug }: { playSlug: string } = useParams();
@@ -59,15 +64,6 @@ export default function PlayPage() {
       </div>
     );
 
-  console.log(">> Check query: ", playSlug, p, '-', ep)
-
-
-  console.log("Check film: ", filmData)
-  console.log("Check part data: ", partData)
-
-  console.log(">>> Check part data: ", partDetail);
-  console.log(">>> Check episode data: ", episodeDetail);
-
   if (!episodeDetail || !partDetail) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-400">
@@ -79,8 +75,20 @@ export default function PlayPage() {
 
   return (
     <div className="w-full bg-zinc-950 text-white">
-      <div className="px-[100px] pt-4">
+      <div className="px-[20px] pt-4">
         <Player currentPart={p!} currentEpisode={ep!} episodeDetail={episodeDetail} partDetail={partDetail} />
+        <div className="py-10">
+          <div className="grid grid-cols-10 gap-4">
+            <div className="col-span-7 ">
+              <FilmInfo />
+              <TabsSection />
+              <CommentRatingTabs />
+            </div>
+            <div className="col-span-3 border-l border-amber-500 px-4">
+              <SuggestList />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

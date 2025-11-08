@@ -12,7 +12,7 @@ import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { useAppRouter } from "@/hooks/filmRouter";
 import { useRouter } from "next/navigation";
 import { useFilmStore } from "@/stores/filmStore";
-import { PartData } from "@/types/part.type";
+import { PartDetail } from "@/types/part.type";
 import { EpisodeData } from "@/types/backend.type";
 
 const tabs = [
@@ -23,18 +23,18 @@ const tabs = [
 ];
 
 export default function TabsSection() {
-  const { filmData, partDetail, getPartData } = useFilmStore();
+  const { filmData, partData, getPartData } = useFilmStore();
 
   const route = useRouter();
 
   const [activeTab, setActiveTab] = useState("episodes");
-  const [selectedPart, setSelectedPart] = useState<PartData>();
+  const [selectedPart, setSelectedPart] = useState<PartDetail>();
   const [isLoadingPart, setIsLoadingPart] = useState(false);
   const { goActorDetail } = useAppRouter();
   const { goWatchNow } = useAppRouter();
 
 
-  const handleSelectPart = (p: PartData) => {
+  const handleSelectPart = (p: PartDetail) => {
     setIsLoadingPart(true);
     setTimeout(() => {
       setSelectedPart(p);
@@ -47,10 +47,10 @@ export default function TabsSection() {
   };
 
   useEffect(() => {
-    if (partDetail?.partData) {
-      setSelectedPart(partDetail.partData[0]);
+    if (partData) {
+      setSelectedPart(partData[0]);
     }
-  }, [partDetail]);
+  }, [partData]);
 
   useEffect(() => {
     if (filmData?.film.filmId) {
@@ -58,7 +58,7 @@ export default function TabsSection() {
     }
   }, [filmData?.film.filmId])
 
-  console.log(">>> Check part data: ", partDetail)
+  console.log(">>> Check part data: ", partData)
   console.log(selectedPart?.title)
   return (
     <div className="mt-8">
@@ -84,7 +84,7 @@ export default function TabsSection() {
       <div className="mt-6">
         {activeTab === "episodes" && (
           <div>
-            {!partDetail || !partDetail.partData.length ? (
+            {!partData || !partData.length ? (
               <div className="text-center text-gray-400 py-10">
                 Đang tải danh sách phần...
               </div>
@@ -107,7 +107,7 @@ export default function TabsSection() {
                     </h3>
 
                     <button
-                      // onClick={() => goWatchNow(partDetail.partData[0].episodes[0].id)}
+                      // onClick={() => goWatchNow(partData.partData[0].episodes[0].id)}
                       className="absolute bottom-3 right-4 text-xs font-semibold 
    bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
    hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
@@ -151,7 +151,7 @@ export default function TabsSection() {
                       <span>Chọn phần</span>
                     </DropdownMenuLabel>
 
-                    {partDetail.partData.map((p, index) => (
+                    {partData.map((p, index) => (
                       <DropdownMenuItem
                         key={`part-item-${index}`}
                         onClick={() => {
