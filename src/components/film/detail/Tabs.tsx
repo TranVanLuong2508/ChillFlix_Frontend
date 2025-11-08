@@ -12,7 +12,7 @@ import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { useAppRouter } from "@/hooks/filmRouter";
 import { useRouter } from "next/navigation";
 import { useFilmStore } from "@/stores/filmStore";
-import { PartRes } from "@/types/part.type";
+import { PartData } from "@/types/part.type";
 import { EpisodeData } from "@/types/backend.type";
 
 const tabs = [
@@ -28,13 +28,13 @@ export default function TabsSection() {
   const route = useRouter();
 
   const [activeTab, setActiveTab] = useState("episodes");
-  const [selectedPart, setSelectedPart] = useState<PartRes>();
+  const [selectedPart, setSelectedPart] = useState<PartData>();
   const [isLoadingPart, setIsLoadingPart] = useState(false);
   const { goActorDetail } = useAppRouter();
   const { goWatchNow } = useAppRouter();
 
 
-  const handleSelectPart = (p: PartRes) => {
+  const handleSelectPart = (p: PartData) => {
     setIsLoadingPart(true);
     setTimeout(() => {
       setSelectedPart(p);

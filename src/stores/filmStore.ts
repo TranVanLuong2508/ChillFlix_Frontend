@@ -4,14 +4,12 @@ import { create } from "zustand";
 import { FilmDetail, FilmImages } from "@/types/film.type";
 import filmServices from "@/services/filmService";
 import { partServices } from "@/services";
-import { DetailPart } from "@/types/part.type";
+import { PartDetail } from "@/types/part.type";
 
 import {
-  FilmData,
   FilmActorData,
   FilmDirectorData,
   RatingData,
-  PartData,
 } from "@/types/backend.type";
 
 interface FilmState {
@@ -25,18 +23,18 @@ interface FilmState {
   loadingPart: boolean;
 
   filmData: FilmDetail | null;
-  partDetail: DetailPart | null;
+  partData: PartDetail[] | null;
 }
 
 
 const initialFilmDetail = {
   filmData: null,
-  partDetail: null,
+  partData: null,
 };
 
 interface FilmAction {
-  fetchFullFilmDetail: (filmId: string) => Promise<void>;
-  clearFilm: () => void;
+  //fetchFullFilmDetail: (filmId: string) => Promise<void>;
+  //clearFilm: () => void;
 
   resetFilmDetail: () => void;
   getDetailFilm: (filmId: string) => Promise<void>;
@@ -56,42 +54,42 @@ export const useFilmStore = create<FilmState & FilmAction>()((set) => ({
   isLoading: false,
   error: null,
 
-  fetchFullFilmDetail: async (filmId) => {
-    set({ isLoading: true, error: null });
-    try {
-      const [filmRes, directorRes, actorRes, ratingRes, partRes] =
-        await Promise.all([
-          filmServices.getFilmById(filmId),
-          filmServices.getDirectorByFilm(filmId),
-          filmServices.getActorByFilmId(filmId),
-          filmServices.getRatingsByFilmId(filmId),
-          partServices.getPartsByFilmId(filmId),
-        ]);
+  // fetchFullFilmDetail: async (filmId) => {
+  //   set({ isLoading: true, error: null });
+  //   try {
+  //     const [filmRes, directorRes, actorRes, ratingRes, partRes] =
+  //       await Promise.all([
+  //         filmServices.getFilmById(filmId),
+  //         filmServices.getDirectorByFilm(filmId),
+  //         filmServices.getActorByFilmId(filmId),
+  //         filmServices.getRatingsByFilmId(filmId),
+  //         partServices.getPartsByFilmId(filmId),
+  //       ]);
 
-      const partData =
-        partRes.data.result.length > 0 ? partRes.data.result[0] : null;
+  //     const partData =
+  //       partRes.data.result.length > 0 ? partRes.data.result[0] : null;
 
-      set({
-        film: filmRes.data.film,
-        filmDirectors: directorRes.data.result,
-        filmActors: actorRes.data.result,
-        filmRatings: ratingRes.data.result,
-        filmParts: { parts: partData ? [partData] : [] },
-      });
-    } catch (error: any) {
-      set({ error: error.message });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+  //     set({
+  //       film: filmRes.data.film,
+  //       filmDirectors: directorRes.data.result,
+  //       filmActors: actorRes.data.result,
+  //       filmRatings: ratingRes.data.result,
+  //       filmParts: { parts: partData ? [partData] : [] },
+  //     });
+  //   } catch (error: any) {
+  //     set({ error: error.message });
+  //   } finally {
+  //     set({ isLoading: false });
+  //   }
+  // },
 
-  clearFilm: () => set({
-    film: null,
-    filmActors: [],
-    filmDirectors: [],
-    filmRatings: null,
-    filmParts: null,
-  }),
+  // clearFilm: () => set({
+  //   film: null,
+  //   filmActors: [],
+  //   filmDirectors: [],
+  //   filmRatings: null,
+  //   filmParts: null,
+  // }),
 
   resetFilmDetail: () => set(initialFilmDetail),
 
@@ -132,7 +130,7 @@ export const useFilmStore = create<FilmState & FilmAction>()((set) => ({
       }
 
       if (res.data) {
-        set({ partDetail: res.data })
+        set({ partData: res.data.partData })
       }
     } catch (error) {
       console.error("Unexpected error:", error);

@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (accessToken) {
         setLoading(true);
         const res = await authService.callFetchAccount();
-        if (res && res.EC === 1 && res.data) {
+        if (res && res.data) {
           console.log("check res sucess", res);
           fetchAccountAction(res.data.user);
         } else {

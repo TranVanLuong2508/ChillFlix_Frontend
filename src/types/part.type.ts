@@ -1,13 +1,13 @@
-import { EpisodeRes } from "./episode.type";
+import { EpisodeDetail } from "./episode.type";
 
-export interface PartRes {
+export interface PartDetail {
   id: string;
   title: string;
   partNumber: number;
   description: string;
-  episodes: EpisodeRes[];
+  episodes: EpisodeDetail[];
 }
 
-export interface DetailPart {
-  partData: PartRes[];
+export interface PartData {
+  partData: PartDetail[];
 }
