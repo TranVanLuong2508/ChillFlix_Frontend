@@ -129,7 +129,8 @@ export default function TabsSection() {
 
                     <button
 
-                      // onClick={() => goWatchNow(partData.partData[0].episodes[0].id)}
+                      onClick={() => handleWatchVideo((selectedPart?.episodes?.[0]?.episodeNumber?.toString()) ?? "1")}
+
                       className="absolute bottom-3 right-4 text-xs font-semibold 
                                 bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
                                 hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
