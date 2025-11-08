@@ -10,7 +10,6 @@ import PlayerInfo from "./playerInfo";
 import PlayerLineConfig from "./playerLineConfig";
 import PlayListNav from "./playListNav";
 import { PartDetail } from "@/types/part.type";
-import { useFilmStore } from "@/stores/filmStore";
 
 
 const PlayerController = dynamic(
