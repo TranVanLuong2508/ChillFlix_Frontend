@@ -12,7 +12,7 @@ import TabsSection from "@/components/film/detail/Tabs";
 export default function FilmDetailPage() {
   const { filmSlug }: { filmSlug: string } = useParams();
 
-  const { loading, error, filmData, getDetailFilm } = useFilmStore();
+  const { loading, error, filmData, getDetailFilm} = useFilmStore();
 
   const [activeTab, setActiveTab] = useState<"comments" | "ratings">(
     "comments"

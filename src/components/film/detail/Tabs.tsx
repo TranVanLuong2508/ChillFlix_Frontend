@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
-import { useAppRouter } from "@/hooks/filmRouter";
+import { useFilmRouter } from "@/hooks/filmRouter";
 import { useRouter } from "next/navigation";
 import { useFilmStore } from "@/stores/filmStore";
 import { PartRes } from "@/types/part.type";
@@ -30,8 +30,8 @@ export default function TabsSection() {
   const [activeTab, setActiveTab] = useState("episodes");
   const [selectedPart, setSelectedPart] = useState<PartRes>();
   const [isLoadingPart, setIsLoadingPart] = useState(false);
-  const { goActorDetail } = useAppRouter();
-  const { goWatchNow } = useAppRouter();
+  const { goActorDetail } = useFilmRouter();
+  const { goWatchNow } = useFilmRouter();
 
 
   const handleSelectPart = (p: PartRes) => {
@@ -107,21 +107,17 @@ export default function TabsSection() {
                     </h3>
 
                     <button
-                      // onClick={() => goWatchNow(partDetail.partData[0].episodes[0].id)}
+                      onClick={() => goWatchNow(partDetail.partData[0].episodes[0].id)}
                       className="absolute bottom-3 right-4 text-xs font-semibold 
-   bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
-   hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
-   transition-all duration-300 ease-in-out"
+                                bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
+                                hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
+                                transition-all duration-300 ease-in-out"
                     >
                       Xem ngay
                     </button>
                   </div>
                 </div>
               </>
-
-
-
-
             ) : (
               <>
                 <DropdownMenu>
@@ -265,9 +261,6 @@ export default function TabsSection() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-
-
-
               </div>
             ) : (
               <p className="text-gray-400 italic mt-2">Chưa có hình ảnh cho phim này</p>
@@ -284,6 +277,7 @@ export default function TabsSection() {
                 <div
                   key={`${a.actorId}-${index}`}
                   className="cursor-pointer relative size-full group"
+                  onClick={() => goActorDetail(a.actorId)}
                 >
                   <div className="size-full overflow-hidden rounded-xl">
                     <img

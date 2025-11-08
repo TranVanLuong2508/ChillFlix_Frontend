@@ -1,5 +1,3 @@
-
-
 export interface IBackendRes<T> {
   EC: number;
   EM: string;
@@ -138,17 +136,6 @@ export interface FilmActorData {
   createdBy: number | null;
 }
 
-export interface FilmActorSimpleData {
-  actorId: number;
-  actorName: string;
-  slug: string;
-  avatarUrl: string | null;
-  nationalityCode?: string | null;
-  genderCode?: string | null;
-  birthDate?: string | null;
-  characterName?: string | null;
-}
-
 export interface FilmDirectorData {
   id: number;
   filmId: string;
@@ -157,20 +144,27 @@ export interface FilmDirectorData {
   director: DirectorData;
 }
 
-export interface FilmDirectorSimpleData {
-  directorId: number;
-  directorName: string;
-  slug: string;
-  birthDate: string | null;
-  story: string | null;
-  avatarUrl: string | null;
-  isMain: boolean;
-  genderCode: string | AllCodeRow | null;
-  nationalityCode: string | AllCodeRow | null;
-}
-
 export interface RatingData {
   filmId: string;
   averageRating: number;
   totalRatings: number;
+}
+
+export interface RatingItem {
+  ratingId: string;
+  ratingValue: number;
+  content: string;
+  createdAt: string;
+  user: {
+    id: number;
+    name: string;
+    avatar: string;
+  };
+}
+
+export interface RatingRes {
+  filmId: string;
+  averageRating: number;
+  totalRatings: number;
+  list: RatingItem[];
 }

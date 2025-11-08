@@ -1,43 +1,70 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import { actorServices } from "@/services/actorService";
 import { filmActorServices } from "@/services/filmActorService";
-import { ActorData, FilmActorData } from "@/types/backend.type";
+import { Actor } from "@/types/actor.type";
+import { FilmData } from "@/types/backend.type";
+import { FilmActorRes } from "@/types/filmActorData";
 
 interface ActorStoreState {
-  actor: ActorData | null;
-  filmActorData: FilmActorData[];
-  isLoading: boolean;
+  actor: Actor | null;
+  filmActorData: FilmActorRes | null;
+  films: FilmData[];
+  isLoadingActor: boolean;
+  isLoadingFilmActor: boolean;
   error: string | null;
-
-  fetchActorDetail: (actorId: string) => Promise<void>;
-  clearActor: () => void;
 }
 
-export const useActorStore = create<ActorStoreState>()((set) => ({
-  actor: null,
-  filmActorData: [],
-  isLoading: false,
-  error: null,
+type ActorDataAction = {
+  fetchActorDetail: (actorId: string) => Promise<void>;
+  fetchFilmActor: (actorId: string) => Promise<void>;
+  clearActor: () => void;
+};
 
-  fetchActorDetail: async (actorId: string) => {
-    set({ isLoading: true, error: null });
-    try {
-      const [actorRes, filmActorRes] = await Promise.all([
-        actorServices.getActorById(actorId),
-        filmActorServices.getFilmsByActorId(actorId),
-      ]);
+export const useActorStore = create<ActorStoreState & ActorDataAction>()(
+  (set) => ({
+    actor: null,
+    filmActorData: null,
+    films: [],
+    isLoadingActor: false,
+    isLoadingFilmActor: false,
+    error: null,
 
+    fetchActorDetail: async (actorId: string) => {
+      set({ isLoadingActor: true, error: null });
+      try {
+        const res = await actorServices.getActorById(actorId);
+        set({ actor: res.data || null });
+      } catch (error: any) {
+        set({ error: error.message || "Error fetching actor details" });
+      } finally {
+        set({ isLoadingActor: false });
+      }
+    },
+
+    fetchFilmActor: async (actorId: string) => {
+      set({ isLoadingFilmActor: true, error: null });
+      try {
+        const res = await filmActorServices.getFilmsByActorId(actorId);
+        const data = res.data || null;
+        const films = data?.result ?? [];
+
+        set({
+          filmActorData: data,
+          films,
+        });
+      } catch (error: any) {
+        set({ error: error.message || "Error fetching film actor data" });
+      } finally {
+        set({ isLoadingFilmActor: false });
+      }
+    },
+
+    clearActor: () =>
       set({
-        actor: actorRes.data?.result || actorRes.data || null,
-        filmActorData: filmActorRes.data?.result || [],
-      });
-    } catch (error: any) {
-      set({ error: error.message || "Lỗi tải dữ liệu diễn viên" });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  clearActor: () => set({ actor: null, filmActorData: [] }),
-}));
+        actor: null,
+        filmActorData: null,
+        films: [],
+        error: null,
+      }),
+  })
+);

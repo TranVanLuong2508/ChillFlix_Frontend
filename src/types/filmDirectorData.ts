@@ -1,9 +1,9 @@
-import { Actor } from "./actor.type";
 import { FilmData } from "./backend.type";
+import { Director } from "./director.type";
 import { Film } from "./film.type";
 
-export interface FilmActorRes {
+export interface FilmDirectorRes {
   film: Film;
-  actor: Actor;
+  director: Director;
   result: FilmData[];
 }

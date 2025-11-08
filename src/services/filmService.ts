@@ -1,9 +1,8 @@
-import privateAxios from "@/lib/privateAxios";
-import publicAxios from "@/lib/publicAxios"
+import publicAxios from "@/lib/publicAxios";
 
-const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL
+const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL;
 
-import { IBackendRes } from "@/types/backend.type";
+import { IBackendRes, RatingRes } from "@/types/backend.type";
 import { FilmDetailRes } from "@/types/film.type";
 
 const filmServices = {
@@ -15,26 +14,28 @@ const filmServices = {
     return publicAxios.get(`/films/slug/${filmSLug}`);
   },
 
-  getActorByFilmId: (filmId: string) => {
+  getActorByFilmId: (filmId: string): Promise<IBackendRes<FilmDetailRes>> => {
     return publicAxios.get(`/film-actor/get-actors-by-film/${filmId}`);
   },
 
-  getDirectorByFilm: (filmId: string) => {
+  getDirectorByFilm: (filmId: string): Promise<IBackendRes<FilmDetailRes>> => {
     return publicAxios.get(`/film-director/by-film/${filmId}`);
   },
 
-  getRatingsByFilmId: (filmId: string) => {
-    return privateAxios.get(`/rating/get-rating-by-film/${filmId}`);
+  getRatingsByFilmId: (
+    filmId: string
+  ): Promise<IBackendRes<{ result: RatingRes }>> => {
+    return publicAxios.get(`/rating/get-rating-by-film/${filmId}`);
   },
 
   async getAll() {
-    return publicAxios.get(`${baseURL}/films?current=1&pageSize=10`)
+    return publicAxios.get(`${baseURL}/films?current=1&pageSize=10`);
   },
   async getById(id: string) {
-    return publicAxios.get(`${baseURL}/films/${id}`)
+    return publicAxios.get(`${baseURL}/films/${id}`);
   },
   async getHeroSlides() {
-    return publicAxios.get(`${baseURL}/films?current=1&pageSize=5`)
+    return publicAxios.get(`${baseURL}/films?current=1&pageSize=5`);
   },
 };
 

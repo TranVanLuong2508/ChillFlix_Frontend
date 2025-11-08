@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Heart, Plus, Send, MessageSquare, Star } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { EpisodeData } from "@/types/backend.type";
-import { useAppRouter } from "@/hooks/filmRouter";
+import { useFilmRouter } from "@/hooks/filmRouter";
 import { toast } from "sonner";
 import { useCommentStore } from "@/stores/comentStore";
 import { eventBus } from "@/lib/eventBus";
@@ -15,7 +15,7 @@ interface PlayBarProps {
 
 export default function PlayBar({ episodes }: PlayBarProps) {
   const [liked, setLiked] = useState(false);
-  const { goWatchNow } = useAppRouter();
+  const { goWatchNow } = useFilmRouter();
 
 
   const actions = [

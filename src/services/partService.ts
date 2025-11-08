@@ -8,5 +8,5 @@ export const partServices = {
     return publicAxios.post("/parts/film", { filmId })
   },
 
-  getPartById: (id: string) => publicAxios.get(`/parts/${id}`),
+  getPartById: (id: string): Promise<IBackendRes<DetailPart>> => publicAxios.get(`/parts/${id}`),
 };

@@ -1,28 +1,41 @@
 "use client";
 
 import { partServices } from "@/services/partService";
+import { useFilmRouter } from "@/hooks/filmRouter";
 import { useFilmStore } from "@/stores/filmStore";
-import { useAppRouter } from "@/hooks/filmRouter";
 
 export function useFilmClick() {
-  const { goFilmDetail, goWatchNow } = useAppRouter();
+  const { goFilmDetail, goWatchNow } = useFilmRouter();
   const setIsLoading = (isLoading: boolean) =>
     useFilmStore.setState({ isLoading });
 
-  const handleFilmClick = async (filmId: string) => {
+  const handleFilmClick = async (film: any) => {
+    if (!film?.filmId) {
+      console.warn("Missing filmId:", film);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const res = await partServices.getPartsByFilmId(filmId);
-      const parts = res.data.result;
-      const episodes = parts?.[0]?.episodes || [];
+      const res = await partServices.getPartsByFilmId(film.filmId);
+      const part = res?.data;
 
-      if (!episodes.length) return goFilmDetail(filmId);
+      console.log("Part fetched:", part);
 
-      const firstEpisodeId = episodes[0].id;
-      goWatchNow(firstEpisodeId);
-    } catch (err) {
-      console.error("Lỗi khi lấy danh sách tập:", err);
-      goFilmDetail(filmId);
+      const firstPart = part?.partData?.[0];
+      const episodes = firstPart?.episodes || [];
+
+      if (episodes.length > 0) {
+        const firstEp = episodes[0];
+        console.log("Opening first episode:", firstEp);
+        goWatchNow(firstEp.id);
+        return;
+      }
+
+      goFilmDetail(film.slug);
+    } catch (err: any) {
+      console.error("Error in handleFilmClick:", err?.message || err);
+      goFilmDetail(film.slug);
     } finally {
       setIsLoading(false);
     }

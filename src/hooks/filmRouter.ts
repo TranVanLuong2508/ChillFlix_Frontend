@@ -2,7 +2,7 @@
 import { filmPath, playPath } from "@/constants/path";
 import { useRouter } from "next/navigation";
 
-export const useAppRouter = () => {
+export const useFilmRouter = () => {
   const router = useRouter();
 
   return {
@@ -15,6 +15,7 @@ export const useAppRouter = () => {
     goWatchNow: (episodeId: string) =>
       router.push(playPath.WATCHNOW(episodeId)),
 
-    goFilmDetail: (filmId: string) => router.push(filmPath.FILM_DETAIL(filmId)),
+    goFilmDetail: (filmSlug: string) =>
+      router.push(filmPath.FILM_DETAIL(filmSlug)),
   };
 };

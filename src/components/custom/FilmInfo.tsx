@@ -3,13 +3,12 @@
 import { useFilmStore } from "@/stores/filmStore";
 import { AllCodeValue } from "@/types/allcode.type";
 import { Star } from "lucide-react";
+import { useFilmRouter } from "@/hooks/filmRouter";
+import { useEffect } from "react";
 
-import { useAppRouter } from "@/hooks/filmRouter";
-
-export default function FilmInfo({ }) {
-  const { loading, error, filmData } = useFilmStore();
-
-  const { goActorDetail } = useAppRouter();
+export default function FilmInfo() {
+  const { loading, error, filmData, ratingData, getRatingByFilmId } = useFilmStore();
+  const { goActorDetail } = useFilmRouter();
 
   if (loading || !filmData) {
     return <div className="text-center py-20">Đang tải dữ liệu...</div>;
@@ -19,8 +18,18 @@ export default function FilmInfo({ }) {
     return <div className="text-center py-20">Has error !</div>;
   }
 
-  const { film, filmImages, directors, actors } = filmData;
+  const { film, filmImages, actors, directors } = filmData;
+  const { averageRating } = ratingData || { averageRating: 0 };
 
+  useEffect(() => {
+    try {
+      getRatingByFilmId(film.filmId);
+    } catch (error) {
+      console.error("Failed to fetch rating data:", error);
+    }
+  }, [film.filmId]);
+
+  console.log("Rating Data in FilmInfo:", ratingData);
   return (
     <div className="flex flex-col gap-4 px-6 py-6 rounded-lg">
       <div className="flex items-center justify-center mb-6">
@@ -38,15 +47,11 @@ export default function FilmInfo({ }) {
 
       <div className="flex items-center gap-2 text-sm text-gray-300">
         <span className="inline-flex items-center bg-[#facc15] text-black px-2 py-0.5 rounded font-semibold">
-          Chưa có đánh giá
-          <Star size={14} className="ml-1" />
-        </span>
-        {/* <span className="inline-flex items-center bg-[#facc15] text-black px-2 py-0.5 rounded font-semibold">
-          {rating.averageRating > 0
-            ? `${rating.averageRating}`
+          {(averageRating ?? 0) > 0
+            ? `${averageRating ?? 0}`
             : "Chưa có đánh giá"}
           <Star size={14} className="ml-1" />
-        </span> */}
+        </span>
 
         {film.age && (
           <span className="bg-[#FF3300] text-gray-100 px-2 py-0.5 rounded font-semibold">
@@ -97,7 +102,7 @@ export default function FilmInfo({ }) {
       </div>
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Đạo diễn:</h3>
-        {directors?.length ? (
+        {Array.isArray(directors) && directors.length > 0 ? (
           directors.map((d) => (
             <div key={d.directorId} className="flex items-center gap-2">
               <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
@@ -109,6 +114,7 @@ export default function FilmInfo({ }) {
           <p className="text-gray-400 italic">Chưa cập nhật đạo diễn</p>
         )}
       </div>
+
       <div className="mt-2">
         <h3 className="text-2xl font-semibold text-white">Diễn viên</h3>
         <div>
