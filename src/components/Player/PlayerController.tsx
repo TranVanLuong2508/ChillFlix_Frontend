@@ -124,7 +124,7 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
       // config common
       theme: "#00B2FF", // #B20710
       // autoSize: true,
-      autoMini: true,
+      // autoMini: true,
       playbackRate: true,
       setting: true,
       hotkey: true,

@@ -3,8 +3,8 @@ import { create } from "zustand";
 import { FilmDetail, FilmImages } from "@/types/film.type";
 import filmServices from "@/services/filmService";
 import { partServices } from "@/services";
-import { DetailPart } from "@/types/part.type";
-import { RatingRes } from "@/types/backend.type";
+import { PartData, RatingRes } from "@/types/backend.type";
+import { PartDetail } from "@/types/part.type";
 
 interface FilmState {
   isLoading: boolean;
@@ -12,14 +12,16 @@ interface FilmState {
   loading: boolean;
   loadingPart: boolean;
   filmData: FilmDetail | null;
-  partDetail: DetailPart | null;
+  partDetail: PartData | null;
   ratingData: RatingRes | null;
+  partData: PartDetail[] | null;
 }
 
 const initialFilmDetail = {
   filmData: null,
   partDetail: null,
   ratingData: null,
+  partData: null,
 };
 
 interface FilmAction {
@@ -54,6 +56,7 @@ export const useFilmStore = create<FilmState & FilmAction>()((set) => ({
       set({ isLoading: false });
     }
   },
+
   getDetailFilm: async (filmSlug) => {
     set({ loading: true, error: null });
     try {
@@ -94,6 +97,7 @@ export const useFilmStore = create<FilmState & FilmAction>()((set) => ({
 
       if (res.data) {
         set({ partDetail: res.data });
+        set({ partData: res.data.partData });
       }
     } catch (error) {
       console.error("Unexpected error:", error);

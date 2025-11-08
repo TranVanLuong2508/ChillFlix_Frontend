@@ -11,7 +11,9 @@ export const userPath = {
 export const filmPath = {
   ACTOR_DETAIL: (id: number | string) => `/actor-detail/${id}`,
   DIRECTOR_DETAIL: (id: number | string) => `/director-detail/${id}`,
-  FILM_DETAIL: (id: number | string) => `/film-detail/${id}`,
+  FILM_DETAIL: (slug: string) => `/film-detail/${slug}`,
+  PLAYER_DETAIL: (filmSlug: string, part: string, episode: string) => `/play/${filmSlug}?p=${part}&ep=${episode}`
+
 };
 
 export const playPath = {
