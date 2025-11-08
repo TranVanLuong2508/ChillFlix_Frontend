@@ -2,6 +2,8 @@ import { Star } from "lucide-react"
 import { AllCodeValue } from "@/types/allcode.type"
 
 import { useFilmStore } from "@/stores/filmStore"
+import Link from "next/link";
+import { filmPath } from "@/constants/path";
 
 const FilmInfo = () => {
 
@@ -60,12 +62,22 @@ const FilmInfo = () => {
         </div>
       </div>
       <div className="col-span-4">
-        <h3 className="text-base font-semibold text-white mb-1">Giới thiệu:</h3>
-        <p className="text-sm text-gray-400 leading-relaxed text-justify">
-          {film.description}
-        </p>
-      </div>
+        <div className="flex flex-col gap-1">
+          <h3 className="text-base font-semibold text-white">Giới thiệu:</h3>
+          <p className="text-sm text-gray-400 leading-relaxed text-justify">
+            {film.description}
+          </p>
+          <Link
+            href={filmPath.FILM_DETAIL(filmData.film.slug)}
+            className="
+              relative text-yellow-600
+              after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-yellow-600 after:transition-all after:duration-300 after:ease-out hover:after:w-[120px]"
+          >
+            Thông tin chi tiết
+          </Link>
 
+        </div>
+      </div>
     </div>
 
   )

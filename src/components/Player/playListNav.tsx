@@ -17,6 +17,7 @@ import { useFilmStore } from "@/stores/filmStore";
 import { useEffect, useState } from "react";
 import { EpisodeDetail } from "@/types/episode.type";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePlayerStore } from "@/stores/playerStore";
 
 interface PlayListNavProps {
   open: boolean;
@@ -82,7 +83,7 @@ const Content = ({
   const pathname = usePathname();
 
   // Hàm thay đổi searchParams
-  const handleClickEpisode = (episodeNumber: number) => {
+  const handlePlayEpisode = (episodeNumber: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("ep", episodeNumber.toString());
     params.set("p", selectedPart);
@@ -100,7 +101,7 @@ const Content = ({
             return (
               <div
                 key={i}
-                onClick={() => handleClickEpisode(episode.episodeNumber)}
+                onClick={() => handlePlayEpisode(episode.episodeNumber)}
                 className={cn(
                   "flex items-center justify-center px-3 py-2 rounded-md bg-zinc-800 text-white font-normal text-xs cursor-pointer border-3 border-zinc-800",
                   "hover:shadow-[0_3px_3px_rgba(253,153,0,1)] transition-all duration-200 ease",
