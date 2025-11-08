@@ -12,16 +12,29 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { X } from "lucide-react";
+import { PartDetail } from "@/types/part.type";
+import { useFilmStore } from "@/stores/filmStore";
+import { useEffect, useState } from "react";
+import { EpisodeDetail } from "@/types/episode.type";
 
 interface PlayListNavProps {
   open: boolean;
+  currentPart: string;
+  currentEpisode: string;
+
   onOpenChange: (open: boolean) => void;
 }
 
 const Header = ({
+  part,
+  selectedPart,
+  onChangeSelectPart,
   onOpenChange,
 }: {
-  onOpenChange: (open: boolean) => void;
+  part: PartDetail[],
+  selectedPart: string,
+  onChangeSelectPart: (part: string) => void,
+  onOpenChange: (open: boolean) => void
 }) => {
   return (
     <div className="flex flex-col gap-4">
@@ -34,14 +47,17 @@ const Header = ({
           <X size={12} />
         </button>
       </div>
-      <Select defaultValue="p-1">
+      <Select value={selectedPart} onValueChange={onChangeSelectPart}>
         <SelectTrigger className="w-[120px]">
           <SelectValue placeholder="Chọn phần" />
         </SelectTrigger>
         <SelectContent className="z-10000">
           <SelectGroup>
-            <SelectItem value="p-1">Phần 1</SelectItem>
-            <SelectItem value="p-2">Phần 2</SelectItem>
+            {part.map((p, index) => (
+              <SelectItem key={index} value={(p.partNumber).toString()}>
+                {p.title}
+              </SelectItem>
+            ))}
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -49,33 +65,61 @@ const Header = ({
   );
 };
 
-const Content = () => {
+const Content = ({
+  listEpisode,
+  currentEpisode,
+  isActive,
+}: {
+  listEpisode: EpisodeDetail[],
+  currentEpisode: string,
+  isActive: boolean,
+}) => {
+
   return (
     <>
       <Separator />
-      <ScrollArea className="h-full w-full rounded-md overflow-y-auto no-scrollbar">
-        <div className="p-4">
-          <div className="grid grid-cols-4 gap-4">
-            {Array.from({ length: 50 }).map((_, i) => (
+      <ScrollArea className="h-full w-full rounded-md">
+        <div className="grid grid-cols-4 gap-4">
+          {listEpisode.map((episode, i) => {
+            const isSelected = episode.episodeNumber === +currentEpisode && isActive;
+            console.log(">>>>> Check: ", isSelected, episode.episodeNumber === +currentEpisode, isActive)
+            return (
               <div
                 key={i}
                 className={cn(
-                  "flex items-center justify-center px-3 py-2 rounded-md bg-zinc-800 text-white font-normal text-xs cursor-pointer ",
-                  i === 1 && "border-3 border-amber-500 text-amber-500",
-                  "hover:shadow-[0_3px_3px_rgba(253,153,0,1)] transition-all duration-200 ease"
+                  "flex items-center justify-center px-3 py-2 rounded-md bg-zinc-800 text-white font-normal text-xs cursor-pointer border-3 border-zinc-800",
+                  "hover:shadow-[0_3px_3px_rgba(253,153,0,1)] transition-all duration-200 ease",
+                  isSelected && "border-amber-500 text-amber-500",
                 )}
               >
-                Tập {i + 1}
+                {episode.title !== "" ? episode.title : `Tập ${episode.episodeNumber}`}
               </div>
-            ))}
-          </div>
+            )
+          })}
         </div>
       </ScrollArea>
     </>
   );
 };
 
-const PlayListNav = ({ open, onOpenChange }: PlayListNavProps) => {
+const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayListNavProps) => {
+
+  const { partData } = useFilmStore();
+
+  const [selectedPart, setSelectedPart] = useState(currentPart);
+  const [isActive, setIsActive] = useState(false);
+
+  const [listEpisode, setListEpisode] = useState<EpisodeDetail[] | null>(null);
+
+  useEffect(() => {
+    if (!partData) return;
+    const episodes = partData[+selectedPart - 1].episodes;
+    setListEpisode(episodes);
+
+    setIsActive(selectedPart === currentPart)
+  }, [selectedPart, currentPart, partData])
+
+
   return (
     <div
       className={cn("absolute inset-0 z-1000", !open && "pointer-events-none")}
@@ -96,8 +140,14 @@ const PlayListNav = ({ open, onOpenChange }: PlayListNavProps) => {
           open ? "opacity-100" : "opacity-0"
         )}
       >
-        <Header onOpenChange={onOpenChange} />
-        <Content />
+        <Header part={partData!} onOpenChange={onOpenChange} selectedPart={selectedPart} onChangeSelectPart={setSelectedPart} />
+        {listEpisode ?
+          <Content listEpisode={listEpisode!} currentEpisode={currentEpisode} isActive={isActive} />
+          :
+          <div className="font-semibold text-red-500">
+            Đã xảy ra lỗi. Vui lòng thử lại sau!
+          </div>
+        }
       </div>
     </div>
   );
