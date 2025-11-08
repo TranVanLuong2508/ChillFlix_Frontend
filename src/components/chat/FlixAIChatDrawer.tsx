@@ -1,4 +1,3 @@
-// components/chat/FlixAIChatDrawer.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -41,11 +40,11 @@ export default function FlixAIChatDrawer() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto scroll to bottom when new message =))
-  //   useEffect(() => {
-  //     if (scrollAreaRef.current) {
-  //       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-  //     }
-  //   }, [messages]);
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -81,7 +80,7 @@ export default function FlixAIChatDrawer() {
     const botMessage: Message = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
-      content: aiResponse || "Xin lỗi, tôi không hiểu câu hỏi hic hic",
+      content: aiResponse || "Xin lỗi, tôi không hiểu câu hỏi",
       timestamp: new Date(),
     };
 
@@ -98,7 +97,7 @@ export default function FlixAIChatDrawer() {
 
   return (
     <Drawer open={isOpen} onOpenChange={closeDrawer}>
-      <DrawerContent className="h-[85vh] max-h-screen bg-[#0f1419] border-t border-[#2a3040]/60">
+      <DrawerContent className="h-[85vh] max-h-screen bg-[#0f1419] border-t border-[#2a3040]/60 focus:outline-none focus-visible:outline-none ">
         <div className="flex flex-col h-full max-w-2xl mx-auto">
           {/* Header */}
           <DrawerHeader className="border-b border-[#2a3040]/50 pb-4">
@@ -120,7 +119,7 @@ export default function FlixAIChatDrawer() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-400 hover:text-yellow-400"
+                  className="text-gray-400 hover:text-yellow-400 hover:bg-transparent hover:shadow-[0_0_10px_rgba(212,175,55,0.5)] transition-all duration-300 cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </Button>
@@ -129,8 +128,8 @@ export default function FlixAIChatDrawer() {
           </DrawerHeader>
 
           {/* Chat Messages */}
-          <ScrollArea className="flex-1 px-4 py-6">
-            <div className="space-y-4 ">
+          <div ref={scrollAreaRef} className="flex-1 overflow-y-auto px-4 py-6">
+            <div className="space-y-4">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -190,7 +189,7 @@ export default function FlixAIChatDrawer() {
               )}
               <div ref={messagesEndRef} />
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Input */}
           <DrawerFooter className="border-t border-[#2a3040]/50 pt-4 pb-6 px-4">
@@ -206,7 +205,7 @@ export default function FlixAIChatDrawer() {
               <Button
                 onClick={sendMessage}
                 disabled={!input.trim() || isLoading}
-                className="bg-gradient-to-r from-[#d4af37] to-[#f5d547] hover:from-[#f5d547] hover:to-[#d4af37] text-[#0f1419] font-semibold"
+                className="bg-gradient-to-r from-[#d4af37] to-[#f5d547] hover:from-[#f5d547] hover:to-[#d4af37] text-[#0f1419] font-semibold cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </Button>
