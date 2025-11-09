@@ -81,7 +81,7 @@ export default function VipUpgradeContent() {
   const router = useRouter();
   const [selectedPackage, setSelectedPackage] = useState<string>("yearly");
   const [isLoading, setIsLoading] = useState(false);
-  const { isAuthenticated } = useAuthStore();
+  // const { isAuthenticated } = useAuthStore();
   const { replaceToHome } = useAppRouter();
 
   const formatPrice = (price: number) =>
@@ -102,10 +102,15 @@ export default function VipUpgradeContent() {
   };
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    const isAuth = useAuthStore.getState().isAuthenticated;
+    console.log("check authentication: ", isAuth);
+
+    if (!isAuth) {
       replaceToHome();
     }
-  }, [isAuthenticated]);
+  }, []);
+
+  // console.log("check authentication: ", isAuthenticated);
 
   return (
     <div className="w-full">
@@ -181,7 +186,7 @@ export default function VipUpgradeContent() {
       <section className="py-10 px-4 !overflow-visible m-auto">
         <Swiper
           modules={[Pagination]}
-          pagination={{ clickable: true }}
+          pagination={{ enabled: false }}
           spaceBetween={24}
           slidesPerView={1.3}
           centeredSlides={true}

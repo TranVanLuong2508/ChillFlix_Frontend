@@ -28,7 +28,6 @@ import { useAppRouter } from "@/hooks/useAppRouter";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
 import { AuthenticationsMessage } from "@/constants/messages/user.message";
-import FlixAIChatDrawer from "../chat/FlixAIChatDrawer";
 import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 
 export default function Header() {
@@ -38,8 +37,7 @@ export default function Header() {
   const { openLoginModal } = useAuthModalStore();
   const { goHome, goProfile, goUpgradeVip } = useAppRouter();
   const { openDrawer } = useChatDrawerStore();
-  const { logOutAction, setTokenToTestApi, isAuthenticated, isLoading } =
-    useAuthStore();
+  const { logOutAction, isAuthenticated, isLoading } = useAuthStore();
 
   useEffect(() => {
     fetchGenresList();

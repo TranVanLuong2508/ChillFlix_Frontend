@@ -35,10 +35,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(true);
         const res = await authService.callFetchAccount();
         if (res && res.data) {
-          console.log("check res sucess", res);
+          // console.log("check res sucess", res);
           fetchAccountAction(res.data.user);
         } else {
-          console.log("check fail", res);
+          // console.log("check fail", res);
           resetAuthAction();
         }
         setLoading(false);
