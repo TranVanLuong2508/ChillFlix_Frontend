@@ -35,9 +35,9 @@ export default function Header() {
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
   const { openLoginModal } = useAuthModalStore();
-  const { goHome, goProfile, goUpgradeVip } = useAppRouter();
+  const { goHome, goUpgradeVip } = useAppRouter();
   const { openDrawer } = useChatDrawerStore();
-  const { logOutAction, isAuthenticated, isLoading } = useAuthStore();
+  const { logOutAction, isAuthenticated, isLoading, authUser } = useAuthStore();
 
   useEffect(() => {
     fetchGenresList();
@@ -82,7 +82,7 @@ export default function Header() {
               <div className="w-8 h-8 bg-[#0f1419] rounded-full flex items-center justify-center">
                 <span
                   onClick={() => {
-                    goProfile();
+                    goHome();
                   }}
                   className="text-[#d4af37] font-bold text-lg"
                 >
@@ -365,7 +365,7 @@ export default function Header() {
                             />
                             <div>
                               <h3 className="text-white font-semibold flex items-center gap-1">
-                                Trần Văn Lương
+                                {authUser.fullName}
                               </h3>
                               <p className="text-gray-400 text-xs">
                                 Nâng cấp tài khoản ChillFlix để có trải nghiệm
@@ -383,7 +383,7 @@ export default function Header() {
                           </button>
                         </div>
                         {/* Balance Section */}
-                        <div className="px-4 py-3 border-b border-[#2a3040]/50 flex items-center justify-between">
+                        {/* <div className="px-4 py-3 border-b border-[#2a3040]/50 flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="w-5 h-5 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded flex items-center justify-center">
                               <span className="text-[#0f1419] text-xs font-bold">
@@ -405,7 +405,7 @@ export default function Header() {
                               <Plus strokeWidth={1} /> Nạp
                             </button>
                           </div>
-                        </div>
+                        </div> */}
                         {/* Menu Items */}
                         <div className="py-2">
                           <button className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">

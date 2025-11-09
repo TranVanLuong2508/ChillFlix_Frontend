@@ -13,4 +13,8 @@ export const AuthenticationsMessage = {
 
 export const UpgradeVipMessage = {
   basicMember: "Bạn đang là thành viên miễn phí",
+  vipMember: "Bạn đang là thành viên VIP.",
+  paymentSucess:
+    "Thanh toán thành công. Chúc mừng bạn đã trở thành tài khoản VIP.",
+  paymentFailed: "Thanh toán thất bại.",
 };

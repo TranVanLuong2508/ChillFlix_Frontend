@@ -21,5 +21,6 @@ export const useAppRouter = () => {
     goBack: () => router.back(),
     replaceToHome: () => router.replace(userPath.HOME),
     reload: () => router.refresh(),
+    replaceToUpgradeVip: () => router.replace(userPath.UPGRADE_VIP),
   };
 };

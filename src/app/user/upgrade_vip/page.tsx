@@ -1,99 +1,74 @@
 "use client";
 
-import { Check, Zap } from "lucide-react";
+import { Check, StarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { paymentService } from "@/services";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import LoadingSpinner from "@/components/layout/loadingSpinner";
 import { useAuthStore } from "@/stores/authStore";
 import { subsciptionPlanService } from "@/services/subscriptionPlanService";
-
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import { useAppRouter } from "@/hooks/useAppRouter";
-interface VipPackage {
-  id: string;
-  duration: string;
-  months: number;
-  price: number;
-  originalPrice: number;
-  discount: number;
-  features: string[];
-  highlighted?: boolean;
-}
-
-const VIP_PACKAGES: VipPackage[] = [
-  {
-    id: "monthly",
-    duration: "1 tháng",
-    months: 1,
-    price: 39000,
-    originalPrice: 39000,
-    discount: 0,
-    features: [
-      "Tắt quảng cáo",
-      "Xem phim chất lượng 4K",
-      "Chat không cần chờ",
-      "Chat sử dụng stickers và Gifs",
-      "Tải lên ảnh đại diện của bạn",
-      "Tên được gắn nhãn VIP",
-    ],
-  },
-  {
-    id: "sixmonths",
-    duration: "6 tháng",
-    months: 6,
-    price: 189000,
-    originalPrice: 234000,
-    discount: 19,
-    features: [
-      "Tắt quảng cáo",
-      "Xem phim chất lượng 4K",
-      "Chat không cần chờ",
-      "Chat sử dụng stickers và Gifs",
-      "Tải lên ảnh đại diện của bạn",
-      "Tên được gắn nhãn VIP",
-    ],
-    highlighted: true,
-  },
-  {
-    id: "yearly",
-    duration: "12 tháng",
-    months: 12,
-    price: 339000,
-    originalPrice: 471000,
-    discount: 28,
-    features: [
-      "Tắt quảng cáo",
-      "Xem phim chất lượng 4K",
-      "Chat không cần chờ",
-      "Chat sử dụng stickers và Gifs",
-      "Tải lên ảnh đại diện của bạn",
-      "Tên được gắn nhãn VIP",
-    ],
-  },
-];
+import { plan } from "@/types/subcsciptionPlan.type";
+import { VIPFeatures } from "@/data/vipFeaturesData";
+import { UpgradeVipMessage } from "@/constants/messages/user.message";
+import { toast } from "sonner";
 
 export default function VipUpgradeContent() {
   const router = useRouter();
-  const [selectedPackage, setSelectedPackage] = useState<string>("yearly");
+  const [selectedPackage, setSelectedPackage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
-  // const { isAuthenticated } = useAuthStore();
-  const { replaceToHome } = useAppRouter();
+  const [planList, setPlanList] = useState<plan[]>([]);
+  const { replaceToHome, replaceToUpgradeVip } = useAppRouter();
+  const { authUser } = useAuthStore();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    fetchPlanList();
+  }, []);
+
+  useEffect(() => {
+    const statusResponse = searchParams.get("responseCode");
+    const fromVNPay = Boolean(localStorage.getItem("from_VNPAY"));
+    if (statusResponse === "00" && fromVNPay) {
+      toast.success(UpgradeVipMessage.paymentSucess);
+      localStorage.removeItem("from_VNPAY");
+      replaceToUpgradeVip();
+    }
+  }, []);
+
+  useEffect(() => {
+    const isAuth = useAuthStore.getState().isAuthenticated;
+    if (!isAuth) {
+      replaceToHome();
+    }
+  });
+
+  const fetchPlanList = async () => {
+    const res = await subsciptionPlanService.getSubscriptionsPlanList();
+    if (res && res.EC === 1) {
+      setPlanList(res.data?.plans || []);
+      setSelectedPackage(res.data?.plans[0].planId || 2);
+    } else {
+      setPlanList([]);
+    }
+  };
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("vi-VN").format(price);
 
   const handleUpgrade = async () => {
-    const selected = VIP_PACKAGES.find((pkg) => pkg.id === selectedPackage);
+    const selected = planList.find((pkg) => pkg.planId === selectedPackage);
     if (!selected) return;
     setIsLoading(true);
-    const res = await paymentService.createPaymentURL(selected.price);
+    const res = await paymentService.createPaymentURL(parseInt(selected.price));
     const redirectURL: string = res.data.metadata.redirectUrl;
     if (redirectURL) {
+      localStorage.setItem("from_VNPAY", "true");
       router.push(redirectURL);
     } else {
       alert("Không lấy được link thanh toán");
@@ -101,16 +76,7 @@ export default function VipUpgradeContent() {
     }
   };
 
-  useEffect(() => {
-    const isAuth = useAuthStore.getState().isAuthenticated;
-    console.log("check authentication: ", isAuth);
-
-    if (!isAuth) {
-      replaceToHome();
-    }
-  }, []);
-
-  // console.log("check authentication: ", isAuthenticated);
+  const isVip = useAuthStore.getState().authUser.isVip;
 
   return (
     <div className="w-full">
@@ -134,27 +100,19 @@ export default function VipUpgradeContent() {
             className="w-14 h-14 rounded-full object-cover border border-yellow-400/40"
           />
 
-          <div className="flex-1">
+          <div className="flex-1 ">
             <h3 className="text-white font-semibold text-lg flex items-center gap-2">
-              {"Người dùng"}
-              <span className="text-yellow-300 text-sm">
-                ★ {true ? "VIP" : "Free"}
+              {authUser.fullName}
+              <span className="text-yellow-300 text-sm flex gap-1 justify-between items-center ">
+                <StarIcon /> {isVip ? "VIP" : "Free"}
               </span>
             </h3>
             <p className="text-gray-400 text-xs">
-              {true
-                ? "Bạn đang là thành viên VIP."
-                : "Bạn đang là thành viên miễn phí."}
+              {isVip
+                ? UpgradeVipMessage.vipMember
+                : UpgradeVipMessage.basicMember}
             </p>
           </div>
-
-          <Button
-            className="bg-yellow-400 text-black font-bold hover:bg-yellow-500 px-4 py-2 rounded-lg"
-            size="sm"
-            onClick={() => router.push("/nap-tien")}
-          >
-            + Nạp
-          </Button>
         </div>
       </section>
 
@@ -192,56 +150,46 @@ export default function VipUpgradeContent() {
           centeredSlides={true}
           centeredSlidesBounds={true} // Quan trọng
           loop={true}
-          loopAdditionalSlides={VIP_PACKAGES.length} //Fix lệch khi loop
-          initialSlide={VIP_PACKAGES.findIndex((p) => p.id === selectedPackage)} //Đặt đúng slide giữa
+          loopAdditionalSlides={planList.length} //Fix lệch khi loop
+          initialSlide={planList.findIndex((p) => p.planId === selectedPackage)} //Đặt đúng slide giữa
           breakpoints={{
             640: { slidesPerView: 2.1 },
             1024: { slidesPerView: 3 },
           }}
           className="pb-12 !overflow-visible"
         >
-          {VIP_PACKAGES.map((pkg) => (
-            <SwiperSlide key={pkg.id}>
+          {planList.map((pkg) => (
+            <SwiperSlide key={pkg.planId}>
               <div
-                onClick={() => setSelectedPackage(pkg.id)}
+                onClick={() => setSelectedPackage(pkg.planId)}
                 className={`relative rounded-3xl p-6 cursor-pointer transition-all duration-300
                     backdrop-blur-xl border 
                     ${
-                      selectedPackage === pkg.id
+                      selectedPackage === pkg.planId
                         ? "border-yellow-400 shadow-[0_0_40px_rgba(255,215,0,0.55)] scale-[1.04] z-20"
                         : "border-white/10 hover:border-yellow-400/40 hover:scale-[1.02]"
                     }
                     bg-gradient-to-b from-[#1b1f2a] to-[#0d0f14]
                   `}
               >
-                {/* Discount Badge */}
-                {pkg.discount > 0 && (
-                  <span className="absolute top-4 right-4 bg-yellow-500/15 border border-yellow-400/60 text-yellow-300 px-2 py-1 text-xs rounded-md font-bold">
-                    Giảm {pkg.discount}%
-                  </span>
-                )}
-
-                {/* Duration */}
                 <h3 className="text-white font-bold text-2xl mb-1 tracking-wide">
-                  {pkg.duration}
+                  {`${
+                    pkg.planDuration === 9999
+                      ? "Vĩnh viễn"
+                      : `${pkg.planDuration} ${pkg.durationInfo.valueVi}`
+                  }`}
                 </h3>
 
                 {/* Price */}
                 <div className="flex items-end gap-2 mb-3">
                   <p className="text-yellow-300 text-3xl font-extrabold leading-none">
-                    {formatPrice(pkg.price)}₫
+                    {formatPrice(parseInt(pkg.price))} VNĐ
                   </p>
-
-                  {pkg.discount > 0 && (
-                    <p className="text-gray-500 text-xs line-through">
-                      {formatPrice(pkg.originalPrice)}₫
-                    </p>
-                  )}
                 </div>
 
-                {/* Features */}
+                {/* VIPFeatures */}
                 <ul className="text-sm text-gray-300 space-y-2 mb-6">
-                  {pkg.features.map((feature, i) => (
+                  {VIPFeatures.map((feature, i) => (
                     <li key={i} className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-yellow-400" />
                       {feature}
@@ -253,12 +201,12 @@ export default function VipUpgradeContent() {
                 <Button
                   size="sm"
                   className={`w-full font-bold py-2 rounded-xl transition-all ${
-                    selectedPackage === pkg.id
+                    selectedPackage === pkg.planId
                       ? "bg-yellow-400 text-black hover:bg-yellow-500"
                       : "bg-white/10 text-white border border-white/20 hover:bg-white/20"
                   }`}
                 >
-                  {selectedPackage === pkg.id ? "✓ Đã chọn" : "Chọn gói"}
+                  {selectedPackage === pkg.planId ? "✓ Đã chọn" : "Chọn gói"}
                 </Button>
               </div>
             </SwiperSlide>
@@ -275,7 +223,7 @@ export default function VipUpgradeContent() {
           Thanh Toán Ngay
         </Button>
         <p className="text-gray-500 text-xs mt-3">
-          Bạn có thể hủy bất kỳ lúc nào — không phí ẩn.
+          Bạn có thể hủy bất kỳ lúc nào — không phí phát sinh.
         </p>
       </div>
     </div>

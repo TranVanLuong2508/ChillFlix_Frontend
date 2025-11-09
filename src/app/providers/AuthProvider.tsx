@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { useAppRouter } from "@/hooks/useAppRouter";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { goHome } = useAppRouter();
   const {
     fetchAccountAction,
     resetAuthAction,
@@ -15,7 +14,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     errorRefreshToken,
     setRefreshTokenAction,
     setLoading,
-    access_token,
   } = useAuthStore();
   useEffect(() => {
     fetchAccount();
