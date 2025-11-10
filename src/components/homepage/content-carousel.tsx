@@ -1,85 +1,63 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import * as React from "react"
+import type { FilmDetailRes } from "@/types/filmType"
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+    type CarouselApi,
+} from "@/components/ui/carousel"
 import MovieCard from "./movie-card"
-import type { Film } from "@/types/filmType"
 
 interface ContentCarouselProps {
     title: string
-    items: Film[]
+    viewAllLink?: string
+    items: FilmDetailRes[]
 }
 
-export default function ContentCarousel({ title, items, }: ContentCarouselProps) {
-    const scrollContainerRef = useRef<HTMLDivElement>(null)
-    const [canScrollLeft, setCanScrollLeft] = useState(false)
-    const [canScrollRight, setCanScrollRight] = useState(true)
-
-    const checkScroll = () => {
-        if (scrollContainerRef.current) {
-            const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
-            setCanScrollLeft(scrollLeft > 0)
-            setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
-        }
-    }
-
-    const scroll = (direction: "left" | "right") => {
-        if (scrollContainerRef.current) {
-            const scrollAmount = 400
-            scrollContainerRef.current.scrollBy({
-                left: direction === "left" ? -scrollAmount : scrollAmount,
-                behavior: "smooth",
-            })
-            setTimeout(checkScroll, 300)
-        }
-    }
+export default function ContentCarousel({ title, viewAllLink = "#", items }: ContentCarouselProps) {
+    const [api, setApi] = React.useState<CarouselApi>()
 
     return (
-        <section className="px-4 md:px-8 py-8">
-            <div className="max-w-full mx-auto">
-                <div className="flex gap-8">
-                    {/* Left Section - Title and Link */}
-                    <div className="flex-shrink-0 w-40">
-                        <h2 className="text-lg md:text-xl font-bold text-white mb-4 leading-tight">{title}</h2>
-                        <a href="#" className="text-sm text-amber-500 hover:text-amber-400 transition-colors font-semibold">
-                            Xem toàn bộ &gt;
+        <section className="py-6 px-4 md:px-8 bg-[#191B24]">
+            <div className="w-full max-w-7xl mx-auto">
+                <div >
+                    <div className="flex items-center justify-between ">
+                        <h2 className="text-2xl md:text-3xl font-bold text-white">{title}</h2>
+                        <a
+                            href={viewAllLink}
+                            className="inline-flex items-center text-amber-500 hover:text-amber-400 transition-colors font-semibold text-sm gap-1"
+                        >
+                            Xem toàn bộ
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                         </a>
                     </div>
+                </div>
 
-                    {/* Right Section - Carousel */}
-                    <div className="flex-1 min-w-0">
-                        <div className="relative group ">
-                            {/* Left Arrow */}
-                            {canScrollLeft && (
-                                <button
-                                    onClick={() => scroll("left")}
-                                    className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-white text-black p-2 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
-                                >
-                                    <ChevronLeft className="w-5 h-5" />
-                                </button>
-                            )}
+                <div className="relative flex items-center gap-6">
+                    <Carousel
+                        setApi={setApi}
+                        className="w-full"
+                        opts={{
+                            align: "start",
+                        }}
+                    >
+                        <CarouselContent className="-ml-20 pt-16 pb-4 px-16">
+                            {items.map((item) => (
+                                <CarouselItem key={item.filmId} className="basis-1/3 pl-8">
+                                    <MovieCard item={item} />
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
 
-                            <div
-                                ref={scrollContainerRef}
-                                onScroll={checkScroll}
-                                className="flex gap-4 scrollbar-hide scroll-smooth pr-4"
-                            >
-                                {items.map((item) => (
-                                    <MovieCard key={item.filmId} item={item} />
-                                ))}
-                            </div>
-
-                            {/* Right Arrow */}
-                            {canScrollRight && (
-                                <button
-                                    onClick={() => scroll("right")}
-                                    className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-white text-black p-2 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
-                                >
-                                    <ChevronRight className="w-5 h-5" />
-                                </button>
-                            )}
-                        </div>
-                    </div>
+                        <CarouselPrevious className="absolute -left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white hover:bg-slate-100 border-0 text-slate-900 shadow-lg" />
+                        <CarouselNext className="absolute -right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white hover:bg-slate-100 border-0 text-slate-900 shadow-lg" />
+                    </Carousel>
                 </div>
             </div>
         </section>

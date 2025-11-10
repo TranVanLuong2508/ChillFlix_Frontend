@@ -2,10 +2,11 @@
 
 import { useState, useRef } from "react"
 import { Play, Heart, Info } from "lucide-react"
-import type { Film } from "@/types/filmType"
+import type { FilmDetailRes } from "@/types/filmType"
+import Link from "next/link"
 
 interface MovieCardProps {
-    item: Film
+    item: FilmDetailRes
     badgeColor?: string
     showProgress?: boolean
 }
@@ -14,11 +15,12 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
     const [isHovered, setIsHovered] = useState(false)
     const [isFavorite, setIsFavorite] = useState(false)
     const cardContainerRef = useRef<HTMLDivElement>(null)
+
     const getGenreText = (genre: any): string => {
         if (typeof genre === "string") return genre
         return genre?.valueVi || genre?.valueEn || ""
     }
-
+    console.log(item.badges)
     return (
         <div
             ref={cardContainerRef}
@@ -26,15 +28,14 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div
-                className={`relative overflow-visible rounded-lg bg-slate-800 transition-all duration-300 w-56 h-32 `}
+            <div className="relative overflow-visible rounded-lg bg-slate-800 transition-all duration-300 w-90 h-48"
             >
                 {/* Image */}
-                <div className="relative w-full h-full overflow-hidden bg-slate-700 rounded-lg">
+                <div className="relative w-full h-full  bg-slate-700 rounded-lg">
                     <img
                         src={item.posterUrl || "/placeholder.svg"}
                         alt={item.title}
-                        className={`w-full h-full object-cover transition-transform duration-300 rounded-lg`}
+                        className="w-full h-full object-cover transition-transform duration-300 rounded-lg"
                     />
                     {item.badges && item.badges.length > 0 && (
                         <div className="absolute top-2 left-2 flex gap-1">
@@ -45,20 +46,19 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
                             ))}
                         </div>
                     )}
-
                 </div>
             </div>
 
-            <div className="mt-2 space-y-1">
-                <h3 className="font-bold text-white text-sm line-clamp-2">{item.title}</h3>
-                {item.originalTitle && <p className="text-xs text-gray-400 line-clamp-1">{item.originalTitle}</p>}
+            <div className="mt-3 space-y-1">
+                <h3 className="font-bold text-white text-base line-clamp-2">{item.title}</h3>
+                {item.originalTitle && <p className="text-sm text-gray-400 line-clamp-1">{item.originalTitle}</p>}
             </div>
 
             {isHovered && (
                 <div
-                    className={`absolute z-50 w-80 bg-[#191B24] rounded-lg overflow-hidden shadow-2xl border border-slate-700 pointer-events-auto animate-popup-in`}
+                    className={`absolute z-50 w-100 bg-[#191B24] rounded-lg overflow-hidden shadow-2xl border border-slate-700 pointer-events-auto animate-popup-in`}
                     style={{
-                        top: 10,
+                        top: 100,
                         left: "50%",
                         transform: "translateX(-50%) translateY(-50%)",
                     }}
@@ -78,10 +78,15 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
 
                         {/* Action Buttons */}
                         <div className="flex gap-2">
-                            <button className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm">
-                                <Play className="w-4 h-4 fill-current" />
-                                Xem ngay
-                            </button>
+                            <Link className="flex-1 rounded-lg flex " href={`http://localhost:3000/film-detail/${item.slug}`}>
+                                <button className="flex-1 bg-gradient-to-r from-yellow-300 to-yellow-500
+                            hover:from-yellow-400 hover:to-yellow-200 
+                            hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]
+                            transition-all duration-300 ease-in-out cursor-pointer text-white font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center gap-2 text-sm">
+                                    <Play className="w-4 h-4 fill-current" />
+                                    Xem ngay
+                                </button>
+                            </Link>
                             <button
                                 onClick={() => setIsFavorite(!isFavorite)}
                                 className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
