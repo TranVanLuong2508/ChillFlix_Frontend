@@ -26,7 +26,7 @@ export default function ContentCarousel({ title, viewAllLink = "#", items }: Con
             <div className="w-full max-w-7xl mx-auto">
                 <div >
                     <div className="flex items-center justify-between ">
-                        <h2 className="text-2xl md:text-3xl font-bold text-white">{title}</h2>
+                        <h2 className={`text-2xl md:text-3xl font-bold  leading-snug text-transparent bg-clip-text ${title === "Phim Hàn Quốc mới" ? "bg-[linear-gradient(235deg,_#c2a3e3,_#ffffff,_#c2a3e3)] " : "bg-clip-text bg-[linear-gradient(90deg,_#f5b75c,_#ffffff)]"} }`}>{title}</h2>
                         <a
                             href={viewAllLink}
                             className="inline-flex items-center text-amber-500 hover:text-amber-400 transition-colors font-semibold text-sm gap-1"

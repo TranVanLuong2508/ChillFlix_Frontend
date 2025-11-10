@@ -100,9 +100,14 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
 
                         {/* Metadata */}
                         <div className="flex flex-wrap gap-1 text-xs text-gray-300">
-                            {item.imdbRating && <span className="bg-slate-800 px-2 py-0.5 rounded">IMDb: {item.imdbRating}</span>}
+                            {item.imdbRating && (
+                                <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-[#f0d25c]">
+                                    <span className="text-amber-400 font-bold text-xs">IMDb: </span>
+                                    <span className="text-white font-bold text-xs">{item.imdbRating}</span>
+                                </div>
+                            )}
                             {item.age && (
-                                <span className="bg-slate-800 px-2 py-0.5 rounded">
+                                <span className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white text-xs">
                                     {typeof item.age === "string"
                                         ? item.age
                                         : (item.age as any)?.valueVi || (item.age as any)?.valueEn || ""}

@@ -45,7 +45,7 @@ export default function Home() {
               genres:
                 film.genres
                   ?.map((genre: any) =>
-                    typeof genre === "string" ? genre : genre.valueEn || genre.valueVi || genre.keyMap || "",
+                    typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || "",
                   )
                   .filter(Boolean) || [],
               badges: [
