@@ -7,4 +7,7 @@ export const subsciptionPlanService = {
   getSubscriptionsPlanList: (): Promise<IBackendRes<IPlans>> => {
     return privateAxios.get(`${baseURL}/subscription-plans`);
   },
+  getUserVipPlanInfor: () => {
+    return privateAxios.get(`${baseURL}/subscriptions/get-by-id`);
+  },
 };

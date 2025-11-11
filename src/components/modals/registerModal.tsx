@@ -14,6 +14,7 @@ import { authService } from "@/services";
 import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
+import { loadingTime } from "@/constants/modalLoadingTime";
 
 export default function LoginModal() {
   const [showPassword, setShowPassword] = useState(false);
@@ -52,7 +53,7 @@ export default function LoginModal() {
           handleCloseRegisterModal();
           setIsSigningUp(false);
           toast.success(AuthenticationsMessage.registerSuccess);
-        }, 500);
+        }, loadingTime.register);
       }
       if (registerResponse && registerResponse.EC === 0) {
         toast.error(AuthenticationsMessage.registerExistEmail);
@@ -181,8 +182,7 @@ export default function LoginModal() {
                 onSubmit={handleSubmit((data) => {
                   const { confirmPassword, ...inputUser } = data;
                   console.log("input regiester:", inputUser);
-                  // Login(data);
-                  handleRegister(data);
+                  handleRegister(inputUser);
                 })}
               >
                 <Input
