@@ -71,6 +71,7 @@ export default function Header() {
       console.log("Error Logout: ", error);
     }
   };
+  console.log("chekc loading", isLoading);
 
   return (
     <header className="sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">

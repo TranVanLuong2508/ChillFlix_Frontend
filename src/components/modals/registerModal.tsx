@@ -286,7 +286,7 @@ export default function LoginModal() {
                   </div>
                 </div>
                 <div className="min-h-[16px] my-[16px]">
-                  {errors.password && (
+                  {errors.confirmPassword && (
                     <p className="text-red-400 text-xs  animate-in fade-in slide-in-from-top-1 duration-200  ">
                       {errors.confirmPassword?.message || " "}
                     </p>
