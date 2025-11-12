@@ -3,13 +3,24 @@
 import { useEffect, useState } from "react"
 import HeroCarousel from "@/components/homepage/hero-carousel"
 import ContentCarousel from "@/components/homepage/content-carousel"
-import type { Film } from "@/types/filmType"
+import type { FilmDetailRes } from "@/types/filmType"
 import filmServices from "@/services/filmService"
 
+const getPosterUrl = (film: any): string => {
+  if (film.posterUrl) return film.posterUrl // fallback for old format
+  if (film.filmImages && Array.isArray(film.filmImages)) {
+    const posterImage = film.filmImages.find((img: any) => img.type === "poster")
+    if (posterImage) return posterImage.url
+    // fallback to first image if poster not found
+    if (film.filmImages.length > 0) return film.filmImages[0].url
+  }
+  return "/placeholder.svg"
+}
+
 export default function Home() {
-  const [koreanItems, setKoreanItems] = useState<Film[]>([])
-  const [chineseItems, setChineseItems] = useState<Film[]>([])
-  const [usukItems, setUsukItems] = useState<Film[]>([])
+  const [koreanItems, setKoreanItems] = useState<FilmDetailRes[]>([])
+  const [chineseItems, setChineseItems] = useState<FilmDetailRes[]>([])
+  const [usukItems, setUsukItems] = useState<FilmDetailRes[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -26,23 +37,25 @@ export default function Home() {
               id: film.filmId,
               title: film.title,
               originalTitle: film.originalTitle,
-              posterUrl: film.posterUrl,
+              posterUrl: getPosterUrl(film), // Use helper function to extract posterUrl from filmImages
               imdbRating: 7.5,
               age: film.age,
               year: film.year,
+              slug: film.slug,
               genres:
-                film.genres?.map((genre: any) =>
-                  typeof genre === "string" ? genre : genre.valueEn || genre.valueVi || genre.keyMap || "",
-                )
+                film.genres
+                  ?.map((genre: any) =>
+                    typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || "",
+                  )
                   .filter(Boolean) || [],
               badges: [
                 { text: "PD.8", color: "bg-blue-600" },
                 { text: "TM.4", color: "bg-green-600" },
               ],
               episodes: "Phần 1, Tập 12",
-            }) as Film,
+            }) as FilmDetailRes,
         )
-        const itemsPerCategory = Math.ceil(transformedFilms.length / 3)
+        const itemsPerCategory = Math.ceil(transformedFilms.length / 2)
         setKoreanItems(transformedFilms.slice(0, itemsPerCategory))
         setChineseItems(transformedFilms.slice(itemsPerCategory, itemsPerCategory * 2))
         setUsukItems(transformedFilms.slice(itemsPerCategory * 2))
@@ -75,11 +88,10 @@ export default function Home() {
   }
 
   return (
-
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       <HeroCarousel />
 
-      <main className="space-y-4 pb-12">
+      <main className="space-y-4 pb-12 bg-[#191B24] overflow-x-hidden ">
         {koreanItems.length > 0 && <ContentCarousel title="Phim Hàn Quốc mới" items={koreanItems} />}
         {chineseItems.length > 0 && <ContentCarousel title="Phim Trung Quốc mới" items={chineseItems} />}
         {usukItems.length > 0 && <ContentCarousel title="Phim US-UK mới" items={usukItems} />}

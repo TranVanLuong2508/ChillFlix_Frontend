@@ -1,25 +1,35 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import { Play, Heart, Info, ChevronLeft, ChevronRight } from "lucide-react"
-import { filmService } from "@/services/filmService"
-import type { Film } from "@/types/filmType"
+import filmService from "@/services/filmService"
+import type { FilmDetailRes } from "@/types/filmType"
+import Link from "next/link"
+const getPosterUrl = (film: any): string => {
+    if (film.posterUrl) return film.posterUrl // fallback for old format
+    if (film.filmImages && Array.isArray(film.filmImages)) {
+        const posterImage = film.filmImages.find((img: any) => img.type === "poster")
+        if (posterImage) return posterImage.url
+        // fallback to first image if poster not found
+        if (film.filmImages.length > 0) return film.filmImages[0].url
+    }
+    return "/placeholder.svg"
+}
 
 export default function HeroCarousel() {
     const [currentSlide, setCurrentSlide] = useState(0)
     const [autoPlay, setAutoPlay] = useState(true)
     const [isDragging, setIsDragging] = useState(false)
     const [dragStart, setDragStart] = useState(0)
-    const [films, setFilms] = useState<Film[]>([])
+    const [films, setFilms] = useState<FilmDetailRes[]>([])
     const [loading, setLoading] = useState(true)
     const containerRef = useRef<HTMLDivElement>(null)
-
     useEffect(() => {
         const fetchFilms = async () => {
             try {
                 const res = await filmService.getHeroSlides()
+
                 const heroFilms = res.data.result.map(
                     (film: any) =>
                         ({
@@ -27,11 +37,13 @@ export default function HeroCarousel() {
                             title: film.title,
                             originalTitle: film.originalTitle,
                             description: film.description,
-                            posterUrl: film.posterUrl,
+                            posterUrl: getPosterUrl(film), // Use helper function to extract posterUrl
                             year: film.year,
-                            age: film.age.valueVi,
+                            age: film.age,
                             genres: film.genres,
-                        }) as Film,
+                            slug: film.slug,
+                            duration: film.duration
+                        }) as FilmDetailRes,
                 )
                 setFilms(heroFilms)
             } catch (error) {
@@ -42,39 +54,6 @@ export default function HeroCarousel() {
         }
         fetchFilms()
     }, [])
-
-    useEffect(() => {
-        if (!autoPlay || films.length === 0) return
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % films.length)
-        }, 6000)
-        return () => clearInterval(timer)
-    }, [autoPlay, films.length])
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-        setIsDragging(true)
-        setDragStart(e.clientX)
-        setAutoPlay(false)
-    }
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging) return
-    }
-
-    const handleMouseUp = (e: React.MouseEvent) => {
-        if (!isDragging) return
-        setIsDragging(false)
-        const dragEnd = e.clientX
-        const diff = dragStart - dragEnd
-
-        if (Math.abs(diff) > 50) {
-            if (diff > 0) {
-                nextSlide()
-            } else {
-                prevSlide()
-            }
-        }
-    }
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % films.length)
@@ -107,10 +86,40 @@ export default function HeroCarousel() {
         <section
             ref={containerRef}
             className="relative w-full overflow-hidden bg-slate-950 cursor-grab active:cursor-grabbing"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
+            onMouseDown={(e: React.MouseEvent) => {
+                setIsDragging(true)
+                setDragStart(e.clientX)
+                setAutoPlay(false)
+            }}
+            onMouseMove={() => { }}
+            onMouseUp={(e: React.MouseEvent) => {
+                if (!isDragging) return
+                setIsDragging(false)
+                const dragEnd = e.clientX
+                const diff = dragStart - dragEnd
+
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        nextSlide()
+                    } else {
+                        prevSlide()
+                    }
+                }
+            }}
+            onMouseLeave={(e: React.MouseEvent) => {
+                if (!isDragging) return
+                setIsDragging(false)
+                const dragEnd = e.clientX
+                const diff = dragStart - dragEnd
+
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        nextSlide()
+                    } else {
+                        prevSlide()
+                    }
+                }
+            }}
         >
             {/* Hero Slides */}
             {films.map((s, index) => (
@@ -146,17 +155,23 @@ export default function HeroCarousel() {
                         )}
 
                         <div className="flex flex-wrap items-center gap-2 pt-1 select-none">
-                            < div className=" flex items-center gap-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-[#f0d25c]" >
-                                < span className=" text-amber-400 font-bold text-xs " > IMDb </ span > < span className=" text-white font-bold text-xs " > 7.5 </ span >
-                            </ div >
+                            <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-[#f0d25c]">
+                                <span className="text-amber-400 font-bold text-xs">IMDb</span>
+                                <span className="text-white font-bold text-xs">7.5</span>
+                            </div>
                             {slide.age && (
-                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white  text-xs">
-                                    {slide.age}
+                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white text-xs">
+                                    {slide.age.valueVi}
                                 </div>
                             )}
                             {slide.year && (
-                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white  text-xs">
+                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white text-xs">
                                     {slide.year}
+                                </div>
+                            )}
+                            {slide.duration && (
+                                <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white text-xs">
+                                    <span > {Math.floor(slide.duration / 60)}h {slide.duration % 60}m</span>
                                 </div>
                             )}
                         </div>
@@ -182,14 +197,16 @@ export default function HeroCarousel() {
                         )}
 
                         <div className="flex items-center gap-2 pt-3">
-                            <button
-                                className="flex items-center justify-center w-17 h-17 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-500
+                            <Link href={`http://localhost:3000/film-detail/${slide.slug}`}>
+                                <button
+                                    className="flex items-center justify-center w-17 h-17 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-500
                             hover:from-yellow-400 hover:to-yellow-200 
                             hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]
                             transition-all duration-300 ease-in-out cursor-pointer mr-4"
-                            >
-                                <Play className="w-8 h-8 fill-current" />
-                            </button>
+                                >
+                                    <Play className="w-8 h-8 fill-current" />
+                                </button>
+                            </Link>
                             <button className="flex items-center justify-center w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all duration-300 backdrop-blur-sm">
                                 <Heart className="w-4 h-4" />
                             </button>

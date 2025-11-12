@@ -1,33 +1,42 @@
 "use client"
 
 import { User, Heart, List, Clock, Bell, LogOut } from "lucide-react"
+import { useRouter, usePathname } from "next/navigation"
 
 interface PlaylistSidebarProps {
     userName?: string
     userEmail?: string
-    activeTab?: "favorites" | "playlists" | "watchlater" | "notifications" | "account"
-    onTabChange?: (tab: string) => void
 }
 
 export default function PlaylistSidebar({
     userName = "Lê Trường Kỳ",
     userEmail = "kykhung123123@gmail.com",
-    activeTab = "playlists",
-    onTabChange = () => { },
 }: PlaylistSidebarProps) {
+    const router = useRouter()
+    const pathname = usePathname()
+
     const menuItems = [
-        { id: "favorites", label: "Yêu thích", icon: Heart },
-        { id: "playlists", label: "Danh sách", icon: List },
-        { id: "watchlater", label: "Xem tiếp", icon: Clock },
-        { id: "notifications", label: "Thông báo", icon: Bell },
-        { id: "account", label: "Tài khoản", icon: User },
+        { id: "favorites", label: "Yêu thích", icon: Heart, href: "/user/favorites" },
+        { id: "playlists", label: "Danh sách", icon: List, href: "/user/playlists" },
+        { id: "continue-watching", label: "Xem tiếp", icon: Clock, href: "/user/continue-watching" },
+        { id: "notifications", label: "Thông báo", icon: Bell, href: "/user/thong-bao" },
+        { id: "account", label: "Tài khoản", icon: User, href: "/user/profile" },
     ]
+
+    const getActiveTab = () => {
+        const currentPath = pathname.split("/").pop()
+        return currentPath || "profile"
+    }
+
+    const activeTab = getActiveTab()
+
+    const handleLogout = () => {
+        localStorage.clear()
+        router.push("/")
+    }
 
     return (
         <div className="flex flex-col h-full rounded-2xl p-7 w-72" style={{ backgroundColor: "#25272f" }}>
-            {/* Header */}
-
-
             {/* Menu Items */}
             <nav className="flex-1 space-y-2">
                 <div className="pb-6">
@@ -35,11 +44,11 @@ export default function PlaylistSidebar({
                 </div>
                 {menuItems.map((item) => {
                     const Icon = item.icon
-                    const isActive = activeTab === item.id
+                    const isActive = activeTab === item.id || (item.id === "account" && activeTab === "profile")
                     return (
                         <button
                             key={item.id}
-                            onClick={() => onTabChange(item.id)}
+                            onClick={() => router.push(item.href)}
                             className="w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 ease-out"
                             style={
                                 isActive
@@ -106,6 +115,7 @@ export default function PlaylistSidebar({
 
                 {/* Logout Button */}
                 <button
+                    onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ease-out"
                     style={{ color: "#d1d5db" }}
                     onMouseEnter={(e) => {
