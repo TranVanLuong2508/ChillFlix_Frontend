@@ -1,26 +1,25 @@
 "use client";
 import { useRef, useState } from "react";
-import "swiper/css";
-import "swiper/css/free-mode";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode } from "swiper/modules";
-import { FilmData } from "@/types/backend.type";
-import { AnimatePresence, motion } from "framer-motion";
-import { useAppRouter } from "@/hooks/filmRouter";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import "swiper/css";
+import "swiper/css/free-mode";
+import { AnimatePresence, motion } from "framer-motion";
+import { useFilmRouter } from "@/hooks/filmRouter";
 import { useFilmClick } from "@/hooks/handleFiilmClick";
+import { useDirectorStore } from "@/stores/directorStore";
+import { FilmData } from "@/types/backend.type";
 
-interface FilmDirectorProps {
-    filmDirectorData: FilmData[] | null;
-}
-
-export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
+export default function FilmDirector() {
     const swiperRef = useRef<any>(null);
-    const { goFilmDetail } = useAppRouter();
+    const { goFilmDetail } = useFilmRouter();
     const { handleFilmClick } = useFilmClick();
+    const { films } = useDirectorStore();
 
-    if (!filmDirectorData || filmDirectorData.length === 0) {
+
+    if (!films.length) {
         return (
             <p className="text-gray-400 italic text-center mt-4">
                 Chưa có phim nào được ghi nhận.
@@ -28,16 +27,15 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
         );
     }
 
-
-    const filmsByYear = filmDirectorData.reduce((acc: Record<string, FilmData[]>, film) => {
+    const filmsByYear = films.reduce((acc: Record<string, FilmData[]>, film) => {
         const year = film.year || "Không rõ";
         if (!acc[year]) acc[year] = [];
         acc[year].push(film);
         return acc;
-    }, {}) || {};
+    }, {});
 
     const sorted = Object.entries(filmsByYear)
-        .map(([year, films]) => ({ year, films }))
+        .map(([year, items]) => ({ year, items }))
         .sort((a, b) => Number(a.year) - Number(b.year));
 
     return (
@@ -67,7 +65,7 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
             {/* TẤT CẢ */}
             <TabsContent value="all" className="mt-2">
                 <div className="px-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
-                    {filmDirectorData.map((f, i) => {
+                    {films.map((f, i) => {
                         const thumb = f.thumbUrl || f.filmImages?.[0]?.url || "/images/small.jpg";
                         return (
                             <motion.div
@@ -79,18 +77,16 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
                                 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                 className="group relative overflow-hidden rounded-xl aspect-[3/4] md:aspect-[2/3] h-72 md:h-80 min-w-[220px] bg-zinc-800/50 cursor-pointer"
-                                onClick={() => goFilmDetail(f.filmId)}
+                                onClick={() => goFilmDetail(f.slug)}
                             >
                                 <img
                                     src={thumb}
                                     alt={f.title}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
-                                <div
-                                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent
-                                                opacity-0 group-hover:opacity-100 transition-opacity duration-500
-                                                flex flex-col justify-end p-4"
-                                >
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent
+                                opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                                flex flex-col justify-end p-4">
                                     <h1 className="text-[11px] md:text-sm font-semibold text-white leading-tight line-clamp-2">
                                         {f.title}
                                     </h1>
@@ -102,74 +98,37 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
                                         {f.duration && <span> - {f.duration} phút</span>}
                                     </div>
                                     <button
-
-
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleFilmClick(f);
+                                        }}
                                         className="absolute bottom-3 right-4 text-xs font-semibold 
-                                                    bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
-                                                    hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
-                                                    transition-all duration-300 ease-in-out"
+                                                bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
+                                                hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
+                                                transition-all duration-300 ease-in-out"
                                     >
                                         Xem ngay
                                     </button>
                                 </div>
                             </motion.div>
-
                         );
                     })}
-                    <div className="col-span-full flex items-center justify-center mt-3">
-                        <div className="flex items-center justify-center gap-4">
-
-                            <button
-                                onClick={() => console.log("Prev page")}
-                                className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 
-                                            text-gray-300 hover:text-yellow-400 transition-all disabled:opacity-50
-                                            hover:shadow-[0_0_10px_rgba(250,204,21,0.3)]"
-                            >
-                                <ChevronLeft size={16} />
-                            </button>
-
-
-                            <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full 
-                                            bg-zinc-900 border border-zinc-700 text-gray-200 font-medium text-sm
-                                            shadow-[0_0_6px_rgba(0,0,0,0.3)]">
-                                <span>Trang</span>
-                                <span className="bg-zinc-800 px-2 py-0.5 rounded-md text-yellow-400 font-semibold text-sm shadow-[0_0_6px_rgba(250,204,21,0.25)]">
-                                    1
-                                </span>
-                                <span className="text-gray-400">/ 3</span>
-                            </div>
-
-
-                            <button
-                                onClick={() => console.log("Next page")}
-                                className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 
-                                            text-gray-300 hover:text-yellow-400 transition-all disabled:opacity-50
-                                            hover:shadow-[0_0_10px_rgba(250,204,21,0.3)]"
-                            >
-                                <ChevronRight size={16} />
-                            </button>
-                        </div>
-                    </div>
-
                 </div>
             </TabsContent>
 
             {/* THEO THỜI GIAN */}
-            <TabsContent
-                value="time"
-                className="mt-6 relative w-full max-w-[1440px] mx-auto px-4"
-            >
-                <div className="relative w-full">
-                    <div className="absolute top-[52px] left-0 right-0 h-[2px] bg-yellow-400/70 rounded-full z-0" />
+            <TabsContent value="time" className="mt-2 w-full">
+                <div className="relative w-full flex justify-center overflow-hidden py-6">
+                    <div className="absolute top-[30px] left-0 right-0 h-[2px] bg-yellow-400 rounded-full z-0" />
                     <button
                         onClick={() => swiperRef.current?.slidePrev()}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-zinc-900/80 hover:bg-zinc-800 text-yellow-400 p-3 rounded-full z-20 transition"
+                        className="absolute left-4 top-1/4 -translate-y-1/2 bg-zinc-900/80 hover:bg-zinc-800 text-yellow-400 p-3 rounded-full z-20 transition"
                     >
                         <ChevronLeft size={20} />
                     </button>
                     <button
                         onClick={() => swiperRef.current?.slideNext()}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-zinc-900/80 hover:bg-zinc-800 text-yellow-400 p-3 rounded-full z-20 transition"
+                        className="absolute right-4 top-1/4 -translate-y-1/2 bg-zinc-900/80 hover:bg-zinc-800 text-yellow-400 p-3 rounded-full z-20 transition"
                     >
                         <ChevronRight size={20} />
                     </button>
@@ -178,40 +137,37 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
                         modules={[FreeMode]}
                         freeMode
                         onBeforeInit={(swiper) => (swiperRef.current = swiper)}
-                        spaceBetween={36}
+                        spaceBetween={40}
                         slidesPerView="auto"
                         grabCursor
-                        className="relative z-10 w-full lg:px-4"
+                        className="relative z-10 max-w-[1280px] w-full px-12 overflow-hidden"
                     >
                         {sorted.map((group) => (
                             <SwiperSlide
                                 key={group.year}
-                                className="!w-[300px] flex-shrink-0 flex flex-col items-center"
+                                className="!w-auto flex flex-col items-center px-6 select-none overflow-visible"
                             >
-                                <div className="flex flex-col items-center mb-5">
-                                    <div className="w-3 h-3 rounded-full bg-yellow-400 mb-2 shadow-[0_0_10px_rgba(250,204,21,0.6)]" />
+                                <div className="flex flex-col items-center mb-6 relative z-10">
+                                    <div className="w-3.5 h-3.5 rounded-full bg-yellow-400 mb-2 shadow-[0_0_10px_rgba(250,204,21,0.8)]" />
                                     <span className="text-yellow-400 font-semibold text-lg">{group.year}</span>
                                 </div>
 
-                                <div className="flex flex-col items-center gap-4">
-                                    {group.films.map((f, i) => {
+                                <div className="flex flex-col items-center gap-4 min-h-[340px] mt-2">
+                                    {group.items.map((f, i) => {
                                         const thumb = f.thumbUrl || f.filmImages?.[0]?.url || "/images/small.jpg";
                                         return (
-                                            <motion.div
+                                            <div
                                                 key={f.filmId || i}
-                                                whileHover={{ scale: 1.05 }}
                                                 className="flex flex-col items-center cursor-pointer"
                                             >
                                                 <HoverFilmCard f={f} handleFilmClick={handleFilmClick} thumb={thumb} />
-                                                <h1 className="text-[11px] md:text-sm font-semibold text-white leading-tight line-clamp-2">
+                                                <h1 className="text-[11px] md:text-sm font-semibold text-white leading-tight line-clamp-2 text-center mt-2">
                                                     {f.title}
                                                 </h1>
-                                                <h2 className="text-xs text-gray-300 mt-1 line-clamp-1">{f.originalTitle}</h2>
-                                                <div className="text-xs text-gray-400 mt-1">
-                                                    {f.year && <span>{f.year}</span>}
-                                                    {f.duration && <span> - {f.duration} phút</span>}
-                                                </div>
-                                            </motion.div>
+                                                <h2 className="text-xs text-gray-300 mt-1 line-clamp-1 text-center">
+                                                    {f.originalTitle}
+                                                </h2>
+                                            </div>
                                         );
                                     })}
                                 </div>
@@ -220,48 +176,62 @@ export default function FilmDirector({ filmDirectorData }: FilmDirectorProps) {
                     </Swiper>
                 </div>
             </TabsContent>
+
+
+
         </Tabs>
     );
 }
-
 function HoverFilmCard({ f, handleFilmClick, thumb }: any) {
+    const { goFilmDetail } = useFilmRouter();
     const [hovered, setHovered] = useState(false);
-    const { goFilmDetail } = useAppRouter();
+
     return (
         <div
-            className="relative flex items-center gap-3"
+            className="relative group"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
+            {/* Ảnh chính */}
             <div
-                onClick={() => goFilmDetail(f.filmId)}
-                className="rounded-xl overflow-hidden aspect-[2/3] w-40 sm:w-44 
+                onClick={() => goFilmDetail(f.slug)}
+                className="relative rounded-xl overflow-hidden aspect-[2/3] w-40 sm:w-44 
                    bg-zinc-800/60 cursor-pointer border border-zinc-700/60 
-                   hover:border-yellow-400/60 hover:shadow-[0_0_15px_rgba(250,204,21,0.3)]
                    transition-all duration-300"
             >
                 <img
                     src={thumb}
                     alt={f.title}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
+
+                <div
+                    className={`absolute inset-0 rounded-xl border transition-all duration-300 ${hovered
+                        ? "border-yellow-400/60 shadow-[0_0_15px_rgba(250,204,21,0.4)]"
+                        : "border-transparent"
+                        }`}
+                ></div>
             </div>
 
             <AnimatePresence>
                 {hovered && (
-                    <motion.button
-                        initial={{ opacity: 0, x: -10 }}
+                    <motion.div
+                        initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.25 }}
-                        onClick={() => handleFilmClick(f.filmId)}
-                        className="text-[10px] font-semibold bg-yellow-400 text-black px-3 py-1.5 
-                           rounded-full shadow-[0_0_12px_rgba(250,204,21,0.4)] 
-                           hover:bg-yellow-300 hover:scale-105 
-                           transition-all duration-300 whitespace-nowrap"
+                        exit={{ opacity: 0, x: -8 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-1/2 left-[105%] -translate-y-1/2"
                     >
-                        Xem ngay
-                    </motion.button>
+                        <button
+                            onClick={() => handleFilmClick(f)}
+                            className="text-[10px] font-semibold bg-yellow-400 text-black px-3 py-1.5 
+                         rounded-full shadow-[0_0_12px_rgba(250,204,21,0.4)] 
+                         hover:bg-yellow-300 hover:scale-105 transition-all duration-300 
+                         whitespace-nowrap"
+                        >
+                            Xem ngay
+                        </button>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </div>

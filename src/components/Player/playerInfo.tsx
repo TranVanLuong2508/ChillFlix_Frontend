@@ -1,26 +1,30 @@
 import { ListVideo } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useFilmStore } from "@/stores/filmStore";
 
 interface PlayerInfoProps {
-  partNumber: number;
-  episodeNumber: number;
+  episodeTitle: string;
+  partTitle: string;
 
   onOpenChange: (open: boolean) => void;
 }
 
 const PlayerInfo = ({
-  partNumber,
-  episodeNumber,
+  episodeTitle,
+  partTitle,
   onOpenChange,
 }: PlayerInfoProps) => {
+  const { filmData } = useFilmStore();
+  const title = `${partTitle} - ${episodeTitle}`
+
   return (
-    <div className="absolute w-full px-6 py-6 z-100 text-white bg-gradient-to-b from-gray-900/90 via-gray-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-350">
+    <div className="absolute w-full px-6 py-6 z-100 text-white bg-gradient-to-b from-zinc-950 via-zinc-950/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-350">
       <div className="flex justify-between">
         <div className="flex flex-col justify-center gap-2 font-semibold">
-          <p className="text-lg">Thủy Long Ngâm</p>
+          <p className="text-lg">{filmData?.film.title}</p>
           <p className="text-sm">
-            Phần {partNumber} - Tập {episodeNumber}
+            {title}
           </p>
         </div>
         <Button

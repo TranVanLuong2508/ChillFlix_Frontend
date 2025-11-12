@@ -2,16 +2,16 @@
 import { useState } from "react";
 import { Heart, Send } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { ActorData } from "@/types/backend.type";
 import { formatDate } from "@/lib/dateFomat";
-import { toast } from "sonner";
+import { useActorStore } from "@/stores/actorStore";
 
-interface ActorProps {
-    actor: ActorData;
-}
-
-export default function ActorInfo({ actor }: ActorProps) {
+export default function ActorInfo() {
     const [liked, setLiked] = useState(false);
+    const { actor } = useActorStore();
+
+    if (!actor) {
+        return <div className="text-center py-20">Không có thông tin diễn viên.</div>;
+    }
 
     return (
         <div className="w-full max-w-[320px] mx-auto rounded-2xl p-5 flex flex-col items-center">
@@ -26,7 +26,6 @@ export default function ActorInfo({ actor }: ActorProps) {
             <h3 className="text-xl font-semibold text-white text-center mb-4">
                 {actor?.actorName || "Chưa rõ tên"}
             </h3>
-
             <div className="flex items-center justify-center gap-3 mb-6">
                 <button
                     onClick={() => {
@@ -37,7 +36,7 @@ export default function ActorInfo({ actor }: ActorProps) {
                                 hover:bg-zinc-800 hover:text-yellow-400 transition-all"
                 >
                     <Heart size={14} className={liked ? "fill-yellow-400 text-yellow-400" : "fill-none"} />
-                    <span>Yêu thích</span>
+                    <span className={liked ? "text-yellow-400" : ""} >Yêu thích</span>
                 </button>
 
                 <Popover>
@@ -78,6 +77,7 @@ export default function ActorInfo({ actor }: ActorProps) {
                 </Popover>
             </div>
 
+
             <div className="w-full flex flex-col gap-3">
                 <div className="text-left">
                     <h3 className="text-base font-semibold text-white mb-1">Giới thiệu:</h3>
@@ -96,7 +96,7 @@ export default function ActorInfo({ actor }: ActorProps) {
                     <div className="flex items-center gap-2">
                         <h4 className="font-semibold text-white">Ngày sinh:</h4>
                         <span className="text-gray-300 hover:text-yellow-400 transition">
-                            {formatDate(actor?.birthDate)}
+                            {formatDate(actor?.birthDate || "") || "Chưa rõ"}
                         </span>
                     </div>
                 </div>

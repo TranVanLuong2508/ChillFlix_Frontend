@@ -29,16 +29,30 @@ import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
 import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useChatDrawerStore } from "@/stores/chatDrawerStore";
+import { socket } from "@/lib/socket";
+import { useCommentStore } from "@/stores/comentStore";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
   const { openLoginModal } = useAuthModalStore();
-  const { goHome, goUpgradeVip } = useAppRouter();
-  const { openDrawer } = useChatDrawerStore();
-  const { logOutAction, isAuthenticated, isLoading, authUser } = useAuthStore();
 
+  const { goHome, goProfile, goUpgradeVip } = useAppRouter();
+  const { openDrawer } = useChatDrawerStore();
+  const {
+    logOutAction,
+    setTokenToTestApi,
+    isAuthenticated,
+    isLoading,
+    authUser,
+  } = useAuthStore();
+  const {
+    removeCommentRealtime,
+    createCommentRealtime,
+    replyCommentRealtime,
+    countCommentsRealtime,
+  } = useCommentStore();
   useEffect(() => {
     fetchGenresList();
     fetchCountriesList();
@@ -72,6 +86,65 @@ export default function Header() {
     }
   };
   console.log("chekc loading", isLoading);
+
+  const [notifications, setNotifications] = useState<
+    { id: string; type: string; message: string; createdAt: Date }[]
+  >([]);
+
+  useEffect(() => {
+    socket.off("connect");
+    socket.off("newComment");
+    socket.off("replyComment");
+    socket.off("deleteComment");
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+    });
+
+    socket.on("newComment", (data) => {
+      const currentUser = useAuthStore.getState().authUser;
+      if (data.user?.userId === currentUser?.userId) return;
+      createCommentRealtime(data);
+    });
+
+    socket.on("replyComment", (data) => {
+      const currentUser = useAuthStore.getState().authUser;
+      if (data.replyComment?.user?.userId === currentUser?.userId) return;
+
+      replyCommentRealtime({
+        parentId: data.parentId,
+        comment: data.replyComment,
+      });
+
+      const message = `${data.replyComment.user?.fullName} đã trả lời bình luận của ${data.replyToUser?.fullName}: "${data.replyComment.content}"`;
+      setNotifications((prev) => [
+        {
+          id: crypto.randomUUID(),
+          type: "reply",
+          message,
+          createdAt: new Date(),
+        },
+        ...prev,
+      ]);
+      toast.success(message);
+    });
+
+    socket.on("deleteComment", ({ commentId }) => {
+      removeCommentRealtime(commentId);
+      toast.warning("Một bình luận đã bị xóa");
+    });
+    socket.on("countComments", (data) => {
+      const { filmId: eventFilmId, total } = data;
+      countCommentsRealtime(eventFilmId, total);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("newComment");
+      socket.off("replyComment");
+      socket.off("deleteComment");
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
@@ -288,9 +361,27 @@ export default function Header() {
 
                   <TabsContent
                     value="community"
-                    className="p-4 text-sm text-center text-gray-400"
+                    className="p-4 text-sm text-gray-300 max-h-80 overflow-y-auto text-left"
                   >
-                    Không có thông báo cộng đồng nào
+                    {notifications.length === 0 ? (
+                      <div className="text-center text-gray-500">
+                        Không có thông báo cộng đồng nào
+                      </div>
+                    ) : (
+                      <ul className="space-y-3">
+                        {notifications.map((n) => (
+                          <li
+                            key={n.id}
+                            className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all"
+                          >
+                            <div className="text-[13px]">{n.message}</div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {n.createdAt.toLocaleTimeString("vi-VN")}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </TabsContent>
 
                   <TabsContent

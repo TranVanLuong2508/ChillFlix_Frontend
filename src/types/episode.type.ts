@@ -1,4 +1,4 @@
-export interface EpisodeRes {
+export interface EpisodeDetail {
   id: string;
   title: string;
   episodeNumber: number;

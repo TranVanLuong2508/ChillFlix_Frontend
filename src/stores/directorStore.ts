@@ -1,45 +1,63 @@
 import { create } from "zustand";
 import { directorServices } from "@/services/directorService";
 import { filmDirectorServices } from "@/services/filmDirectorService";
-import { DirectorData, FilmDirectorData } from "@/types/backend.type";
+import { Director } from "@/types/director.type";
+import { FilmDirectorRes } from "@/types/filmDirectorData";
+import { FilmData } from "@/types/backend.type";
 
 interface DirectorStoreState {
-  director: DirectorData | null;
-  filmDirectorData: FilmDirectorData[];
-  isLoading: boolean;
+  director: Director | null;
+  filmDirectorData: FilmDirectorRes | null;
+  films: FilmData[];
+  isLoadingDirector: boolean;
+  isLoadingFilmDirector: boolean;
   error: string | null;
-  metaPage: any;
-
-  fetchDirectorDetail: (directorId: string) => Promise<void>;
-  clearDirector: () => void;
 }
 
-export const useDirectorStore = create<DirectorStoreState>()((set) => ({
-  director: null,
-  filmDirectorData: [],
-  isLoading: false,
-  error: null,
-  metaPage: null,
+type DirectorAction = {
+  fetchDirectorDetail: (directorId: string) => Promise<void>;
+  fetchFilmDirector: (directorId: string) => Promise<void>;
+  clearDirector: () => void;
+};
 
-  fetchDirectorDetail: async (directorId: string) => {
-    set({ isLoading: true, error: null });
-    try {
-      const [directorRes, filmDirectorRes] = await Promise.all([
-        directorServices.getDirectorById(directorId),
-        filmDirectorServices.getFilmsByDirectorId(directorId),
-      ]);
+export const useDirectorStore = create<DirectorStoreState & DirectorAction>()(
+  (set) => ({
+    director: null,
+    filmDirectorData: null,
+    films: [],
+    isLoadingDirector: false,
+    isLoadingFilmDirector: false,
+    error: null,
 
-      set({
-        director: directorRes.data?.result || directorRes.data || null,
-        filmDirectorData: filmDirectorRes.data?.result || [],
-        metaPage: filmDirectorRes.data?.meta || null,
-      });
-    } catch (error: any) {
-      set({ error: error.message || "Lỗi tải dữ liệu đạo diễn" });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+    fetchDirectorDetail: async (directorId: string) => {
+      set({ isLoadingDirector: true, error: null });
+      try {
+        const res = await directorServices.getDirectorById(directorId);
+        set({ director: res.data || null });
+      } catch (error: any) {
+        set({ error: error.message || "Error fetching director details" });
+      } finally {
+        set({ isLoadingDirector: false });
+      }
+    },
+    fetchFilmDirector: async (directorId: string) => {
+      set({ isLoadingFilmDirector: true, error: null });
+      try {
+        const res = await filmDirectorServices.getFilmsByDirectorId(directorId);
+        const data = res.data || null;
+        const films = data?.result ?? [];
+        set({
+          filmDirectorData: data,
+          films,
+        });
+      } catch (error: any) {
+        set({ error: error.message || "Error fetching film director data" });
+      } finally {
+        set({ isLoadingFilmDirector: false });
+      }
+    },
 
-  clearDirector: () => set({ director: null, filmDirectorData: [] }),
-}));
+    clearDirector: () =>
+      set({ director: null, filmDirectorData: null, films: [], error: null }),
+  })
+);

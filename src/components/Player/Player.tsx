@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-
 import { Tv } from "lucide-react";
+
+import { EpisodeDetail } from "@/types/episode.type";
+
 import PlayerInfo from "./playerInfo";
 import PlayerLineConfig from "./playerLineConfig";
 import PlayListNav from "./playListNav";
-import { EpisodeData } from "@/types/episodeData";
+import { PartDetail } from "@/types/part.type";
+
 
 const PlayerController = dynamic(
   () => import("@/components/Player/PlayerController"),
@@ -37,25 +40,28 @@ const PlayerController = dynamic(
 // shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),_8px_8px_40px_10px_rgba(0,0,0,0.3)]
 
 interface PlayerProps {
-  episodeData: EpisodeData;
+  currentPart: string;
+  currentEpisode: string;
+  episodeDetail: EpisodeDetail;
+  partDetail: PartDetail;
 }
 
-const Player = ({ episodeData }: PlayerProps) => {
+const Player = ({ currentPart, currentEpisode, episodeDetail, partDetail }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
       <div className="relative group">
         <PlayerInfo
-          partNumber={episodeData.part.partNumber}
-          episodeNumber={episodeData.episodeNumber}
+          episodeTitle={episodeDetail.title}
+          partTitle={partDetail.title}
           onOpenChange={setIsOpen}
         />
-        <PlayListNav open={isOpen} onOpenChange={setIsOpen} />
+        <PlayListNav currentPart={currentPart} currentEpisode={currentEpisode} open={isOpen} onOpenChange={setIsOpen} />
         <div className="relative">
           <PlayerController
-            videoUrl={episodeData.videoUrl}
-            posterUrl={episodeData.thumbUrl}
+            videoUrl={episodeDetail.videoUrl}
+            posterUrl={episodeDetail.thumbUrl}
           />
         </div>
       </div>

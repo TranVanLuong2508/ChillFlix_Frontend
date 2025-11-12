@@ -4,15 +4,15 @@ import { Heart, Send } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { formatDate } from "@/lib/dateFomat";
 import { DirectorData } from "@/types/backend.type";
-import { toast } from "sonner";
+import { useDirectorStore } from "@/stores/directorStore";
 
-interface DirectorProps {
-    director: DirectorData;
-}
-
-export default function DirectorInfo({ director }: DirectorProps) {
+export default function DirectorInfo() {
     const [liked, setLiked] = useState(false);
+    const { director } = useDirectorStore();
 
+    if (!director) {
+        return <div className="text-center py-20">Không có thông tin đạo diễn.</div>;
+    }
     return (
         <div className="w-full max-w-[320px] mx-auto rounded-2xl p-5 flex flex-col items-center">
             <div className="w-44 h-44 rounded-2xl overflow-hidden mb-4 shadow-md">
@@ -37,7 +37,7 @@ export default function DirectorInfo({ director }: DirectorProps) {
                                 hover:bg-zinc-800 hover:text-yellow-400 transition-all"
                 >
                     <Heart size={14} className={liked ? "fill-yellow-400 text-yellow-400" : "fill-none"} />
-                    <span>Yêu thích</span>
+                    <span className={liked ? "text-yellow-400" : ""} >Yêu thích</span>
                 </button>
 
                 <Popover>
