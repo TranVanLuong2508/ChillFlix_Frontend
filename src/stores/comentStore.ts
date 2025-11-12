@@ -49,6 +49,13 @@ interface CommentStoreActions {
     comment: BackendComment;
   }) => void;
   countCommentsRealtime: (filmId: string, total?: number) => void;
+  reactCommentRealtime: (reaction: {
+    commentId: string;
+    userId: number | string;
+    totalLike: number;
+    totalDislike: number;
+    userReaction?: CommentReactionType;
+  }) => void;
 }
 
 const mapBackendToItem = (c: BackendComment): CommentItem => ({
@@ -287,6 +294,40 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
         ...state,
         totalComments:
           typeof total === "number" ? total : state.totalComments + 1,
+      }));
+    },
+
+    reactCommentRealtime: (reaction) => {
+      const { commentId, totalLike, totalDislike, userReaction, userId } =
+        reaction;
+      const currentUser = useAuthStore.getState().authUser;
+
+      const updateTree = (list: CommentItem[]): CommentItem[] =>
+        list.map((c) => {
+          const replies = c.replies || [];
+
+          if (c.id === commentId) {
+            return {
+              ...c,
+              totalLike,
+              totalDislike,
+              currentUserReaction:
+                currentUser?.userId === userId
+                  ? userReaction || undefined
+                  : c.currentUserReaction,
+              replies: updateTree(replies),
+            };
+          }
+
+          return {
+            ...c,
+            replies: updateTree(replies),
+          };
+        });
+
+      set((state) => ({
+        ...state,
+        comments: updateTree(state.comments),
       }));
     },
 

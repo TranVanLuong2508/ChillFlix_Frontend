@@ -52,6 +52,7 @@ export default function Header() {
     createCommentRealtime,
     replyCommentRealtime,
     countCommentsRealtime,
+    reactCommentRealtime,
   } = useCommentStore();
   useEffect(() => {
     fetchGenresList();
@@ -96,7 +97,7 @@ export default function Header() {
     socket.off("newComment");
     socket.off("replyComment");
     socket.off("deleteComment");
-
+    socket.off("reactComment");
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
     });
@@ -137,12 +138,17 @@ export default function Header() {
       const { filmId: eventFilmId, total } = data;
       countCommentsRealtime(eventFilmId, total);
     });
-
+    socket.on('reactComment', (reaction) => {
+      console.log('Reaction event:', reaction);
+      reactCommentRealtime(reaction);
+      
+    });
     return () => {
       socket.off("connect");
       socket.off("newComment");
       socket.off("replyComment");
       socket.off("deleteComment");
+      socket.off("reactComment");
     };
   }, []);
 
@@ -328,11 +334,10 @@ export default function Header() {
                           value={tab}
                           className={`relative flex-1 py-2 transition-all duration-300 rounded-none cursor-pointer data-[state=active]:bg-transparent data-[state=active]:text-yellow-400
 
-                    ${
-                      activeTab === tab
-                        ? "text-yellow-400 font-semibold scale-[1.03]"
-                        : "text-gray-400 hover:text-yellow-300"
-                    }`}
+                    ${activeTab === tab
+                              ? "text-yellow-400 font-semibold scale-[1.03]"
+                              : "text-gray-400 hover:text-yellow-300"
+                            }`}
                         >
                           {tab === "film" && "Phim"}
                           {tab === "community" && "Cộng đồng"}
@@ -340,11 +345,10 @@ export default function Header() {
 
                           {/* Underline animation */}
                           <span
-                            className={`absolute left-0 bottom-0 h-[2px] bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full transition-all duration-300 ${
-                              activeTab === tab
-                                ? "w-full opacity-100"
-                                : "w-0 opacity-0"
-                            }`}
+                            className={`absolute left-0 bottom-0 h-[2px] bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full transition-all duration-300 ${activeTab === tab
+                              ? "w-full opacity-100"
+                              : "w-0 opacity-0"
+                              }`}
                           />
                         </TabsTrigger>
                       ))}
