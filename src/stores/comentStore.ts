@@ -1,4 +1,3 @@
-// src/stores/commentStore.ts
 import { create } from "zustand";
 import { CommentServices } from "@/services/commentService";
 import type {
@@ -43,6 +42,13 @@ interface CommentStoreActions {
   reactComment: (commentId: string, type: CommentReactionType) => Promise<void>;
   setReplyingTo: (info: ReplyingToState | null) => void;
   setActiveTab: (tab: "comments" | "ratings") => void;
+  removeCommentRealtime: (commentId: string) => void;
+  createCommentRealtime: (newComment: BackendComment) => void;
+  replyCommentRealtime: (data: {
+    parentId: string;
+    comment: BackendComment;
+  }) => void;
+  countCommentsRealtime: (filmId: string, total?: number) => void;
 }
 
 const mapBackendToItem = (c: BackendComment): CommentItem => ({
@@ -149,7 +155,6 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
           });
           return;
         }
-
         set((state) => {
           const newComments = state.comments
             .filter((c) => c.id !== commentId)
@@ -222,6 +227,67 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
         console.error("countComments error", error);
         set({ error: error?.message || "Error counting comments" });
       }
+    },
+
+    removeCommentRealtime: (commentId: string) =>
+      set((state) => {
+        const updated = state.comments
+          .filter((c) => c.id !== commentId)
+          .map((c) => ({
+            ...c,
+            replies: c.replies?.filter((r) => r.id !== commentId) || [],
+          }));
+
+        return { ...state, comments: updated };
+      }),
+
+    createCommentRealtime: (newComment: BackendComment) =>
+      set((state) => {
+        const mappedComment = mapBackendToItem(newComment);
+        const exists = state.comments.some(
+          (c) =>
+            c.id === mappedComment.id ||
+            c.replies.some((r) => r.id === mappedComment.id)
+        );
+        if (exists) return state;
+
+        if (newComment.parent) {
+          const updatedComments = state.comments.map((c) =>
+            c.id === newComment.parent?.commentId
+              ? { ...c, replies: [...(c.replies || []), mappedComment] }
+              : c
+          );
+          return { ...state, comments: updatedComments };
+        } else {
+          return { ...state, comments: [mappedComment, ...state.comments] };
+        }
+      }),
+
+    replyCommentRealtime: (data) =>
+      set((state) => {
+        const mappedComment = mapBackendToItem(data.comment);
+        const exists = state.comments.some(
+          (c) =>
+            c.id === mappedComment.id ||
+            c.replies.some((r) => r.id === mappedComment.id)
+        );
+        if (exists) return state;
+
+        const updatedComments = state.comments.map((c) =>
+          c.id === data.parentId
+            ? { ...c, replies: [...(c.replies || []), mappedComment] }
+            : c
+        );
+        return { ...state, comments: updatedComments };
+      }),
+
+    countCommentsRealtime: (filmId: string, total?: number) => {
+      if (!filmId) return;
+      set((state) => ({
+        ...state,
+        totalComments:
+          typeof total === "number" ? total : state.totalComments + 1,
+      }));
     },
 
     setReplyingTo: (info) => set({ replyingTo: info }),

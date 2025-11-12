@@ -1,4 +1,3 @@
-// src/components/CommentSection.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,10 +14,13 @@ import {
 import { useFilmStore } from "@/stores/filmStore";
 import { useCommentStore } from "@/stores/comentStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useAuthModalStore } from "@/stores/authModalStore";
 
 export default function CommentSection() {
     const { filmData } = useFilmStore();
     const { fullName } = useAuthStore((state) => state.authUser);
+    const { isAuthenticated } = useAuthStore();
+    const { openLoginModal } = useAuthModalStore();
     const filmId = filmData?.film?.filmId ?? "";
 
     const {
@@ -42,7 +44,7 @@ export default function CommentSection() {
             fetchComments(filmId, 1, 10);
             countComments(filmId);
         }
-    }, [filmId, fetchComments, countComments]);
+    }, [filmId, fetchComments, countComments, isAuthenticated]);
 
     const handleSend = async () => {
         if (!filmId || !commentText.trim()) return;
@@ -63,12 +65,17 @@ export default function CommentSection() {
             filmId,
             parentId: replyingTo.parentId,
         });
-
+        countComments(filmId);
         setReplyText("");
         setReplyingTo(null);
     };
     const handleReact = (commentId: string, type: "LIKE" | "DISLIKE") => {
         reactComment(commentId, type);
+    };
+
+    const handleDeleteComment = async (commentId: string) => {
+        await deleteComment(commentId);
+        countComments(filmId);
     };
 
     return (
@@ -81,17 +88,28 @@ export default function CommentSection() {
 
             <div className="bg-[#191B24] p-6 rounded-xl border border-zinc-800 shadow-lg">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="relative w-12 h-12">
-                        <img
-                            src="/images/monkey.jpg"
-                            alt="avatar"
-                            className="w-full h-full rounded-full object-cover"
-                        />
-                    </div>
-                    <div>
-                        <p className="text-sm text-gray-400">Bình luận với tên</p>
-                        <p className="text-white font-semibold">{fullName}</p>
-                    </div>
+                    {isAuthenticated ? (
+                        <>
+                            <div className="relative w-12 h-12">
+                                <img
+                                    src="/images/monkey.jpg"
+                                    alt="avatar"
+                                    className="w-full h-full rounded-full object-cover"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-400">Bình luận với tên</p>
+                                <p className="text-white font-semibold">{fullName}</p>
+                            </div>
+                        </>
+                    ) : (
+                        <button
+                            onClick={() => { openLoginModal(); }}
+                            className="text-sm font-semibold text-gray-300 transition"
+                        >
+                            Bạn cần <span className="text-yellow-400 hover:text-yellow-300 underline">đăng nhập</span> để bình luận.
+                        </button>
+                    )}
                 </div>
 
                 <div className="bg-zinc-800/70 border border-zinc-800 rounded-lg p-4">
@@ -127,9 +145,9 @@ export default function CommentSection() {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {comments.map((cmt) => (
+                        {comments.map((cmt, index) => (
                             <div
-                                key={cmt.id}
+                                key={`${cmt.id}-${index}`}
                                 className="flex flex-col gap-3 border-b border-zinc-800 pb-4"
                             >
                                 {/* comment gốc */}
@@ -146,7 +164,7 @@ export default function CommentSection() {
                                             <p className="text-sm font-semibold text-white">
                                                 {cmt.user.name}
                                             </p>
-                                            <p className="text-xs text-gray-500">{new Date(cmt.createdAt).toLocaleString()}</p>
+                                            <p className="text-xs text-gray-500 relative top-[1px]">{new Date(cmt.createdAt).toLocaleString()}</p>
                                         </div>
                                         <p className="text-gray-300 text-sm mt-1 leading-relaxed">
                                             {cmt.content}
@@ -201,7 +219,7 @@ export default function CommentSection() {
                                             </button>
 
                                             <button
-                                                onClick={() => deleteComment(cmt.id)}
+                                                onClick={() => handleDeleteComment(cmt.id)}
                                                 className="flex items-center gap-2 hover:text-red-400 transition"
                                             >
                                                 <Trash2 size={16} /> Xóa
@@ -240,8 +258,8 @@ export default function CommentSection() {
                                 {/* replies */}
                                 {cmt.replies.length > 0 && (
                                     <div className="ml-12 mt-3 space-y-3">
-                                        {cmt.replies.map((rep) => (
-                                            <div key={rep.id} className="flex flex-col">
+                                        {cmt.replies.map((rep, index) => (
+                                            <div key={`${rep.id}-${index}`} className="flex flex-col">
                                                 <div className="flex items-start gap-3">
                                                     <div className="relative w-12 h-12">
                                                         <img
@@ -257,12 +275,12 @@ export default function CommentSection() {
                                                             </p>
 
                                                             <div className="flex items-baseline text-sm text-gray-400 gap-1">
-                                                                <ChevronRight size={13} className="relative top-[1px]" />
+                                                                <ChevronRight size={13} className="relative top-[2px]" />
                                                                 <span>{cmt.user.name}</span>
                                                             </div>
 
-                                                            <p className="text-xs text-gray-500 whitespace-nowrap">
-                                                                {new Date(cmt.createdAt).toLocaleString()}
+                                                            <p className="text-xs text-gray-500">
+                                                                {new Date(rep.createdAt).toLocaleString()}
                                                             </p>
                                                         </div>
 
@@ -321,7 +339,7 @@ export default function CommentSection() {
                                                             </button>
 
                                                             <button
-                                                                onClick={() => deleteComment(rep.id)}
+                                                                onClick={() => handleDeleteComment(rep.id)}
                                                                 className="flex items-center gap-2 hover:text-red-400 transition"
                                                             >
                                                                 <Trash2 size={16} /> Xóa
@@ -372,6 +390,6 @@ export default function CommentSection() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
