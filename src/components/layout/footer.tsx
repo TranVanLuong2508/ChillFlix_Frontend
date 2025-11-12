@@ -3,8 +3,11 @@
 import Image from "next/image";
 import { Mail, Send, Gamepad2, Eye, Instagram } from "lucide-react";
 import { footerDescriptionContent, partners } from "@/data/footerData";
+import { useAppRouter } from "@/hooks/useAppRouter";
 
 export default function Footer() {
+  const { goHome } = useAppRouter();
+
   return (
     <footer className="bg-[#0f1419] border-t border-[#1a1f2e]  left-0 w-full flex flex-col pt-4">
       {/* Vietnam Flag Banner */}
@@ -39,7 +42,12 @@ export default function Footer() {
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#f5d547] rounded-full flex items-center justify-center">
                 <div className="w-8 h-8 bg-[#0f1419] rounded-full flex items-center justify-center">
-                  <span className="text-[#d4af37] font-bold">▶</span>
+                  <span
+                    onClick={goHome}
+                    className="text-[#d4af37] font-bold cursor-pointer"
+                  >
+                    ▶
+                  </span>
                 </div>
               </div>
               <div>

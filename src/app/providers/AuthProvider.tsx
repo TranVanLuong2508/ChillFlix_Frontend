@@ -4,10 +4,8 @@ import { useEffect } from "react";
 import { authService } from "@/services";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
-import { useAppRouter } from "@/hooks/useAppRouter";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { goHome } = useAppRouter();
   const {
     fetchAccountAction,
     resetAuthAction,
@@ -28,17 +26,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isRefreshToken]);
   const fetchAccount = async () => {
+    console.log("check fetch accouht");
     try {
       const accessToken = useAuthStore.getState().access_token;
-      console.log("check acess", accessToken);
+      setLoading(false);
       if (accessToken) {
-        setLoading(true);
         const res = await authService.callFetchAccount();
-        if (res && res.EC === 1 && res.data) {
-          console.log("check res sucess", res);
+        if (res && res.data) {
           fetchAccountAction(res.data.user);
+          setLoading(false);
         } else {
-          console.log("check fail", res);
           resetAuthAction();
         }
         setLoading(false);

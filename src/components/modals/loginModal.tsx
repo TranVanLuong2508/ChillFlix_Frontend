@@ -14,6 +14,7 @@ import { authService } from "@/services";
 import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
+import { loadingTime } from "@/constants/modalLoadingTime";
 
 export default function LoginModal() {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +36,7 @@ export default function LoginModal() {
     setIsLoggingIn(true);
     try {
       const loginResponse = await authService.callLogin(userLoginInput);
-      console.log("res", loginResponse)
+      console.log("res", loginResponse);
       if (loginResponse && loginResponse.EC === 1) {
         if (loginResponse.data) {
           const loginData = loginResponse.data;
@@ -45,7 +46,7 @@ export default function LoginModal() {
           handleCloseLoginModal();
           setIsLoggingIn(false);
           toast.success(AuthenticationsMessage.success);
-        }, 500);
+        }, loadingTime.login);
       }
     } catch (error) {
       console.log("error login", error);

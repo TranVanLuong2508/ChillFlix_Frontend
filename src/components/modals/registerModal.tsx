@@ -14,6 +14,7 @@ import { authService } from "@/services";
 import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
+import { loadingTime } from "@/constants/modalLoadingTime";
 
 export default function LoginModal() {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,10 +33,13 @@ export default function LoginModal() {
     handleSubmit,
     formState: { errors },
     clearErrors,
+    watch,
     reset,
-  } = useForm<RegisterInput>({
+  } = useForm<RegisterInput & { confirmPassword: string }>({
     mode: "onSubmit",
   });
+
+  const passwordValue = watch("password");
 
   const handleRegister = async (userRegisterInput: RegisterInput) => {
     setIsSigningUp(true);
@@ -49,7 +53,7 @@ export default function LoginModal() {
           handleCloseRegisterModal();
           setIsSigningUp(false);
           toast.success(AuthenticationsMessage.registerSuccess);
-        }, 500);
+        }, loadingTime.register);
       }
       if (registerResponse && registerResponse.EC === 0) {
         toast.error(AuthenticationsMessage.registerExistEmail);
@@ -175,10 +179,10 @@ export default function LoginModal() {
 
               <form
                 className="space-y-4"
-                onSubmit={handleSubmit((data: RegisterInput) => {
-                  console.log("Form submit data:", data);
-                  // Login(data);
-                  handleRegister(data);
+                onSubmit={handleSubmit((data) => {
+                  const { confirmPassword, ...inputUser } = data;
+                  console.log("input regiester:", inputUser);
+                  handleRegister(inputUser);
                 })}
               >
                 <Input
@@ -256,6 +260,38 @@ export default function LoginModal() {
                     </p>
                   )}
                 </div>
+                <div className="relative w-full">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Xác nhận mật khẩu"
+                    autoComplete="off"
+                    className="w-full bg-[#252d3d] text-white border-[#2a3040] h-12
+               focus-visible:outline-none focus-visible:ring-0 focus-visible:border-yellow-400 
+              input-selection-yellow pr-10"
+                    {...register("confirmPassword", {
+                      required: "Vui lòng xác nhận mật khẩuu",
+                      validate: (value: string) => {
+                        return (
+                          value === passwordValue ||
+                          "Mật khẩu xác nhận không khớp, vui lòng nhập lại"
+                        );
+                      },
+                    })}
+                  />
+                  <div
+                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-yellow-400"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </div>
+                </div>
+                <div className="min-h-[16px] my-[16px]">
+                  {errors.confirmPassword && (
+                    <p className="text-red-400 text-xs  animate-in fade-in slide-in-from-top-1 duration-200  ">
+                      {errors.confirmPassword?.message || " "}
+                    </p>
+                  )}
+                </div>
                 <button
                   type="submit"
                   // disabled={isSigningUp}
@@ -274,27 +310,6 @@ export default function LoginModal() {
                     "Đăng ký"
                   )}
                 </button>
-
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[#2a3040]" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-[#1a1f2e] text-gray-400">
-                      Hoặc
-                    </span>
-                  </div>
-                </div>
-
-                {/* <button
-                  type="button"
-                  className="w-full bg-white text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-3"
-                >
-                  <span>Sign in as Trần Văn</span>
-                  <span className="text-xs text-gray-500 ml-auto">
-                    tranvanluong032020@gmail.com
-                  </span>
-                </button> */}
               </form>
             </div>
           </motion.div>
