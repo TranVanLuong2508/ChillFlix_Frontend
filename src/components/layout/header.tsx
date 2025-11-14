@@ -59,6 +59,15 @@ export default function Header() {
     fetchCountriesList();
   }, []);
 
+  // Đăng ký socket khi userId thay đổi
+  useEffect(() => {
+    const userId = authUser?.userId;
+    if (userId) {
+      socket.emit("register", { userId });
+      console.log("REGISTER SENT:", userId);
+    }
+  }, [authUser?.userId]);
+
   const fetchGenresList = async () => {
     const res = await allCodeServie.getGenresList();
     if (res && res.EC === 1) {
@@ -93,64 +102,72 @@ export default function Header() {
   >([]);
 
   useEffect(() => {
-    socket.off("connect");
-    socket.off("newComment");
-    socket.off("replyComment");
-    socket.off("deleteComment");
-    socket.off("reactComment");
-    socket.on("connect", () => {
+    const handleConnect = () => {
       console.log("Socket connected:", socket.id);
-    });
+      if (authUser?.userId) {
+        socket.emit("register", { userId: authUser.userId });
+        console.log("REGISTER SENT (connect):", authUser.userId);
+      }
+    };
 
-    socket.on("newComment", (data) => {
-      const currentUser = useAuthStore.getState().authUser;
-      if (data.user?.userId === currentUser?.userId) return;
+    const handleNewComment = (data: any) => {
+      if (data.user?.userId === authUser?.userId || data?.parent) return;
       createCommentRealtime(data);
-    });
+    };
 
-    socket.on("replyComment", (data) => {
-      const currentUser = useAuthStore.getState().authUser;
-      if (data.replyComment?.user?.userId === currentUser?.userId) return;
+    const handleReplyComment = (data: any) => {
+      if (data.replyComment?.user?.userId === authUser?.userId) return;
+      replyCommentRealtime({ parentId: data.parentId, comment: data.replyComment });
+    };
 
-      replyCommentRealtime({
-        parentId: data.parentId,
-        comment: data.replyComment,
-      });
-
-      const message = `${data.replyComment.user?.fullName} đã trả lời bình luận của ${data.replyToUser?.fullName}: "${data.replyComment.content}"`;
-      setNotifications((prev) => [
-        {
-          id: crypto.randomUUID(),
-          type: "reply",
-          message,
-          createdAt: new Date(),
-        },
-        ...prev,
-      ]);
+    const handleReplyNotification = (data: any) => {
+      if (!authUser || String(data.targetUserId) !== String(authUser.userId)) return;
+      const message = `${data.replyComment.user.fullName} đã trả lời bình luận của bạn: "${data.replyComment.content}"`;
+      setNotifications(prev => [{ id: crypto.randomUUID(), type: "reply", message, createdAt: new Date() }, ...prev]);
       toast.success(message);
-    });
+    };
 
-    socket.on("deleteComment", ({ commentId }) => {
+    const handleReactionNotification = (data: any) => {
+      if (!authUser || String(data.targetUserId) !== String(authUser.userId)) return;
+      const reactionText = data.reactionType === 'LIKE' ? 'thích' : 'không thích';
+      const message = `${data.reactionUser.fullName} đã ${reactionText} bình luận của bạn`;
+      setNotifications(prev => [{
+        id: crypto.randomUUID(),
+        type: "reaction", message,
+        createdAt: new Date()
+      }, ...prev]);
+      toast.success(message);
+    };
+
+    const handleDeleteComment = ({ commentId }: any) => {
       removeCommentRealtime(commentId);
       toast.warning("Một bình luận đã bị xóa");
-    });
-    socket.on("countComments", (data) => {
-      const { filmId: eventFilmId, total } = data;
-      countCommentsRealtime(eventFilmId, total);
-    });
-    socket.on('reactComment', (reaction) => {
-      console.log('Reaction event:', reaction);
-      reactCommentRealtime(reaction);
-      
-    });
-    return () => {
-      socket.off("connect");
-      socket.off("newComment");
-      socket.off("replyComment");
-      socket.off("deleteComment");
-      socket.off("reactComment");
     };
-  }, []);
+
+    const handleCountComments = ({ filmId, total }: any) => {
+      countCommentsRealtime(filmId, total);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("newComment", handleNewComment);
+    socket.on("replyComment", handleReplyComment);
+    socket.on("replyNotification", handleReplyNotification);
+    socket.on("reactionNotification", handleReactionNotification);
+    socket.on("deleteComment", handleDeleteComment);
+    socket.on("countComments", handleCountComments);
+    socket.on("reactComment", reactCommentRealtime);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("newComment", handleNewComment);
+      socket.off("replyComment", handleReplyComment);
+      socket.off("replyNotification", handleReplyNotification);
+      socket.off("reactionNotification", handleReactionNotification);
+      socket.off("deleteComment", handleDeleteComment);
+      socket.off("countComments", handleCountComments);
+      socket.off("reactComment", reactCommentRealtime);
+    };
+  }, [authUser?.userId]);
 
   return (
     <header className="sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
@@ -378,7 +395,7 @@ export default function Header() {
                             key={n.id}
                             className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all"
                           >
-                            <div className="text-[13px]">{n.message}</div>
+                            <div className="text-[13px] break-words whitespace-normal line-clamp-3">{n.message}</div>
                             <div className="text-xs text-gray-500 mt-1">
                               {n.createdAt.toLocaleTimeString("vi-VN")}
                             </div>

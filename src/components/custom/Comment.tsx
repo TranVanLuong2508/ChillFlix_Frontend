@@ -90,6 +90,160 @@ export default function CommentSection() {
         countComments(filmId);
     };
 
+
+    const renderReplies = (replies: any[], parent: any, level: number = 1) => {
+        if (!replies || replies.length === 0) return null;
+        return (
+            <div className="mt-3 space-y-3" style={{ marginLeft: level === 1 ? 48 : 0 }}>
+                {replies.map((rep, index) => (
+                    <div key={`${rep.id}-${index}`} className="flex flex-col">
+                        <div className="flex items-start gap-3">
+                            <div className="relative w-6 h-6 ">
+                                <img
+                                    src={rep.user.avatar || "/images/monkey.jpg"}
+                                    alt="avatar"
+                                    className="w-full h-full rounded-full object-cover"
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex items-baseline gap-2">
+                                    <p className="text-sm font-semibold text-white">
+                                        {rep.user.name}
+                                    </p>
+
+                                    <div className="flex items-baseline text-sm text-gray-400 gap-1">
+                                        <ChevronRight size={13} className="relative top-[2px]" />
+                                        <span>{rep.parent?.user?.name || parent.user.name}</span>
+                                    </div>
+
+                                    <p className="text-xs text-gray-500">
+                                        {new Date(rep.createdAt).toLocaleString()}
+                                    </p>
+                                </div>
+
+                                <p className="text-gray-300 text-sm mt-1 leading-relaxed">
+                                    {rep.content}
+                                </p>
+
+                                <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                                    <button
+                                        onClick={() =>
+                                            setReplyingTo(
+                                                replyingTo?.replyId === rep.id
+                                                    ? null
+                                                    : {
+                                                        parentId: rep.id,
+                                                        replyId: rep.id,
+                                                        replyToName: rep.user.name,
+                                                    }
+                                            )
+                                        }
+                                        className="flex items-center gap-2 hover:text-yellow-400 transition"
+                                    >
+                                        <Reply size={16} /> Trả lời
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleReact(rep.id, "LIKE")}
+                                        className="flex items-center gap-1 hover:text-yellow-400 transition"
+                                    >
+                                        <ThumbsUp
+                                            size={16}
+                                            className={
+                                                rep.currentUserReaction === "LIKE"
+                                                    ? "text-yellow-400 fill-yellow-400"
+                                                    : ""
+                                            }
+                                        />
+                                        <span>{rep.totalLike}</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleReact(rep.id, "DISLIKE")}
+                                        className="flex items-center gap-1 hover:text-red-400 transition"
+                                    >
+                                        <ThumbsDown
+                                            size={16}
+                                            className={
+                                                rep.currentUserReaction === "DISLIKE"
+                                                    ? "text-red-400 fill-red-500"
+                                                    : ""
+                                            }
+                                        />
+                                        <span>{rep.totalDislike}</span>
+                                    </button>
+
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <button
+                                                className="flex items-center gap-2 hover:text-red-400 transition"
+                                                type="button"
+                                            >
+                                                <Trash2 size={16} /> Xóa
+                                            </button>
+                                        </AlertDialogTrigger>
+
+                                        <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle className="flex items-center gap-2">
+                                                    <AlertTriangle size={20} className="text-yellow-400" />
+                                                    Xác nhận xóa bình luận?
+                                                </AlertDialogTitle>
+                                                <AlertDialogDescription className="text-gray-400">
+                                                    Hành động này không thể hoàn tác.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
+                                                    Hủy
+                                                </AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    onClick={() => handleDeleteComment(rep.id)}
+                                                    className="bg-red-600 hover:bg-red-500 text-white"
+                                                >
+                                                    Xóa
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+
+                                {replyingTo?.parentId === rep.id && (
+                                    <div className="ml-10 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
+                                        <p className="text-xs text-gray-400 mb-1">
+                                            Đang trả lời{" "}
+                                            <span className="text-yellow-400">
+                                                {replyingTo?.replyToName}
+                                            </span>
+                                        </p>
+                                        <textarea
+                                            value={replyText}
+                                            onChange={(e) => setReplyText(e.target.value)}
+                                            rows={2}
+                                            placeholder="Viết phản hồi..."
+                                            className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
+                                        />
+                                        <div className="flex items-center justify-between mt-2">
+                                            <button
+                                                onClick={handleReplySend}
+                                                className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
+                                            >
+                                                Gửi <Send size={14} className="text-yellow-400" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {renderReplies(rep.replies || [], rep, 0)}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div id="comment-section" className="mt-2">
             <div className="flex items-center justify-between mb-5">
@@ -171,7 +325,7 @@ export default function CommentSection() {
                             >
                                 {/* comment gốc */}
                                 <div className="flex items-start gap-3">
-                                    <div className="relative w-12 h-12">
+                                    <div className="relative w-6 h-6">
                                         <img
                                             src={cmt.user.avatar || "/images/monkey.jpg"}
                                             alt="avatar"
@@ -310,166 +464,7 @@ export default function CommentSection() {
                                         </div>
                                     </div>
                                 )}
-
-                                {/* replies */}
-                                {cmt.replies.length > 0 && (
-                                    <div className="ml-12 mt-3 space-y-3">
-                                        {cmt.replies.map((rep, index) => (
-                                            <div key={`${rep.id}-${index}`} className="flex flex-col">
-                                                <div className="flex items-start gap-3">
-                                                    <div className="relative w-12 h-12">
-                                                        <img
-                                                            src={rep.user.avatar || "/images/monkey.jpg"}
-                                                            alt="avatar"
-                                                            className="w-full h-full rounded-full object-cover"
-                                                        />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="flex items-baseline gap-2">
-                                                            <p className="text-sm font-semibold text-white">
-                                                                {rep.user.name}
-                                                            </p>
-
-                                                            <div className="flex items-baseline text-sm text-gray-400 gap-1">
-                                                                <ChevronRight size={13} className="relative top-[2px]" />
-                                                                <span>{cmt.user.name}</span>
-                                                            </div>
-
-                                                            <p className="text-xs text-gray-500">
-                                                                {new Date(rep.createdAt).toLocaleString()}
-                                                            </p>
-                                                        </div>
-
-
-                                                        <p className="text-gray-300 text-sm mt-1 leading-relaxed">
-                                                            {rep.content}
-                                                        </p>
-
-                                                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
-                                                            <button
-                                                                onClick={() =>
-                                                                    setReplyingTo(
-                                                                        replyingTo?.replyId === rep.id
-                                                                            ? null
-                                                                            : {
-                                                                                parentId: cmt.id,
-                                                                                replyId: rep.id,
-                                                                                replyToName: rep.user.name,
-                                                                            }
-                                                                    )
-                                                                }
-                                                                className="flex items-center gap-2 hover:text-yellow-400 transition"
-                                                            >
-                                                                <Reply size={16} /> Trả lời
-                                                            </button>
-
-                                                            {/* like / dislike cho reply */}
-                                                            <button
-                                                                onClick={() => handleReact(rep.id, "LIKE")}
-                                                                className="flex items-center gap-1 hover:text-yellow-400 transition"
-                                                            >
-                                                                <ThumbsUp
-                                                                    size={16}
-                                                                    className={
-                                                                        rep.currentUserReaction === "LIKE"
-                                                                            ? "text-yellow-400 fill-yellow-400"
-                                                                            : ""
-                                                                    }
-                                                                />
-                                                                <span>{rep.totalLike}</span>
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => handleReact(rep.id, "DISLIKE")}
-                                                                className="flex items-center gap-1 hover:text-red-400 transition"
-                                                            >
-                                                                <ThumbsDown
-                                                                    size={16}
-                                                                    className={
-                                                                        rep.currentUserReaction === "DISLIKE"
-                                                                            ? "text-red-400 fill-red-500"
-                                                                            : ""
-                                                                    }
-                                                                />
-                                                                <span>{rep.totalDislike}</span>
-                                                            </button>
-
-                                                            <AlertDialog>
-                                                                <AlertDialogTrigger asChild>
-                                                                    <button
-                                                                        className="flex items-center gap-2 hover:text-red-400 transition"
-                                                                        type="button"
-                                                                    >
-                                                                        <Trash2 size={16} /> Xóa
-                                                                    </button>
-                                                                </AlertDialogTrigger>
-
-                                                                <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
-                                                                    <AlertDialogHeader>
-                                                                        <AlertDialogTitle className="flex items-center gap-2">
-                                                                            <AlertTriangle size={20} className="text-yellow-400" />
-                                                                            Xác nhận xóa bình luận?
-                                                                        </AlertDialogTitle>
-                                                                        <AlertDialogDescription className="text-gray-400">
-                                                                            Hành động này không thể hoàn tác.
-                                                                        </AlertDialogDescription>
-                                                                    </AlertDialogHeader>
-
-                                                                    <AlertDialogFooter>
-                                                                        <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
-                                                                            Hủy
-                                                                        </AlertDialogCancel>
-                                                                        <AlertDialogAction
-                                                                            onClick={() => handleDeleteComment(rep.id)}
-                                                                            className="bg-red-600 hover:bg-red-500 text-white"
-                                                                        >
-                                                                            Xóa
-                                                                        </AlertDialogAction>
-                                                                    </AlertDialogFooter>
-                                                                </AlertDialogContent>
-                                                            </AlertDialog>
-
-                                                        </div>
-
-                                                        {/* ô nhập reply cho comment con */}
-                                                        {replyingTo?.parentId === cmt.id &&
-                                                            replyingTo.replyId === rep.id && (
-                                                                <div className="ml-10 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
-                                                                    <p className="text-xs text-gray-400 mb-1">
-                                                                        Đang trả lời{" "}
-                                                                        <span className="text-yellow-400">
-                                                                            {replyingTo.replyToName}
-                                                                        </span>
-                                                                    </p>
-                                                                    <textarea
-                                                                        value={replyText}
-                                                                        onChange={(e) =>
-                                                                            setReplyText(e.target.value)
-                                                                        }
-                                                                        rows={2}
-                                                                        placeholder="Viết phản hồi..."
-                                                                        className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
-                                                                    />
-                                                                    <div className="flex items-center justify-between mt-2">
-                                                                        <button
-                                                                            onClick={handleReplySend}
-                                                                            className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
-                                                                        >
-                                                                            Gửi{" "}
-                                                                            <Send
-                                                                                size={14}
-                                                                                className="text-yellow-400"
-                                                                            />
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                {renderReplies(cmt.replies, cmt, 1)}
                             </div>
                         ))}
                     </div>
