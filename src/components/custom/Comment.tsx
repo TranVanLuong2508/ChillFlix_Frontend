@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+    AlertTriangle,
     ChevronRight,
     MessageSquare,
     Reply,
@@ -15,6 +16,17 @@ import { useFilmStore } from "@/stores/filmStore";
 import { useCommentStore } from "@/stores/comentStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function CommentSection() {
     const { filmData } = useFilmStore();
@@ -116,6 +128,12 @@ export default function CommentSection() {
                     <textarea
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
                         maxLength={2000}
                         rows={5}
                         placeholder="Viết bình luận..."
@@ -128,6 +146,7 @@ export default function CommentSection() {
                         </span>
                         <button
                             onClick={handleSend}
+
                             className="flex items-center gap-2 font-semibold text-yellow-400 hover:text-yellow-300 transition"
                         >
                             Gửi <Send size={18} className="text-yellow-400" />
@@ -218,12 +237,42 @@ export default function CommentSection() {
                                                 <span>{cmt.totalDislike}</span>
                                             </button>
 
-                                            <button
-                                                onClick={() => handleDeleteComment(cmt.id)}
-                                                className="flex items-center gap-2 hover:text-red-400 transition"
-                                            >
-                                                <Trash2 size={16} /> Xóa
-                                            </button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <button
+                                                        className="flex items-center gap-2 hover:text-red-400 transition"
+                                                        type="button"
+                                                    >
+                                                        <Trash2 size={16} /> Xóa
+                                                    </button>
+                                                </AlertDialogTrigger>
+
+                                                <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle className="flex items-center gap-2">
+                                                            <AlertTriangle size={20} className="text-yellow-400" />
+                                                            Xác nhận xóa bình luận?
+                                                        </AlertDialogTitle>
+                                                        <AlertDialogDescription className="text-gray-400">
+                                                            Hành động này không thể hoàn tác. Bạn chắc chắn muốn tiếp tục?
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
+                                                            Hủy
+                                                        </AlertDialogCancel>
+
+                                                        <AlertDialogAction
+                                                            onClick={() => handleDeleteComment(cmt.id)}
+                                                            className="bg-red-600 hover:bg-red-500 text-white"
+                                                        >
+                                                            Xóa
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+
                                         </div>
                                     </div>
                                 </div>
@@ -240,6 +289,12 @@ export default function CommentSection() {
                                         <textarea
                                             value={replyText}
                                             onChange={(e) => setReplyText(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key == "Enter" && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    handleReplySend();
+                                                }
+                                            }}
                                             rows={2}
                                             placeholder="Viết phản hồi..."
                                             className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
@@ -247,6 +302,7 @@ export default function CommentSection() {
                                         <div className="flex items-center justify-between mt-2">
                                             <button
                                                 onClick={handleReplySend}
+
                                                 className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
                                             >
                                                 Gửi <Send size={14} className="text-yellow-400" />
@@ -338,12 +394,41 @@ export default function CommentSection() {
                                                                 <span>{rep.totalDislike}</span>
                                                             </button>
 
-                                                            <button
-                                                                onClick={() => handleDeleteComment(rep.id)}
-                                                                className="flex items-center gap-2 hover:text-red-400 transition"
-                                                            >
-                                                                <Trash2 size={16} /> Xóa
-                                                            </button>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <button
+                                                                        className="flex items-center gap-2 hover:text-red-400 transition"
+                                                                        type="button"
+                                                                    >
+                                                                        <Trash2 size={16} /> Xóa
+                                                                    </button>
+                                                                </AlertDialogTrigger>
+
+                                                                <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle className="flex items-center gap-2">
+                                                                            <AlertTriangle size={20} className="text-yellow-400" />
+                                                                            Xác nhận xóa bình luận?
+                                                                        </AlertDialogTitle>
+                                                                        <AlertDialogDescription className="text-gray-400">
+                                                                            Hành động này không thể hoàn tác.
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
+                                                                            Hủy
+                                                                        </AlertDialogCancel>
+                                                                        <AlertDialogAction
+                                                                            onClick={() => handleDeleteComment(rep.id)}
+                                                                            className="bg-red-600 hover:bg-red-500 text-white"
+                                                                        >
+                                                                            Xóa
+                                                                        </AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+
                                                         </div>
 
                                                         {/* ô nhập reply cho comment con */}
