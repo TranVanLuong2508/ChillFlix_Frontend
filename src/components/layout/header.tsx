@@ -1,5 +1,30 @@
 "use client";
 
+const fakeFilms = [
+  {
+    filmId: 1,
+    title: "Ngôi Trường Ma Quái",
+    originalTitle: "The Silenced",
+    thumbUrl:
+      "https://phimimg.com/upload/vod/20250325-1/6985255433cba78af7f28fe63c5126c9.jpg",
+    year: "2015",
+    season: "1",
+    episodes: "10",
+    type: "T16",
+  },
+  {
+    filmId: 2,
+    title: "Ngôi Trường Xác Sống",
+    originalTitle: "All of Us Are Dead",
+    thumbUrl:
+      "https://phimimg.com/upload/vod/20250325-1/6985255433cba78af7f28fe63c5126c9.jpg",
+    year: "2022",
+    season: "1",
+    episodes: "12",
+    type: "T18",
+  },
+];
+
 import {
   Search,
   Bell,
@@ -31,6 +56,7 @@ import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 import { socket } from "@/lib/socket";
 import { useCommentStore } from "@/stores/comentStore";
+import { searchService } from "@/services/searchService";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
@@ -38,25 +64,67 @@ export default function Header() {
   const [activeTab, setActiveTab] = useState("film");
   const { openLoginModal } = useAuthModalStore();
 
+  //search
+  const [filmResult, setFilmResult] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [keyword, setKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
+  //end search
+
   const { goHome, goProfile, goUpgradeVip } = useAppRouter();
   const { openDrawer } = useChatDrawerStore();
-  const {
-    logOutAction,
-    setTokenToTestApi,
-    isAuthenticated,
-    isLoading,
-    authUser,
-  } = useAuthStore();
+  const { logOutAction, isAuthenticated, isLoading, authUser } = useAuthStore();
   const {
     removeCommentRealtime,
     createCommentRealtime,
     replyCommentRealtime,
     countCommentsRealtime,
   } = useCommentStore();
+
   useEffect(() => {
     fetchGenresList();
     fetchCountriesList();
   }, []);
+
+  useEffect(() => {
+    const searchHandler = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 400);
+    return () => clearTimeout(searchHandler);
+  }, [keyword]);
+
+  useEffect(() => {
+    if (debouncedKeyword.trim() === "") return;
+    console.log("Fetch API search film with keyword: ", debouncedKeyword);
+    fetchSearchFilmResult();
+  }, [debouncedKeyword]);
+
+  // const fetchSearchFilmResult = async () => {
+  //   try {
+  //     const res = await searchService.callSearchFilm(debouncedKeyword);
+  //     if (res && res.EC === 1) {
+  //       console.log("Chekc search result: ", res);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error from search films:", error);
+  //   }
+  // };
+  const fetchSearchFilmResult = async () => {
+    setIsSearching(true);
+    setShowDropdown(true);
+
+    // fake loading
+    setTimeout(() => {
+      if (debouncedKeyword.toLowerCase().includes("ngôi trường")) {
+        setFilmResult(fakeFilms);
+      } else {
+        setFilmResult([]);
+      }
+
+      setIsSearching(false);
+    }, 1200);
+  };
 
   const fetchGenresList = async () => {
     const res = await allCodeServie.getGenresList();
@@ -174,12 +242,73 @@ export default function Header() {
             <div className="relative ">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
               <Input
+                value={keyword}
+                onChange={(searchEvent) => {
+                  setKeyword(searchEvent.target.value);
+                }}
                 type="text"
-                placeholder="Tìm kiếm phim, diễn viên"
+                placeholder="Tìm kiếm phim"
                 className="pl-10 bg-[#1a1f2e] border-[#2a3040] border-2 text-white placeholder:text-gray-500
              focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0
              focus-visible:border-[#2a3040] focus:shadow-[0_0_12px_2px_rgba(59,130,246,0.5)] "
               />
+              {keyword.trim() !== "" && showDropdown && (
+                <div className="absolute mt-2 left-0 w-full bg-[#1a1f2e] border border-[#2a3040] rounded-xl shadow-xl p-3 z-50">
+                  {/* Loading */}
+                  {isSearching && (
+                    <div className="flex items-center justify-center py-6 text-gray-400">
+                      <div className="w-10 h-10 border-4 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+
+                  {/* Không có kết quả */}
+                  {!isSearching && filmResult.length === 0 && (
+                    <div className="text-gray-400 text-center py-4">
+                      Không tìm thấy kết quả nào
+                    </div>
+                  )}
+
+                  {/* Có kết quả */}
+                  {!isSearching && filmResult.length > 0 && (
+                    <>
+                      <p className="text-gray-300 text-sm mb-2">
+                        Danh sách phim
+                      </p>
+
+                      <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                        {filmResult.map((film) => (
+                          <div
+                            key={film.filmId}
+                            className="flex items-center gap-3 cursor-pointer p-2 hover:bg-[#2a3040] rounded-lg transition"
+                          >
+                            <img
+                              src={film.thumbUrl}
+                              className="w-12 h-16 object-cover rounded-md"
+                            />
+
+                            <div className="flex flex-col">
+                              <span className="text-white font-semibold text-sm">
+                                {film.title}
+                              </span>
+                              <span className="text-gray-400 text-xs italic">
+                                {film.originalTitle}
+                              </span>
+                              <span className="text-gray-500 text-xs mt-1">
+                                {film.type} · Phần {film.season} · Tập{" "}
+                                {film.episodes}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <button className="w-full mt-3 py-2 text-sm text-yellow-400 bg-[#2a3040] rounded-md hover:bg-[#3a4050] transition">
+                        Toàn bộ kết quả
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
