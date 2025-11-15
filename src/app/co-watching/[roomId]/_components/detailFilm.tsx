@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { EpisodeDetail } from "@/types/episode.type";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { usePlayerStore } from "@/stores/playerStore";
+import { FilmCard } from "../../create/filmCard";
 
 interface PlayListNavProps {
   open: boolean;
@@ -27,119 +28,12 @@ interface PlayListNavProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const Header = ({
-  part,
-  selectedPart,
-  onChangeSelectPart,
-  onOpenChange,
-}: {
-  part: PartDetail[],
-  selectedPart: string,
-  onChangeSelectPart: (part: string) => void,
-  onOpenChange: (open: boolean) => void
-}) => {
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <p className="font-semibold text-lg">Thủy Long Ngâm</p>
-        <button
-          className="rounded-full bg-zinc-800 ring-1 p-1 cursor-pointer hover:bg-zinc-700"
-          onClick={() => onOpenChange(false)}
-        >
-          <X size={12} />
-        </button>
-      </div>
-      <Select value={selectedPart} onValueChange={onChangeSelectPart}>
-        <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder="Chọn phần" />
-        </SelectTrigger>
-        <SelectContent className="z-10000">
-          <SelectGroup>
-            {part.map((p, index) => (
-              <SelectItem key={index} value={(p.partNumber).toString()}>
-                {p.title}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </div>
-  );
-};
-
-const Content = ({
-  listEpisode,
-  currentEpisode,
-  isActive,
-  selectedPart,
-}: {
-  listEpisode: EpisodeDetail[],
-  currentEpisode: string,
-  isActive: boolean,
-  selectedPart: string,
-}) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  // Hàm thay đổi searchParams
-  const handlePlayEpisode = (episodeNumber: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("ep", episodeNumber.toString());
-    params.set("p", selectedPart);
-    router.push(`${pathname}?${params.toString()}`);
-  };
-
-  return (
-    <>
-      <Separator />
-      <ScrollArea className="h-full w-full rounded-md">
-        <div className="grid grid-cols-4 gap-4">
-          {listEpisode.map((episode, i) => {
-            const isSelected = episode.episodeNumber === +currentEpisode && isActive;
-            console.log(">>>>> Check: ", isSelected, episode.episodeNumber === +currentEpisode, isActive)
-            return (
-              <div
-                key={i}
-                onClick={() => handlePlayEpisode(episode.episodeNumber)}
-                className={cn(
-                  "flex items-center justify-center px-3 py-2 rounded-md bg-zinc-800 text-white font-normal text-xs cursor-pointer border-3 border-zinc-800",
-                  "hover:shadow-[0_3px_3px_rgba(253,153,0,1)] transition-all duration-200 ease",
-                  isSelected && "border-amber-500 text-amber-500",
-                )}
-              >
-                {episode.title !== "" ? episode.title : `Tập ${episode.episodeNumber}`}
-              </div>
-            )
-          })}
-        </div>
-      </ScrollArea>
-    </>
-  );
-};
-
 const DetailNav = ({
   // currentPart,
   // currentEpisode,
   open,
   onOpenChange
 }: PlayListNavProps) => {
-
-  // const { partData } = useFilmStore();
-
-  // const [selectedPart, setSelectedPart] = useState(currentPart);
-  // const [isActive, setIsActive] = useState(false);
-
-  // const [listEpisode, setListEpisode] = useState<EpisodeDetail[] | null>(null);
-
-  // useEffect(() => {
-  //   if (!partData) return;
-  //   const episodes = partData[+selectedPart - 1].episodes;
-  //   setListEpisode(episodes);
-
-  //   setIsActive(selectedPart === currentPart)
-  // }, [selectedPart, currentPart, partData])
-
 
   return (
     <div
@@ -155,22 +49,15 @@ const DetailNav = ({
       <div
         className={cn(
           "bg-zinc-500/20 backdrop-blur-md text-white flex flex-col gap-4 transition ease-in-out absolute",
-          "inset-y-0 right-0 w-3/4 sm:max-w-sm px-6 py-8 my-6 mr-6 rounded-2xl overflow-hidden",
+          "inset-y-0 right-0 w-3/4 sm:max-w-md px-6 py-8 my-6 mr-6 rounded-2xl overflow-hidden",
           "transform transition-all duration-300 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
           open ? "opacity-100" : "opacity-0"
         )}
       >
-        {/* <Header part={partData!} onOpenChange={onOpenChange} selectedPart={selectedPart} onChangeSelectPart={setSelectedPart} />
-        {listEpisode ?
-          <Content listEpisode={listEpisode!} currentEpisode={currentEpisode} isActive={isActive} selectedPart={selectedPart} />
-          :
-          <div className="font-semibold text-red-500">
-            Đã xảy ra lỗi. Vui lòng thử lại sau!
-          </div>
-        } */}
-
-        nav bar
+        <div className="bg-[#212a56] rounded-xl overflow-hidden">
+          <FilmCard />
+        </div>
       </div>
     </div>
   );
