@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
+import type { SyncEvent } from '@/types/co_watching.type';
 
-type SyncEvent =
-  | { type: 'play' }
-  | { type: 'pause' }
-  | { type: 'seek'; currentTime: number }
-  | { type: 'requestSync' }
-  | { type: 'syncResponse'; currentTime: number; isPlaying: boolean };
+// export type SyncEvent =
+//   | { type: 'play' }
+//   | { type: 'pause' }
+//   | { type: 'seek'; currentTime: number }
+//   | { type: 'requestSync' }
+//   | { type: 'syncResponse'; currentTime: number; isPlaying: boolean };
 
 
 export const useWatchTogether = (
@@ -26,13 +27,13 @@ export const useWatchTogether = (
 
 
   useEffect(() => {
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_BACKEND_URL || 'http://localhost:8080/api/v1';
+    const BACKEND_URL = process.env.NEXT_PUBLIC_SOCKET_BACKEND_URL || 'http://localhost:8080';
 
     const socket = io(BACKEND_URL, {
       transports: ['websocket'],
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: 3,
+      reconnectionAttempts: 5,
       timeout: 10000
     });
 
@@ -53,11 +54,6 @@ export const useWatchTogether = (
       });
     });
 
-    socket.on('sync_event', (event: SyncEvent) => {
-      console.log('Received sync event:', event);
-      onEventRef.current(event);
-    });
-
     socket.on('disconnect', (reason) => {
       console.warn('Disconnected from server:', reason);
       isReadyRef.current = false;
@@ -69,6 +65,11 @@ export const useWatchTogether = (
 
     socket.on('error', (error) => {
       console.error('Socket error:', error);
+    });
+
+    socket.on('sync_event', (event: SyncEvent) => {
+      console.log('Received sync event:', event);
+      onEventRef.current(event);
     });
 
     return () => {
