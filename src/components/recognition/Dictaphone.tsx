@@ -46,8 +46,8 @@ const Dictaphone = () => {
           placeholder="Nói gì đó..."
         />
 
-        <button onClick={handleStartListening}>🎤 Bắt đầu</button>
-        <button onClick={handleStopListening}>⛔ Dừng</button>
+        <button onClick={handleStartListening}>Bắt đầu</button>
+        <button onClick={handleStopListening}>Dừng</button>
       </div>
     </>
   );
