@@ -1,7 +1,6 @@
 import { AllCodeValue } from "./allcode.type";
 import { Actor } from "./actor.type";
 import { Director } from "./director.type";
-import { RatingData } from "./backend.type";
 
 export interface FilmImageRes {
   url: string;
