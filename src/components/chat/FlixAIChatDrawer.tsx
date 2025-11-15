@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, X, Bot, User } from "lucide-react";
 import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 import { geminiService } from "@/services/chatbotService";
+import VoiceSearch from "../recognition/VoiceSearch";
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -194,6 +194,7 @@ export default function FlixAIChatDrawer() {
           {/* Input */}
           <DrawerFooter className="border-t border-[#2a3040]/50 pt-4 pb-6 px-4">
             <div className="flex gap-2">
+              <VoiceSearch onResult={(text) => setInput(text)} />
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

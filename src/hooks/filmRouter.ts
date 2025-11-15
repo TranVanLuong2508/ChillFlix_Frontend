@@ -18,9 +18,10 @@ export const useFilmRouter = () => {
     // goFilmDetail: (filmSlug: string) =>
     //   router.push(filmPath.FILM_DETAIL(filmSlug)),
 
-    goFilmDetail: (filmId: string) => router.push(filmPath.FILM_DETAIL(filmId)),
+    goFilmDetail: (filmSlug: string) =>
+      router.push(filmPath.FILM_DETAIL(filmSlug)),
 
-    goPlayerFilm: (filmSlug: string, part: string, episode: string) => router.push(filmPath.PLAYER_DETAIL(filmSlug, part, episode))
-
+    goPlayerFilm: (filmSlug: string, part: string, episode: string) =>
+      router.push(filmPath.PLAYER_DETAIL(filmSlug, part, episode)),
   };
 };
