@@ -2,16 +2,34 @@ import { Button } from "@/components/ui/button"
 import { EyeIcon } from "lucide-react"
 import Link from "next/link"
 
-export const Card = () => {
+interface CardProps {
+  thumbUrl: string;
+  name: string;
+  duration: number;
+  filmTitle: string;
+  view?: number;
+  hostName: string;
+}
+
+export const Card = ({
+  thumbUrl,
+  name,
+  duration,
+  filmTitle,
+  view = 0,
+  hostName,
+}: CardProps) => {
   return (
-    <Link href={'/'} className="pt-4">
-      <div className="rounded-xl overflow-hidden">
-        <div className=" relative">
-          <img
-            src="https://static.nutscdn.com/vimg/1920-0/58b656f1ed72290d63c9cd2ebd67fd83.webp"
-            alt="thumbURL"
-            className="object-cover object-center"
-          />
+    <Link href={'/'} className="pt-4 group">
+      <div className="rounded-xl overflow-hidden group-hover:ring-1 group-hover:ring-amber-300 transition-all ease-in duration-120">
+        <div className=" relative bg-zinc-700 ">
+          <div className="flex items-center justify-center">
+            <img
+              src={thumbUrl}
+              alt="thumbURL"
+              className="object-cover object-center max-h-[250px] w-auto"
+            />
+          </div>
           <div className="absolute top-0 right-0 p-4">
             <Button
               variant={"ghost"}
@@ -27,7 +45,7 @@ export const Card = () => {
               size={"sm"}
               className="border border-zinc-400 hover:text-white hover:bg-transparent text-zinc-400"
             >
-              <p className="font-semibold">100</p>
+              <p className="font-semibold">{view}</p>
               <EyeIcon className="size-4" />
             </Button>
           </div>
@@ -43,9 +61,9 @@ export const Card = () => {
           />
         </div>
         <div>
-          <h3 className="text-xl">Xem phim cùng mình nhé</h3>
-          <h3 className="text-lg font-semibold text-white/50 italic">Huyền Thoại La Tiểu Hắc 2</h3>
-          <p className="text-white/50">Quan dep trai • 2 giờ trước</p>
+          <h3 className="text-xl">{name}</h3>
+          <h3 className="text-lg font-semibold text-white/50 italic">{filmTitle}</h3>
+          <p className="text-white/50">{hostName} • 2 giờ trước</p>
         </div>
       </div>
     </Link>

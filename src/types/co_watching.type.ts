@@ -1,13 +1,13 @@
 import Artplayer from 'artplayer';
-import { EpisodeStream } from './episode.type';
 import { Film } from './film.type';
 
 export interface roomRes {
   roomId: string;
   name: string;
   hostId: number;
-  episodeId: string;
-  episode: EpisodeStream;
+  filmId: string;
+  partNumber: number;
+  episodeNumber: number;
   thumbUrl: string;
   isLive: boolean;
   isPrivate: boolean;
@@ -17,16 +17,41 @@ export interface roomRes {
 }
 
 export interface roomCreatedData {
-  room: roomRes,
-  film: Film,
+  room: roomRes;
+  film: Film;
 }
 
 export interface roomPayload {
-  name: string,
-  isPrivate: boolean,
-  thumbUrl: string,
-  episodeId: string,
+  name: string;
+  isPrivate: boolean;
+  thumbUrl: string;
+  filmId: string;
+  partNumber: number;
+  episodeNumber: number;
 }
+
+export interface roomPaginate extends roomRes {
+  film: {
+    originalTitle: string;
+    title: string;
+    slug: string;
+  };
+
+  host: {
+    fullName: string;
+  };
+}
+
+export interface getAllStreamRes {
+  meta: {
+    current: number;
+    pageSize: number;
+    pages: number;
+    total: number;
+  }
+  list: roomPaginate[];
+}
+
 
 export type SyncMode = 'initial' | 'manual';
 
