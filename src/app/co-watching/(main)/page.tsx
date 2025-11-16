@@ -1,15 +1,16 @@
-import { Action } from "@/components/co_watching/action"
-import { Background } from "@/components/co_watching/background"
 import { List } from "@/components/co_watching/list"
+import { ListVideo } from "lucide-react"
 
 const Co_WatchingPage = () => {
+  const query = {}
+
   return (
-    <div className="relative w-full min-h-[calc(100vh-400px)]">
-      <Background />
-      <div className="relative z-10 pt-[250px]">
-        <Action />
-        <List />
+    <div className="pt-40 px-[20px] text-white">
+      <div className="flex items-center gap-2">
+        <ListVideo className="size-8" />
+        <h2 className="text-xl font-semibold">Danh sách xem chung</h2>
       </div>
+      <List query={query} />
     </div>
   )
 }

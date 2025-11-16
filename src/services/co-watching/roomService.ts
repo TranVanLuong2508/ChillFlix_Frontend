@@ -7,8 +7,21 @@ const roomServices = {
   createRoom: (payload: roomPayload): Promise<IBackendRes<roomCreatedData>> => {
     return privateAxios.post("/co-watching", payload);
   },
-  getAllStream: (current: number, pageSize: number): Promise<IBackendRes<getAllStreamRes>> => {
-    return publicAxios.get(`/co-watching?current=${current}&pageSize=${pageSize}`);
+  getAllStream: (
+    current: number,
+    pageSize: number,
+    query: {
+      isLive?: boolean;
+      hostId?: number;
+    }): Promise<IBackendRes<getAllStreamRes>> => {
+    return publicAxios.get(`/co-watching`, {
+      params: {
+        current,
+        pageSize,
+        ...(query.isLive !== undefined && { isLive: query.isLive }),
+        ...(query.hostId !== undefined && { hostId: query.hostId }),
+      }
+    });
   }
 }
 

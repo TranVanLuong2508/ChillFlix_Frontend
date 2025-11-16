@@ -32,7 +32,9 @@ export const FormCreateRoom = () => {
       name: roomName,
       isPrivate: isPrivate,
       isLive: true,
-      episodeId: "dda7c95d-bc7f-41d5-872d-b4f90b452225",
+      filmId: "dda7c95d-bc7f-41d5-872d-b4f90b452225",
+      partNumber: 1,
+      episodeNumber: 1,
       thumbUrl: "/co-watching/thumbUrl.png"
     }
 
