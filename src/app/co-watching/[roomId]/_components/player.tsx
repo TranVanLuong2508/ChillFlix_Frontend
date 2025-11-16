@@ -79,13 +79,13 @@ const Player = ({
         <div className="p-4 bg-zinc-950">
           <div className="flex items-center justify-between ">
             <div className="pl-2 flex items-center gap-4">
-              <Avatar className="size-12">
+              <Avatar className="size-10">
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-xl font-semibold">Quân đẹp trai</h1>
-                <p className="text-zinc-400">tạo 1 ngày trước</p>
+                <h1 className="font-semibold">Quân đẹp trai</h1>
+                <p className="text-sm text-zinc-400">tạo 1 ngày trước</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
