@@ -9,6 +9,7 @@ interface CardProps {
   filmTitle: string;
   view?: number;
   hostName: string;
+  roomId: string;
 }
 
 export const Card = ({
@@ -18,9 +19,10 @@ export const Card = ({
   filmTitle,
   view = 0,
   hostName,
+  roomId,
 }: CardProps) => {
   return (
-    <Link href={'/'} className="pt-4 group">
+    <Link href={`/co-watching/${roomId}`} className="pt-4 group">
       <div className="rounded-xl overflow-hidden group-hover:ring-1 group-hover:ring-amber-300 transition-all ease-in duration-120">
         <div className=" relative bg-zinc-700 ">
           <div className="flex items-center justify-center">

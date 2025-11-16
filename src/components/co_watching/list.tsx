@@ -81,6 +81,7 @@ export const List = ({ query }: ListProps) => {
             filmTitle={item.film.title}
             view={100}
             hostName={item.host.fullName}
+            roomId={item.roomId}
           />
         ))
       }
