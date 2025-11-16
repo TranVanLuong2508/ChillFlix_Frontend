@@ -18,9 +18,12 @@ export const FormCreateRoom = () => {
 
   const { authUser } = useAuthStore();
   const { dataRoom, create } = useCoWatchingStore();
+
   const [roomName, setRoomName] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [open, setOpen] = useState(false);
+  const [part, setPart] = useState('1');
+  const [episode, setEpisode] = useState('1')
 
 
   const createRoom = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -35,9 +38,9 @@ export const FormCreateRoom = () => {
       name: roomName,
       isPrivate: isPrivate,
       isLive: true,
-      filmId: "dda7c95d-bc7f-41d5-872d-b4f90b452225",
-      partNumber: 1,
-      episodeNumber: 1,
+      filmId: "9cda998e-f711-4476-873c-96ec8af4a748",
+      partNumber: +part,
+      episodeNumber: +episode,
       thumbUrl: "/co-watching/thumbUrl.png"
     }
 
@@ -92,11 +95,11 @@ export const FormCreateRoom = () => {
             <div className="flex items-center justify-between">
               <div className="flex-1 flex items-center gap-3">
                 <h3 className="text-sm italic">Phần: </h3>
-                <p className="text-amber-400 font-semibold">1</p>
+                <p className="text-amber-400 font-semibold">{part}</p>
               </div>
               <div className="flex-1 flex items-center gap-3 ">
                 <h3 className="text-sm italic">Tập: </h3>
-                <p className="text-amber-400 font-semibold">1</p>
+                <p className="text-amber-400 font-semibold">{episode}</p>
               </div>
             </div>
           </div>
@@ -130,7 +133,14 @@ export const FormCreateRoom = () => {
           </div>
         </div>
       </form>
-      <PartEpisodeDialog open={open} setOpen={setOpen} />
+      <PartEpisodeDialog
+        open={open}
+        setOpen={setOpen}
+        part={part}
+        setPart={setPart}
+        episode={episode}
+        setEpisode={setEpisode}
+      />
     </>
   )
 }
