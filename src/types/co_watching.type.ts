@@ -16,7 +16,7 @@ export interface roomRes {
   duration: number;
 }
 
-export interface roomCreatedData {
+export interface roomData {
   room: roomRes;
   film: Film;
 }

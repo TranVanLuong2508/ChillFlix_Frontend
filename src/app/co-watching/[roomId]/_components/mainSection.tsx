@@ -9,9 +9,11 @@ import { useVideoSyncHandler } from "@/hooks/useVideoSyncHandler";
 import { useWatchTogether } from "@/hooks/useWatchTogether";
 
 import Player from "./player";
-import { Button } from "@/components/ui/button";
-import { Copy, Eye } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useCoWatchingStore } from "@/stores/co-watchingStore";
+import { useFilmStore } from "@/stores/filmStore";
+import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import Loading from "../loading";
 
 interface MainSectionProps {
   roomId: string;
@@ -25,6 +27,22 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
   const [userInteracted, setUserInteracted] = useState(false);
   const [showInteractionPrompt, setShowInteractionPrompt] = useState(false);
   const [syncMode, setSyncMode] = useState<SyncMode>('initial');
+
+  const { dataRoom, getRoomData } = useCoWatchingStore();
+  const { partData, getPartData } = useFilmStore();
+
+  useEffect(() => {
+    if (!dataRoom || dataRoom.room.roomId !== roomId) {
+      getRoomData(roomId);
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    const filmId = dataRoom?.filmData.film.filmId
+    if (filmId && (!partData || partData[0].filmId !== filmId)) {
+      getPartData(filmId);
+    }
+  }, [dataRoom?.filmData.film.filmId]);
 
   const { handleRemoteEvent } = useVideoSyncHandler();
 
@@ -75,10 +93,15 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
     };
   }, [userInteracted]);
 
+  if (!dataRoom || !dataRoom.filmData || !partData) {
+    return <Loading />
+  }
+
   return (
     <div className="">
       <div className="px-4 pb-10">
         <Player
+          dataRoom={dataRoom}
           handlePlay={handlePlay}
           handlePause={handlePause}
           handleArtReady={handleArtReady}

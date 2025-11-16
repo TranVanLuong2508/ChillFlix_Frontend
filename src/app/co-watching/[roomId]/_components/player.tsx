@@ -1,14 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Copy, Eye, Tv } from "lucide-react";
+import { Eye, Tv } from "lucide-react";
 import Artplayer from "artplayer";
-import StreamInfo from "./streamInfo";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import StreamInfo from "./streamInfo";
 import { CopyButton } from "./copy-button";
 import DetailNav from "./detailFilm";
-import { useState } from "react";
+
+import { useCoWatchingStore } from "@/stores/co-watchingStore";
+import PlayListNav from "./playListNav";
+import { roomRes } from "@/types/co_watching.type";
+import { FilmDataStream } from "@/types/film.type";
 
 const ArtPlayerClient = dynamic(
   () => import("./ArtPlayerClient"),
@@ -34,6 +40,11 @@ const ArtPlayerClient = dynamic(
 );
 
 interface PlayerProps {
+  dataRoom: {
+    room: roomRes,
+    filmData: FilmDataStream;
+  };
+
   handlePlay: () => void;
   handlePause: () => void;
   handleSeek: (time: number) => void;
@@ -42,6 +53,7 @@ interface PlayerProps {
 }
 
 const Player = ({
+  dataRoom,
   handlePlay,
   handlePause,
   handleSeek,
@@ -49,21 +61,30 @@ const Player = ({
   handleManualSync
 }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenListPart, setIsOpenListPart] = useState(false);
 
   return (
     <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
       <div className="relative group">
         <StreamInfo
-          episodeTitle={"episodeDetail.title"}
-          partTitle={"Test"}
+          name={dataRoom.room.name}
+          filmTitle={dataRoom.filmData.film.title}
+          episodeNumber={dataRoom.room.episodeNumber}
+          partNumber={dataRoom.room.partNumber}
           onOpenChange={setIsOpen}
-        // episodeTitle={episodeDetail.title}
-        // partTitle={partDetail.title}
-        // onOpenChange={setIsOpen}
+          onOpenList={setIsOpenListPart}
         />
         <DetailNav
           open={isOpen}
           onOpenChange={setIsOpen}
+          film={dataRoom.filmData}
+        />
+        <PlayListNav
+          currentPart={(dataRoom.room.partNumber).toString()}
+          currentEpisode={(dataRoom.room.episodeNumber).toString()}
+          open={isOpenListPart}
+          onOpenChange={setIsOpenListPart}
+
         />
         <div className="relative">
           <ArtPlayerClient

@@ -1,10 +1,10 @@
 import privateAxios from "@/lib/privateAxios";
 import publicAxios from "@/lib/publicAxios";
 import { IBackendRes } from "@/types/backend.type";
-import { getAllStreamRes, roomCreatedData, roomPayload } from "@/types/co_watching.type";
+import { getAllStreamRes, roomData, roomPayload } from "@/types/co_watching.type";
 
 const roomServices = {
-  createRoom: (payload: roomPayload): Promise<IBackendRes<roomCreatedData>> => {
+  createRoom: (payload: roomPayload): Promise<IBackendRes<roomData>> => {
     return privateAxios.post("/co-watching", payload);
   },
   getAllStream: (
@@ -22,6 +22,9 @@ const roomServices = {
         ...(query.hostId !== undefined && { hostId: query.hostId }),
       }
     });
+  },
+  getRoomData: (roomId: string): Promise<IBackendRes<roomData>> => {
+    return privateAxios.get(`/co-watching/${roomId}`);
   }
 }
 

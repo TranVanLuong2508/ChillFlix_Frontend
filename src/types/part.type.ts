@@ -6,6 +6,7 @@ export interface PartDetail {
   partNumber: number;
   description: string;
   episodes: EpisodeDetail[];
+  filmId: string;
 }
 
 export interface PartRes {

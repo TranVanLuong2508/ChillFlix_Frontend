@@ -9,11 +9,11 @@ interface CoWatchingState {
     room: roomRes,
     filmData: FilmDataStream;
   } | null;
-
 }
 
 interface CoWatchingAction {
   create: (payload: roomPayload) => Promise<void>;
+  getRoomData: (roomId: string) => Promise<void>;
 }
 
 export const useCoWatchingStore = create<CoWatchingState & CoWatchingAction>((set) => ({
@@ -24,9 +24,8 @@ export const useCoWatchingStore = create<CoWatchingState & CoWatchingAction>((se
       const res = await roomServices.createRoom(payload);
       if (res.EC !== 0) {
         toast.error("Had error when create live room");
-        console.log(">>> Error create live stram room: ", res.EM);
+        console.log(">>> Error create live stream room: ", res.EM);
       }
-      console.log(">>Check data create: ", res.data);
       if (res && res.data) {
         const filmImages = res.data.film.filmImages.reduce((acc, item) => {
           acc[item.type as keyof FilmImages] = item.url;
@@ -43,5 +42,32 @@ export const useCoWatchingStore = create<CoWatchingState & CoWatchingAction>((se
     } catch (error) {
       console.log("Error: ", error);
     }
+  },
+
+  getRoomData: async (roomId) => {
+    try {
+      const res = await roomServices.getRoomData(roomId);
+      if (res.EC !== 0) {
+        toast.error("Had error when get data room");
+        console.log(">>> Error get data room: ", res.EM);
+      }
+      if (res && res.data) {
+        const filmImages = res.data.film.filmImages.reduce((acc, item) => {
+          acc[item.type as keyof FilmImages] = item.url;
+          return acc;
+        }, {} as FilmImages);
+
+        set({
+          dataRoom: {
+            room: res.data.room,
+            filmData: { film: res.data.film, filmImages }
+          }
+        });
+      }
+
+    } catch (error) {
+      console.log("Error: ", error);
+    }
   }
+
 }))
