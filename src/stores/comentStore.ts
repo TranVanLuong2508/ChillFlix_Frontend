@@ -108,7 +108,7 @@ const removeNodeRecursive = (
   for (const c of list) {
     if (c.id === id) {
       removed += countSubtree(c);
-      continue; 
+      continue;
     }
 
     if (c.replies && c.replies.length) {
@@ -173,6 +173,7 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
     createComment: async (payload) => {
       set({ isLoading: true, error: null });
       try {
+        console.log("[COMMENT SOCKET] Creating comment:", payload);
         const res = await CommentServices.createComment(payload);
         if (res.EC !== 1 || !res.data) {
           set({
@@ -189,15 +190,18 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
           const addReplyRecursive = (comments: CommentItem[]): CommentItem[] =>
             comments.map((c) => {
               if (c.id === payload.parentId) {
-                return { ...c, replies: [newItem, ...(c.replies || [])] };
+                return { ...c, replies: [...(c.replies || []), newItem] };
               }
               return { ...c, replies: addReplyRecursive(c.replies || []) };
             });
 
-          set((state) => ({
-            comments: addReplyRecursive(state.comments),
-            totalComments: (state.totalComments || 0) + 1,
-          }));
+          set((state) => {
+            const updatedComments = addReplyRecursive(state.comments);
+            return {
+              comments: updatedComments,
+              totalComments: (state.totalComments || 0) + 1,
+            };
+          });
         } else {
           set((state) => ({
             comments: [newItem, ...state.comments],
@@ -241,8 +245,10 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     reactComment: async (commentId, type) => {
       try {
+        console.log(
+          `[COMMENT SOCKET] Reacting to comment ${commentId} with type ${type}`
+        );
         const res = await CommentServices.reactToComment(commentId, type);
-        console.log("REACT API RESPONSE:", res);
         if (res.EC !== 1 || !res.data) {
           set({ error: res.EM || "Error reacting to comment" });
           return;
@@ -303,9 +309,16 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     createCommentRealtime: (newComment: BackendComment) =>
       set((state) => {
+        console.log(
+          "[COMMENT SOCKET] Received createCommentRealtime:",
+          newComment
+        );
         const mappedComment = mapBackendToItem(newComment);
         const exists = existsInTree(state.comments, mappedComment.id);
-        if (exists) return state;
+        if (exists) {
+          console.log("[COMMENT SOCKET] Comment already exists, skipping");
+          return state;
+        }
 
         if (newComment.parent) {
           const addReplyRecursive = (
@@ -313,7 +326,7 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
           ): CommentItem[] => {
             return comments.map((c) => {
               if (c.id === newComment.parent?.commentId) {
-                return { ...c, replies: [mappedComment, ...(c.replies || [])] };
+                return { ...c, replies: [...(c.replies || []), mappedComment] };
               }
               return {
                 ...c,
@@ -337,14 +350,18 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     replyCommentRealtime: (data) =>
       set((state) => {
+        console.log("[COMMENT SOCKET] Received replyCommentRealtime:", data);
         const mappedComment = mapBackendToItem(data.comment);
         const exists = existsInTree(state.comments, mappedComment.id);
-        if (exists) return state;
+        if (exists) {
+          console.log("[COMMENT SOCKET] Reply already exists, skipping");
+          return state;
+        }
 
         const addReplyRecursive = (comments: CommentItem[]): CommentItem[] => {
           return comments.map((c) => {
             if (c.id === data.parentId) {
-              return { ...c, replies: [mappedComment, ...(c.replies || [])] };
+              return { ...c, replies: [...(c.replies || []), mappedComment] };
             }
             return {
               ...c,
@@ -367,6 +384,7 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
     },
 
     reactCommentRealtime: (reaction) => {
+      console.log("[COMMENT SOCKET] Received reactCommentRealtime:", reaction);
       const { commentId, totalLike, totalDislike, userReaction, userId } =
         reaction;
       const currentUser = useAuthStore.getState().authUser;

@@ -1,14 +1,22 @@
 "use client";
 
 import { useFilmStore } from "@/stores/filmStore";
+import { useRatingStore } from "@/stores/ratingStore";
 import { AllCodeValue } from "@/types/allcode.type";
 import { Star } from "lucide-react";
 import { useFilmRouter } from "@/hooks/filmRouter";
 import { useEffect } from "react";
 
 export default function FilmInfo() {
-  const { loading, error, filmData, ratingData, getRatingByFilmId } = useFilmStore();
+  const { loading, error, filmData } = useFilmStore();
+  const { averageRating, fetchRatings } = useRatingStore();
   const { goActorDetail } = useFilmRouter();
+
+  useEffect(() => {
+    if (filmData?.film?.filmId) {
+      fetchRatings(filmData.film.filmId);
+    }
+  }, [filmData?.film?.filmId, fetchRatings]);
 
   if (loading || !filmData) {
     return <div className="text-center py-20">Đang tải dữ liệu...</div>;
@@ -19,17 +27,6 @@ export default function FilmInfo() {
   }
 
   const { film, filmImages, actors, directors } = filmData;
-  const { averageRating } = ratingData || { averageRating: 0 };
-
-  useEffect(() => {
-    try {
-      getRatingByFilmId(film.filmId);
-    } catch (error) {
-      console.error("Failed to fetch rating data:", error);
-    }
-  }, [film.filmId]);
-
-  console.log("Rating Data in FilmInfo:", ratingData);
   return (
     <div className="flex flex-col gap-4 px-6 py-6 rounded-lg">
       <div className="flex items-center justify-center mb-6">
@@ -47,9 +44,7 @@ export default function FilmInfo() {
 
       <div className="flex items-center gap-2 text-sm text-gray-300">
         <span className="inline-flex items-center bg-[#facc15] text-black px-2 py-0.5 rounded font-semibold">
-          {(averageRating ?? 0) > 0
-            ? `${averageRating ?? 0}`
-            : "Chưa có đánh giá"}
+          {averageRating > 0 ? `${averageRating}` : "Chưa có đánh giá"}
           <Star size={14} className="ml-1" />
         </span>
 
