@@ -42,3 +42,8 @@ export interface FilmDetailRes {
 export interface FilmDetail extends FilmDetailRes {
   filmImages: FilmImages;
 }
+
+export interface FilmDataStream {
+  film: Film;
+  filmImages: FilmImages;
+}

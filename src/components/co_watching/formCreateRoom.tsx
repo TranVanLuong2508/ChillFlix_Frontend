@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import roomServices from "@/services/co-watching/roomService";
 
 import { Input } from "@/components/ui/input";
@@ -10,11 +10,13 @@ import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { co_watchingPath } from "@/constants/path";
+import { useCoWatchingStore } from "@/stores/co-watchingStore";
 
 export const FormCreateRoom = () => {
   const router = useRouter();
 
   const { authUser } = useAuthStore();
+  const { dataRoom, create } = useCoWatchingStore();
   const [roomName, setRoomName] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
 
@@ -29,21 +31,26 @@ export const FormCreateRoom = () => {
     const data = {
       name: roomName,
       isPrivate: isPrivate,
-      hostId: authUser.userId,
-      videoId: "1c452c46-2c66-4683-a30c-c71414552257",
+      isLive: true,
+      episodeId: "dda7c95d-bc7f-41d5-872d-b4f90b452225",
       thumbUrl: "/co-watching/thumbUrl.png"
     }
 
-    const res = await roomServices.createRoom(data);
-    if (res.EC !== 0 || !res.data) {
-      toast.error(res.EM);
-      return;
-    }
-    toast.success("Vui lòng đợi vài giây để chuyển sang phòng LIVE")
+    await create(data);
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    router.push(co_watchingPath.PLAY(res.data.roomId))
   }
+
+  useEffect(() => {
+    if (!dataRoom) return;
+
+    const handleRedirect = async () => {
+      toast.success("Vui lòng đợi vài giây để chuyển sang phòng LIVE")
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      router.push(co_watchingPath.PLAY(dataRoom.room.roomId));
+    }
+
+    handleRedirect();
+  }, [dataRoom, router]);
 
   return (
     <form onSubmit={createRoom}>
