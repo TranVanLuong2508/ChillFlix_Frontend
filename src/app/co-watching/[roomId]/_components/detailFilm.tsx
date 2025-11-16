@@ -1,15 +1,18 @@
 import { cn } from "@/lib/utils";
 
 import { FilmCard } from "../../create/_components/filmCard";
+import { FilmDataStream } from "@/types/film.type";
 
 interface PlayListNavProps {
   open: boolean;
+  film: FilmDataStream;
 
   onOpenChange: (open: boolean) => void;
 }
 
 const DetailNav = ({
   open,
+  film,
   onOpenChange
 }: PlayListNavProps) => {
 
@@ -34,7 +37,7 @@ const DetailNav = ({
         )}
       >
         <div className="bg-[#212a56] rounded-xl overflow-hidden">
-          <FilmCard />
+          <FilmCard filmData={film} isCreate={false} />
         </div>
       </div>
     </div>

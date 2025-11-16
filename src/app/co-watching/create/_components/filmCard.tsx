@@ -1,30 +1,51 @@
-export const FilmCard = () => {
+import { cn } from "@/lib/utils";
+import { FilmDataStream } from "@/types/film.type"
+
+interface FilmCardProps {
+  filmData: FilmDataStream;
+  isCreate?: boolean;
+}
+
+export const FilmCard = ({
+  filmData,
+  isCreate = true
+}: FilmCardProps) => {
+  const film = filmData.film;
+  const filmImage = filmData.filmImages;
   return (
-    <div className="h-full">
+    <div className="h-full group/filmCard">
       <div className="relative overflow-hidden">
         <img
-          src="https://static.nutscdn.com/vimg/500-0/55dbba41fe478c4351d82766bf3ba7f9.jpg"
+          src={filmImage.poster}
           alt="poster"
           className="object-cover object-center aspect-auto"
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#212a56] via-[#212a56]/75 to-transparent pointer-events-none"></div>
+        <div className={cn(
+          "absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-[#212a56] via-[#212a56]/90 to-transparent",
+          !isCreate && "pointer-events-none opacity-0 group-hover/filmCard:opacity-100 transition-opacity duration-300"
+        )}></div>
       </div>
-      <div className="relative -mt-60">
+      <div className={cn(
+        "relative -mt-60",
+        !isCreate && "opacity-0 translate-y-4 group-hover/filmCard:opacity-100 group-hover/filmCard:translate-y-0 transition-all duration-500 ease-out"
+      )}>
         <div className="space-y-4 px-6 pb-4">
-          <h1 className="text-xl font-semibold text-white">Huyền Thoại La Tiểu Hắc 2</h1>
-          <p className="font-semibold text-yellow-400 py-1/2">The Legend of Hei 2</p>
+          <h1 className="text-xl font-semibold text-white mb-3">{film.title}</h1>
+          <p className="font-semibold text-yellow-400 py-1/2">{film.originalTitle}</p>
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="py-1 px-2 text-xs font-semibold bg-white text-zinc-900 rounded-lg border border-transparent">T13</div>
-            <div className="py-1 px-2 text-xs bg-transparent text-zinc-200 rounded-lg border border-zinc-200">2025</div>
-            <div className="py-1 px-2 text-xs bg-transparent text-zinc-200 rounded-lg border border-zinc-200">1h58</div>
+            <div className="py-1 px-2 text-xs font-semibold bg-white text-zinc-900 rounded-lg border border-transparent">{film.age.valueEn}</div>
+            <div className="py-1 px-2 text-xs bg-transparent text-zinc-200 rounded-lg border border-zinc-200">{film.year}</div>
+            <div className="py-1 px-2 text-xs bg-transparent text-zinc-200 rounded-lg border border-zinc-200">{film.duration} phút</div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="text-white text-xs bg-white/10 py-1 px-1.5 rounded-md">Chiếu rạp</div>
-            <div className="text-white text-xs bg-white/10 py-1 px-1.5 rounded-md">Cổ trang</div>
-            <div className="text-white text-xs bg-white/10 py-1 px-1.5 rounded-md">Hoạt hình</div>
-            <div className="text-white text-xs bg-white/10 py-1 px-1.5 rounded-md">Kỳ ảo</div>
-            <div className="text-white text-xs bg-white/10 py-1 px-1.5 rounded-md">Viễn tưởng</div>
-            <div className="text-white text-xs bg-white/10 py-1 px-1.5 rounded-md">Phiêu lưu</div>
+            {film.genres.map((genre, index) => (
+              <div
+                key={index}
+                className="text-white text-xs bg-white/10 py-1 px-1.5 rounded-md"
+              >
+                {genre.valueVi}
+              </div>
+            ))}
           </div>
           <p
             className="text-zinc-200/90 overflow-hidden text-ellipsis text-xs"
@@ -34,7 +55,7 @@ export const FilmCard = () => {
               WebkitLineClamp: 3,
             }}
           >
-            Tiểu Hắc cùng sư phụ sống những ngày yên bình tại một thị trấn nhỏ. Thế nhưng khi phân hội bị tấn công, sự kiện ấy đã phá vỡ nền hòa bình giữa các yêu giới được gìn giữ suốt bao năm.
+            {film.description}
           </p>
         </div>
       </div>
