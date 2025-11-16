@@ -32,12 +32,19 @@ import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 import { socket } from "@/lib/socket";
 import { useCommentStore } from "@/stores/comentStore";
 import SearchDropdown from "./header/search-dropdown";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
   const { openLoginModal } = useAuthModalStore();
+  const { goFavorite } = useAppRouter();
+
+  //close/open dropdown when change page
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const pathname = usePathname();
+  //
 
   const { goHome, goProfile, goUpgradeVip } = useAppRouter();
   const { openDrawer } = useChatDrawerStore();
@@ -53,6 +60,10 @@ export default function Header() {
     fetchGenresList();
     fetchCountriesList();
   }, []);
+
+  useEffect(() => {
+    setIsUserMenuOpen(false);
+  }, [pathname]);
 
   const fetchGenresList = async () => {
     const res = await allCodeServie.getGenresList();
@@ -408,7 +419,10 @@ export default function Header() {
                       Thành viên
                     </button>
                   ) : (
-                    <DropdownMenu>
+                    <DropdownMenu
+                      open={isUserMenuOpen}
+                      onOpenChange={setIsUserMenuOpen}
+                    >
                       <DropdownMenuTrigger asChild>
                         <button className="focus:outline-none focus:ring-0 flex items-center cursor-pointer">
                           <Image
@@ -484,7 +498,10 @@ export default function Header() {
                         </div> */}
                         {/* Menu Items */}
                         <div className="py-2">
-                          <button className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                          <button
+                            onClick={goFavorite}
+                            className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm"
+                          >
                             <span className="text-lg">
                               <Heart />
                             </span>

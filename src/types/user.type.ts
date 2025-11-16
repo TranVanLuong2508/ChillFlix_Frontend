@@ -13,3 +13,20 @@ export interface IUser {
     module: string;
   }[];
 }
+
+export interface IFilmList {
+  favorites: filmInUserPage[];
+}
+
+export interface filmInUserPage {
+  filmId: string;
+  title: string;
+  thumbUrl: string;
+  originalTitle?: string;
+  badge?: string;
+  slug: string;
+}
+
+export interface IFavorite {
+  isFavorite: boolean;
+}

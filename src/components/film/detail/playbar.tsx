@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-import { Heart, Plus, Send, MessageSquare, Star, LucideIcon } from "lucide-react";
+import {
+  Heart,
+  Plus,
+  Send,
+  MessageSquare,
+  Star,
+  LucideIcon,
+} from "lucide-react";
 
 import {
   DropdownMenu,
@@ -19,9 +26,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { eventBus } from "@/lib/eventBus";
+import { userFavoriteStore } from "@/stores/favoriteStore";
+import { useParams } from "next/navigation";
+import { userServices } from "@/services";
+import { useFilmStore } from "@/stores/filmStore";
 
 interface PlayBarProps {
   activeTab: "comments" | "ratings";
@@ -29,11 +40,11 @@ interface PlayBarProps {
 }
 
 type actionType = {
-  id: string,
-  label: string,
-  icon: LucideIcon,
-  onClick?: () => void,
-}
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  onClick?: () => void;
+};
 
 const ModalAdd = ({ action }: { action: actionType }) => {
   const Icon = action.icon;
@@ -65,43 +76,42 @@ const ModalAdd = ({ action }: { action: actionType }) => {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};
 
-const ModalShare = (
-  {
-    open,
-    onOpenChange
-  }: {
-    open: boolean,
-    onOpenChange: (open: boolean) => void
-  }) => {
+const ModalShare = ({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
   const socialItems = [
     {
       icon: <i className="fa-brands fa-facebook-f text-white text-lg"></i>,
       color: "bg-blue-600 hover:bg-blue-600/80",
-      name: "Facebook"
+      name: "Facebook",
     },
     {
       icon: <i className="fa-brands fa-x-twitter text-white text-lg"></i>,
       color: "bg-black hover:bg-zinc-950",
-      name: "Twitter"
+      name: "Twitter",
     },
     {
       icon: <i className="fa-brands fa-telegram text-white text-lg"></i>,
       color: "bg-sky-500 hover:bg-sky-500/80",
-      name: "Telegram"
+      name: "Telegram",
     },
     {
       icon: <i className="fa-brands fa-reddit-alien text-white text-lg"></i>,
       color: "bg-orange-600 hover:bg-orange-600/80",
-      name: "Reddit"
+      name: "Reddit",
     },
     {
       icon: <i className="fa-solid fa-share-nodes text-white text-lg"></i>,
       color: "bg-neutral-800 hover:bg-neutral-800/80",
-      name: "More..."
+      name: "More...",
     },
-  ]
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -115,27 +125,61 @@ const ModalShare = (
         <div className="flex items-center justify-center gap-2 pt-2">
           {socialItems.map((item, index) => {
             return (
-              <Button key={index} variant={"ghost"} className={cn(item.color, "cursor-pointer transition-transform duration-240 ease-in hover:-translate-y-1.5")}>
+              <Button
+                key={index}
+                variant={"ghost"}
+                className={cn(
+                  item.color,
+                  "cursor-pointer transition-transform duration-240 ease-in hover:-translate-y-1.5"
+                )}
+              >
                 {item.icon}
               </Button>
-            )
+            );
           })}
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
 export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   const [liked, setLiked] = useState(false);
   const [showShare, setShowShare] = useState(false);
 
+  //luong add
+  const { favoriteList, fetchFavoriteList } = userFavoriteStore();
+  const { filmData } = useFilmStore();
+
+  useEffect(() => {
+    fetchFavoriteList();
+  }, []);
+
+  useEffect(() => {
+    let likeStatus = false;
+    likeStatus =
+      favoriteList.findIndex((f) => f.filmId === filmData?.film.filmId) !== -1
+        ? true
+        : false;
+
+    setLiked(likeStatus);
+  }, [favoriteList]);
+
+  const hanhleToggleFavorite = async (filmId: string) => {
+    await userServices.toggleFavoriteFilm(filmId);
+    fetchFavoriteList();
+  };
+  //end luong add
   const actions: actionType[] = [
     {
       id: "like",
       label: "Yêu thích",
       icon: Heart,
-      onClick: () => setLiked(!liked),
+      onClick: () => {
+        if (filmData?.film.filmId) {
+          hanhleToggleFavorite(filmData.film.filmId); //luong addd
+        }
+      },
     },
     {
       id: "add",
@@ -154,21 +198,21 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
       icon: MessageSquare,
       onClick: () => {
         eventBus.emit("switchTab", "comments");
-        document.getElementById("comment-section")?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("comment-section")
+          ?.scrollIntoView({ behavior: "smooth" });
       },
     },
   ];
-
   return (
     <>
       <div className="flex items-center justify-between w-full mt-4 md:px-6">
         <div className="flex items-center justify-center">
           <button
-            onClick={() => { }}
+            onClick={() => {}}
             className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 ease-in-out cursor-pointer"
           >
-            <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent">
-            </span>
+            <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent"></span>
             Xem Ngay
           </button>
 
@@ -177,8 +221,8 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
               const Icon = action.icon;
               const isLiked = action.id === "like" && liked;
 
-              if (action.id === 'add') {
-                return <ModalAdd key={action.id} action={action} />
+              if (action.id === "add") {
+                return <ModalAdd key={action.id} action={action} />;
               }
 
               return (
@@ -209,14 +253,18 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
           className="px-3 py-4 bg-indigo-800 hover:bg-indigo-800/90 rounded-full group"
           onClick={() => {
             eventBus.emit("switchTab", "ratings");
-            document.getElementById("rating-section")?.scrollIntoView({ behavior: "smooth" });
+            document
+              .getElementById("rating-section")
+              ?.scrollIntoView({ behavior: "smooth" });
           }}
         >
           <p className="flex items-center justify-center gap-1">
             <Star className="text-yellow-500" />
             4.0
           </p>
-          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">Đánh giá</p>
+          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
+            Đánh giá
+          </p>
         </Button>
       </div>
 

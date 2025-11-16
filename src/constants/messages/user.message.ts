@@ -18,3 +18,9 @@ export const UpgradeVipMessage = {
     "Thanh toán thành công. Chúc mừng bạn đã trở thành tài khoản VIP.",
   paymentFailed: "Thanh toán thất bại.",
 };
+
+export const FavoriteListMessage = {
+  deleteSucess: "Đã xóa phim khỏi danh sách yêu thích",
+  addSucess: "Đã thêm phim vào danh sách yêu thích",
+  error: "Có lỗi xảy ra khi thêm/xóa phim yêu thích",
+};
