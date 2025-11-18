@@ -1,5 +1,4 @@
 import { MainSection } from "./_components/mainSection";
-import { ExitButton } from "./_components/exitButton";
 
 
 interface LiveRoomPageProps {
@@ -13,7 +12,6 @@ const LiveRoomPage = async ({ params }: LiveRoomPageProps) => {
 
   return (
     <div className="text-white">
-      {/* <ExitButton /> */}
       <MainSection roomId={roomId} />
     </div>
   )

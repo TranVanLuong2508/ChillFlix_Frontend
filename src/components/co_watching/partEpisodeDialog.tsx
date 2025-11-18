@@ -34,16 +34,17 @@ export const PartEpisodeDialog = ({
         </DialogHeader>
         <div>
           <Select value={part} onValueChange={setPart}>
-            <SelectTrigger className="w-[120px]">
+            <SelectTrigger className="w-[120px] border-amber-300">
               <SelectValue placeholder="Chọn phần" />
             </SelectTrigger>
-            <SelectContent className="z-10000 bg-[#282b3a]/50 backdrop-blur-sm  border-0 text-white ring-1 ring-zinc-400">
+            <SelectContent className="z-10000 bg-[#282b3a]/50 backdrop-blur-sm  border-0 text-white ring-1 ring-amber-400/50">
               <SelectGroup>
                 {[...Array(2)].map((p, index) => (
                   <SelectItem
                     key={index}
                     // value={(p.partNumber).toString()}
                     value={(index + 1).toString()}
+                    className="focus:bg-amber-400"
                   >
                     {/* {p.title} */}
                     {index + 1}

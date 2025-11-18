@@ -53,7 +53,7 @@ const StreamInfo = ({
           </Button>
           <Button
             variant={"ghost"}
-            className="flex gap-2 justify-center cursor-pointer"
+            className="flex gap-2 justify-center cursor-pointer hover:bg-amber-400"
             onClick={() => onOpenList(true)}
           >
             <ListVideo />

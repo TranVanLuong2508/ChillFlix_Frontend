@@ -17,7 +17,7 @@ const CreateCo_WatchingPage = () => {
           "col-span-5 rounded-3xl bg-[#212a56] overflow-hidden transition-all duration-240 ease",
           "hover:shadow-[0px_0px_22px_0px_rgba(234,_179,_8,_1)] ring-1 ring-offset-transparent hover:ring-amber-400"
         )}>
-          <FilmCard />
+          {/* <FilmCard /> */}
         </div>
         <div className="col-span-7 rounded-3xl">
           <FormCreateRoom />

@@ -45,13 +45,17 @@ const Header = ({
         </button>
       </div>
       <Select value={selectedPart} onValueChange={onChangeSelectPart}>
-        <SelectTrigger className="w-[120px]">
+        <SelectTrigger className="w-[120px] border-amber-300">
           <SelectValue placeholder="Chọn phần" />
         </SelectTrigger>
-        <SelectContent className="z-10000">
+        <SelectContent className="z-10000  bg-[#282b3a]/50 backdrop-blur-sm  border-0 text-white ring-1 ring-amber-400/50">
           <SelectGroup>
             {part.map((p, index) => (
-              <SelectItem key={index} value={(p.partNumber).toString()}>
+              <SelectItem
+                key={index}
+                value={(p.partNumber).toString()}
+                className="focus:bg-amber-400"
+              >
                 {p.title}
               </SelectItem>
             ))}
@@ -152,14 +156,14 @@ const PlayListNav = ({
     >
       <div
         className={cn(
-          "absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300",
+          "absolute inset-0 bg-zinc-950/10 backdrop-blur-sm transition-opacity duration-300",
           open ? "opacity-100" : "opacity-0"
         )}
         onClick={() => onOpenChange(false)}
       ></div>
       <div
         className={cn(
-          "bg-zinc-500/20 backdrop-blur-md text-white flex flex-col gap-4 transition ease-in-out absolute",
+          "bg-zinc-800/60 backdrop-blur-md text-white flex flex-col gap-4 transition ease-in-out absolute",
           "inset-y-0 right-0 w-3/4 sm:max-w-sm px-6 py-8 my-6 mr-6 rounded-2xl overflow-hidden",
           "transform transition-all duration-300 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
