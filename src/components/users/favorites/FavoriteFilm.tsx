@@ -24,7 +24,6 @@ export default function FavoriteFilms({
     fetchFilmList();
   };
 
-  console.log("Chekc loadinh", isLoading);
   return (
     <div className="flex-1">
       <h1 className="text-2xl font-bold text-white mb-6">Phim Yêu thích</h1>

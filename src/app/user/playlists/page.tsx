@@ -1,31 +1,36 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import PlaylistSidebar from "@/components/users/sidebar"
-import ProfileRight from "@/components/users/profile-right"
-import Content from "@/components/users/content"
+import { useEffect, useState } from "react";
+import PlaylistSidebar from "@/components/users/sidebar";
+import { useAuthStore } from "@/stores/authStore";
+import { userPlaylistStore } from "@/stores/playlistStore";
+import PlaylistContent from "@/components/users/playlists/PlayListContent";
 export default function ProfilePage() {
-  const [userData, setUserData] = useState({ fullName: "User", email: "user@example.com" })
+  const { authUser, isAuthenticated } = useAuthStore();
+  const [userEmail, setUserEmail] = useState("");
+  const [userFullName, setUserFullName] = useState("");
+  const { userPlaylists, fetchPlaylists, isLoadingPlaylist } =
+    userPlaylistStore();
 
   useEffect(() => {
-    const authUser = localStorage.getItem("auth-storage")
-    if (authUser) {
-      const user = JSON.parse(authUser)
-      console.log(user.state.authUser)
+    if (!isAuthenticated || !authUser) return;
 
-      setUserData({
-        fullName: user.state.authUser.fullName || "User",
-        email: user.state.authUser.email || "user@example.com",
-      })
-    }
-  }, [])
+    setUserEmail(authUser.email);
+    setUserFullName(authUser.fullName);
+
+    fetchPlaylists();
+  }, [authUser]);
 
   return (
     <div className="min-h-screen p-8" style={{ backgroundColor: "#1a1d24" }}>
       <div className="flex gap-8 max-w-7xl mx-auto">
-        <PlaylistSidebar userName={userData.fullName} userEmail={userData.email} />
-        <Content />
+        <PlaylistSidebar userName={userFullName} userEmail={userEmail} />{" "}
+        <PlaylistContent
+          userPlaylists={userPlaylists}
+          fetchPlaylists={fetchPlaylists}
+          isLoadingPlaylist={isLoadingPlaylist}
+        />
       </div>
     </div>
-  )
+  );
 }

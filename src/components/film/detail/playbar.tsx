@@ -33,6 +33,11 @@ import { userFavoriteStore } from "@/stores/favoriteStore";
 import { useParams } from "next/navigation";
 import { userServices } from "@/services";
 import { useFilmStore } from "@/stores/filmStore";
+import { userPlaylistStore } from "@/stores/playlistStore";
+import { toast } from "sonner";
+import { IPlaylist } from "@/types/user.type";
+import { PlayListMessage } from "@/constants/messages/user.message";
+import CreatePlaylistModal from "@/components/users/playlists/CreatePlaylistModal";
 
 interface PlayBarProps {
   activeTab: "comments" | "ratings";
@@ -46,37 +51,133 @@ type actionType = {
   onClick?: () => void;
 };
 
+//luong add
+
 const ModalAdd = ({ action }: { action: actionType }) => {
   const Icon = action.icon;
 
+  const { filmData } = useFilmStore();
+  const { userPlaylists, fetchPlaylists } = userPlaylistStore();
+
+  const [openCreate, setOpenCreate] = useState(false);
+
+  useEffect(() => {
+    fetchPlaylists();
+  }, []);
+
+  const handleToggleFilm = async (
+    playlistId: string,
+    filmId: string,
+    isCheck: boolean
+  ) => {
+    if (!filmId || !playlistId) return;
+    try {
+      if (isCheck) {
+        const res = await userServices.CallRemoveFilmFromPlaylist(
+          playlistId,
+          filmId
+        );
+        if (res && res?.EC === 1) {
+          toast.success(PlayListMessage.deleteSucess);
+        }
+      } else {
+        const res = await userServices.CallAddFilmToPlaylist(
+          playlistId,
+          filmId
+        );
+        if (res && res?.EC === 1) {
+          toast.success(PlayListMessage.addSucess);
+        }
+      }
+      fetchPlaylists();
+    } catch (err) {
+      console.log("Error toggle playlist:", err);
+      toast.error("Lỗi thao tác");
+    }
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl text-white transition-all duration-300 ease-in-out cursor-pointer hover:text-yellow-400 hover:text-shadow-[0_0_25px_rgba(250,204,21,0.4)] focus:outline-none focus:ring-0">
-          <Icon size={18} strokeWidth={2} />
-          <span className="text-xs mt-1">{action.label}</span>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        side="bottom"
-        align="center"
-        sideOffset={0}
-        className="w-52 bg-zinc-600/10 backdrop-blur-md border border-white/25 text-gray-200 rounded-2xl fade-in slide-in-from-bottom-2 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 duration-160 ease-in-out p-3"
-      >
-        <DropdownMenuLabel className="flex justify-between text-xs uppercase tracking-wide text-gray-400 px-1">
-          <span>Danh sách</span>
-          <span className="text-gray-500 font-normal">0/5</span>
-        </DropdownMenuLabel>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl text-white transition-all duration-300 ease-in-out cursor-pointer hover:text-yellow-400 hover:text-shadow-[0_0_25px_rgba(250,204,21,0.4)] focus:outline-none focus:ring-0">
+            <Icon size={18} strokeWidth={2} />
+            <span className="text-xs mt-1">{action.label}</span>
+          </button>
+        </DropdownMenuTrigger>
 
-        <DropdownMenuSeparator className="my-1 bg-zinc-500 mb-3" />
+        <DropdownMenuContent
+          side="bottom"
+          align="center"
+          sideOffset={0}
+          className="w-60 bg-zinc-700/30 backdrop-blur-md border border-white/20 text-gray-200 rounded-2xl p-3 shadow-xl"
+        >
+          <DropdownMenuLabel className="flex justify-between text-xs uppercase tracking-wide text-gray-400 px-1">
+            <span>Danh sách</span>
+            <span className="text-gray-500 font-normal">
+              {userPlaylists.length}/5
+            </span>
+          </DropdownMenuLabel>
 
-        <DropdownMenuItem className="flex justify-center p-2 font-medium rounded-md cursor-pointer text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_12px_rgba(250,204,21,0.45)] focus:bg-yellow-400 focus:text-black transition-all duration-200 ease-in-out">
-          + Thêm mới
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuSeparator className="my-2 bg-zinc-500" />
+
+          <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
+            {userPlaylists &&
+              userPlaylists.map((pl) => {
+                const isCheck =
+                  pl.films.findIndex(
+                    (item) => item === filmData?.film.filmId
+                  ) !== -1
+                    ? true
+                    : false;
+                return (
+                  <div
+                    key={pl.playlistId}
+                    className="flex items-center gap-2 cursor-pointer group"
+                    onClick={() => {
+                      if (filmData?.film.filmId) {
+                        handleToggleFilm(
+                          pl.playlistId,
+                          filmData?.film.filmId,
+                          isCheck
+                        );
+                      }
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isCheck}
+                      readOnly
+                      className="w-4 h-4 accent-yellow-400 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-200 group-hover:text-yellow-300 transition">
+                      {pl.playlistName}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+
+          <DropdownMenuSeparator className="my-3 bg-zinc-600" />
+
+          <DropdownMenuItem
+            onClick={() => setOpenCreate(true)}
+            className="flex justify-center p-2 font-medium rounded-md cursor-pointer text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_12px_rgba(250,204,21,0.45)] focus:bg-yellow-400 focus:text-black transition-all duration-200 ease-in-out"
+          >
+            + Thêm mới
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <CreatePlaylistModal
+        open={openCreate}
+        onClose={() => setOpenCreate(false)}
+      />
+    </>
   );
 };
+
+//end luong add
 
 const ModalShare = ({
   open,

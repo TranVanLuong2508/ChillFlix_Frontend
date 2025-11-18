@@ -39,7 +39,7 @@ export default function Header() {
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
   const { openLoginModal } = useAuthModalStore();
-  const { goFavorite } = useAppRouter();
+  const { goFavorite, goPlaylist } = useAppRouter();
 
   //close/open dropdown when change page
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -472,31 +472,6 @@ export default function Header() {
                             Nâng cấp ngay
                           </button>
                         </div>
-                        {/* Balance Section */}
-                        {/* <div className="px-4 py-3 border-b border-[#2a3040]/50 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded flex items-center justify-center">
-                              <span className="text-[#0f1419] text-xs font-bold">
-                                $
-                              </span>
-                            </div>
-                            <span className="text-gray-300 text-sm">Số dư</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-yellow-400 font-semibold">
-                              0
-                            </span>
-                            <div className="w-5 h-5 bg-[#2a3040] rounded-full flex items-center justify-center">
-                              <span className="text-yellow-400 text-xs font-bold">
-                                ₽
-                              </span>
-                            </div>
-                            <button className="bg-[#2a3040] text-yellow-400 text-xs font-medium px-2 py-1 rounded hover:bg-[#3a4050] transition flex items-center text-[12px]">
-                              <Plus strokeWidth={1} /> Nạp
-                            </button>
-                          </div>
-                        </div> */}
-                        {/* Menu Items */}
                         <div className="py-2">
                           <button
                             onClick={goFavorite}
@@ -507,7 +482,10 @@ export default function Header() {
                             </span>
                             <span>Yêu thích</span>
                           </button>
-                          <button className="w-full flex cursor-pointer items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                          <button
+                            onClick={goPlaylist}
+                            className="w-full flex cursor-pointer items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm"
+                          >
                             <span className="text-lg">
                               <Plus />
                             </span>
