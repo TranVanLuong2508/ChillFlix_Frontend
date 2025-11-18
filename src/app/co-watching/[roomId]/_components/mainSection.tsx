@@ -11,8 +11,6 @@ import { useWatchTogether } from "@/hooks/useWatchTogether";
 import Player from "./player";
 import { useCoWatchingStore } from "@/stores/co-watchingStore";
 import { useFilmStore } from "@/stores/filmStore";
-import { Loader2 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import Loading from "../loading";
 
 interface MainSectionProps {
@@ -46,17 +44,19 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
 
   const { handleRemoteEvent } = useVideoSyncHandler();
 
-  const { emitSync, isConnected, isReady, socketId } = useWatchTogether(roomId, async (event: SyncEvent) => {
-    await handleRemoteEvent({
-      event,
-      art: artInstanceRef.current,
-      emitSync,
-      syncMode,
-      isHandlingRemoteEvent,
-      hasInitialSynced,
-      onShowInteractionPrompt: setShowInteractionPrompt
-    });
-  }
+  const { emitSync, isConnected, isReady, socketId } = useWatchTogether(
+    roomId,
+    async (event: SyncEvent) => {
+      await handleRemoteEvent({
+        event,
+        art: artInstanceRef.current,
+        emitSync,
+        syncMode,
+        isHandlingRemoteEvent,
+        hasInitialSynced,
+        onShowInteractionPrompt: setShowInteractionPrompt
+      });
+    }
   );
 
   const {
@@ -98,18 +98,15 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
   }
 
   return (
-    <div className="">
-      <div className="px-4 pb-10">
-        <Player
-          dataRoom={dataRoom}
-          handlePlay={handlePlay}
-          handlePause={handlePause}
-          handleArtReady={handleArtReady}
-          handleSeek={handleSeek}
-          handleManualSync={handleManualSync}
-        />
-      </div>
-
+    <div className="px-10 pb-10 pt-6">
+      <Player
+        dataRoom={dataRoom}
+        handlePlay={handlePlay}
+        handlePause={handlePause}
+        handleArtReady={handleArtReady}
+        handleSeek={handleSeek}
+        handleManualSync={handleManualSync}
+      />
     </div>
   )
 }

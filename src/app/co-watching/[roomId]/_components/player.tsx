@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Eye, Tv } from "lucide-react";
 import Artplayer from "artplayer";
@@ -11,10 +11,10 @@ import StreamInfo from "./streamInfo";
 import { CopyButton } from "./copy-button";
 import DetailNav from "./detailFilm";
 
-import { useCoWatchingStore } from "@/stores/co-watchingStore";
-import PlayListNav from "./playListNav";
 import { roomRes } from "@/types/co_watching.type";
 import { FilmDataStream } from "@/types/film.type";
+import { useFilmStore } from "@/stores/filmStore";
+import PlayListNav from "./playListNav";
 
 const ArtPlayerClient = dynamic(
   () => import("./ArtPlayerClient"),
@@ -63,62 +63,98 @@ const Player = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenListPart, setIsOpenListPart] = useState(false);
 
-  return (
-    <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
-      <div className="relative group">
-        <StreamInfo
-          name={dataRoom.room.name}
-          filmTitle={dataRoom.filmData.film.title}
-          episodeNumber={dataRoom.room.episodeNumber}
-          partNumber={dataRoom.room.partNumber}
-          onOpenChange={setIsOpen}
-          onOpenList={setIsOpenListPart}
-        />
-        <DetailNav
-          open={isOpen}
-          onOpenChange={setIsOpen}
-          film={dataRoom.filmData}
-        />
-        <PlayListNav
-          currentPart={(dataRoom.room.partNumber).toString()}
-          currentEpisode={(dataRoom.room.episodeNumber).toString()}
-          open={isOpenListPart}
-          onOpenChange={setIsOpenListPart}
+  const [currentPart, setCurrentPart] = useState(dataRoom.room.partNumber);
+  const [currentEpisode, setCurrentEpisode] = useState(dataRoom.room.episodeNumber);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
-        />
-        <div className="relative">
-          <ArtPlayerClient
-            src="https://stream.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ.m3u8"
-            poster="/co-watching/poster.png"
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onSeek={handleSeek}
-            onReady={handleArtReady}
-            handleManualSync={handleManualSync}
+  const { partData } = useFilmStore();
+
+  useEffect(() => {
+    if (!partData?.length) {
+      setVideoUrl(null);
+      return;
+    }
+
+    const selectedPart = partData.find((part) => part.partNumber === currentPart);
+    const selectedEpisode = selectedPart?.episodes.find(
+      (episode) => episode.episodeNumber === currentEpisode
+    );
+
+    setVideoUrl(selectedEpisode?.videoUrl ?? null);
+  }, [partData, currentPart, currentEpisode]);
+
+
+  const handleChangeEpisode = (part: number, episode: number) => {
+    setCurrentPart(part);
+    setCurrentEpisode(episode);
+  }
+
+  return (
+    <div>
+      <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
+        <div className="relative group">
+          <StreamInfo
+            name={dataRoom.room.name}
+            filmTitle={dataRoom.filmData.film.title}
+            episodeNumber={dataRoom.room.episodeNumber}
+            partNumber={dataRoom.room.partNumber}
+            onOpenChange={setIsOpen}
+            onOpenList={setIsOpenListPart}
           />
-        </div>
-        <div className="p-4 bg-zinc-950">
-          <div className="flex items-center justify-between ">
-            <div className="pl-2 flex items-center gap-4">
-              <Avatar className="size-10">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="font-semibold">Quân đẹp trai</h1>
-                <p className="text-sm text-zinc-400">tạo 1 ngày trước</p>
+          <DetailNav
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            film={dataRoom.filmData}
+          />
+          <PlayListNav
+            title={dataRoom.filmData.film.title}
+            currentPart={currentPart.toString()}
+            currentEpisode={(currentEpisode).toString()}
+            handleChangeEpisode={handleChangeEpisode}
+            open={isOpenListPart}
+            onOpenChange={setIsOpenListPart}
+
+          />
+          <div className="relative">
+            {videoUrl ? (
+              <ArtPlayerClient
+                src={videoUrl}
+                poster="/co-watching/poster.png"
+                onPlay={handlePlay}
+                onPause={handlePause}
+                onSeek={handleSeek}
+                onReady={handleArtReady}
+                handleManualSync={handleManualSync}
+              />
+            ) : (
+              <div className="flex h-[700px] items-center justify-center bg-zinc-900 text-white">
+                Đang tải video...
               </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button
-                variant={"ghost"}
-                size={"sm"}
-                className="hover:bg-transparent hover:text-white"
-              >
-                <Eye className="size-5" />
-                <span className="text-lg">10</span>
-              </Button>
-              <CopyButton />
+            )}
+          </div>
+          <div className="p-4 bg-zinc-950">
+            <div className="flex items-center justify-between ">
+              <div className="pl-2 flex items-center gap-4">
+                <Avatar className="size-10">
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h1 className="font-semibold">Quân đẹp trai</h1>
+                  <p className="text-xs text-zinc-400">tạo 1 ngày trước</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button
+                  variant={"ghost"}
+                  size={"sm"}
+                  className="hover:bg-transparent hover:text-white"
+                >
+                  <Eye className="size-4" />
+                  <span className="text-sm">10</span>
+                </Button>
+                <CopyButton />
+              </div>
             </div>
           </div>
         </div>

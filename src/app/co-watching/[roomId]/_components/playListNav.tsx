@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -14,25 +17,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { X } from "lucide-react";
 import { PartDetail } from "@/types/part.type";
 import { useFilmStore } from "@/stores/filmStore";
-import { useEffect, useState } from "react";
 import { EpisodeDetail } from "@/types/episode.type";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { usePlayerStore } from "@/stores/playerStore";
 
-interface PlayListNavProps {
-  open: boolean;
-  currentPart: string;
-  currentEpisode: string;
-
-  onOpenChange: (open: boolean) => void;
-}
 
 const Header = ({
+  title,
   part,
   selectedPart,
   onChangeSelectPart,
   onOpenChange,
 }: {
+  title: string;
   part: PartDetail[],
   selectedPart: string,
   onChangeSelectPart: (part: string) => void,
@@ -41,7 +36,7 @@ const Header = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="font-semibold text-lg">Thủy Long Ngâm</p>
+        <p className="font-semibold text-lg">{title}</p>
         <button
           className="rounded-full bg-zinc-800 ring-1 p-1 cursor-pointer hover:bg-zinc-700"
           onClick={() => onOpenChange(false)}
@@ -72,22 +67,16 @@ const Content = ({
   currentEpisode,
   isActive,
   selectedPart,
+  handleChangeEpisode,
 }: {
   listEpisode: EpisodeDetail[],
   currentEpisode: string,
   isActive: boolean,
   selectedPart: string,
+  handleChangeEpisode: (part: number, episode: number) => void;
 }) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  // Hàm thay đổi searchParams
   const handlePlayEpisode = (episodeNumber: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("ep", episodeNumber.toString());
-    params.set("p", selectedPart);
-    router.push(`${pathname}?${params.toString()}`);
+    handleChangeEpisode(+selectedPart, +episodeNumber)
   };
 
   return (
@@ -118,7 +107,26 @@ const Content = ({
   );
 };
 
-const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayListNavProps) => {
+
+interface PlayListNavProps {
+  title: string;
+  open: boolean;
+  currentPart: string;
+  currentEpisode: string;
+
+  handleChangeEpisode: (part: number, episode: number) => void;
+  onOpenChange: (open: boolean) => void;
+}
+
+const PlayListNav = ({
+  title,
+  currentPart,
+  currentEpisode,
+  open,
+
+  handleChangeEpisode,
+  onOpenChange
+}: PlayListNavProps) => {
 
   const { partData } = useFilmStore();
 
@@ -134,6 +142,8 @@ const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayLi
 
     setIsActive(selectedPart === currentPart)
   }, [selectedPart, currentPart, partData])
+
+  console.log(">>> Check data: ", partData);
 
 
   return (
@@ -156,13 +166,30 @@ const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayLi
           open ? "opacity-100" : "opacity-0"
         )}
       >
-        <Header part={partData!} onOpenChange={onOpenChange} selectedPart={selectedPart} onChangeSelectPart={setSelectedPart} />
+        <Header
+          title={title}
+          part={partData!}
+          onOpenChange={onOpenChange}
+          selectedPart={selectedPart}
+          onChangeSelectPart={setSelectedPart}
+        />
+
         {listEpisode ?
-          <Content listEpisode={listEpisode!} currentEpisode={currentEpisode} isActive={isActive} selectedPart={selectedPart} />
+          (
+            <Content
+              listEpisode={listEpisode!}
+              currentEpisode={currentEpisode}
+              isActive={isActive}
+              selectedPart={selectedPart}
+              handleChangeEpisode={handleChangeEpisode}
+            />
+          )
           :
-          <div className="font-semibold text-red-500">
-            Đã xảy ra lỗi. Vui lòng thử lại sau!
-          </div>
+          (
+            <div className="font-semibold text-red-500">
+              Đã xảy ra lỗi. Vui lòng thử lại sau!
+            </div>
+          )
         }
       </div>
     </div>
