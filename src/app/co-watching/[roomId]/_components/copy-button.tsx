@@ -30,9 +30,10 @@ export const CopyButton = () => {
       disabled={!pathname || isCopied}
       variant={"ghost"}
       size={"sm"}
+      className="hover:bg-amber-400 hover:text-black"
     >
-      <Icon size={5} />
-      <span className="text-lg">Chia sẻ</span>
+      <Icon size={4} />
+      <span className="text-sm">Chia sẻ</span>
     </Button>
   )
 }

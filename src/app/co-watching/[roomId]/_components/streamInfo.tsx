@@ -1,5 +1,6 @@
 import { Film, ListVideo } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ExitButton } from "./exitButton";
 
 interface PlayerInfoProps {
   name: string;
@@ -22,19 +23,24 @@ const StreamInfo = ({
   const title = `Phần ${partNumber} - Tập ${episodeNumber} • ${filmTitle}`;
 
   return (
-    <div className="absolute w-full px-6 py-6 z-100 text-white bg-gradient-to-b from-zinc-950 via-zinc-950/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-350">
+    <div className="absolute w-full px-6 py-6 z-20 text-white bg-gradient-to-b from-zinc-950 via-zinc-950/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-350">
       <div className="flex justify-between">
-        <div className="flex flex-col justify-center gap-2 font-semibold">
-          <div className="flex items-center gap-2">
-            <div className="bg-rose-600 text-center p-0.5 px-1.5 rounded-md uppercase text-xs border border-background font-semibold tracking-wide"
-            >
-              live
-            </div>
-            <p className="text-sm">{name}</p>
+        <div className="group/info_bar flex gap-3">
+          <div className="">
+            <ExitButton />
           </div>
-          <p className="text-xs font-normal text-zinc-300">
-            {title}
-          </p>
+          <div className="flex flex-col justify-center gap-2 font-semibold">
+            <div className="flex items-center gap-2">
+              <div className="bg-rose-600 text-center p-0.5 px-1.5 rounded-md uppercase text-xs border border-background font-semibold tracking-wide"
+              >
+                live
+              </div>
+              <p className="text-sm">{name}</p>
+            </div>
+            <p className="text-xs font-normal text-zinc-300">
+              {title}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button

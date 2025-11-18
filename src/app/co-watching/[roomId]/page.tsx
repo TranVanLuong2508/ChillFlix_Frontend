@@ -13,7 +13,7 @@ const LiveRoomPage = async ({ params }: LiveRoomPageProps) => {
 
   return (
     <div className="text-white">
-      <ExitButton />
+      {/* <ExitButton /> */}
       <MainSection roomId={roomId} />
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { CircleChevronLeft } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function ExitButton() {
   const router = useRouter();
@@ -12,11 +13,18 @@ export function ExitButton() {
 
   return (
     <button
-      className="py-6 pl-10 flex items-center gap-2 cursor-pointer"
+      className="flex items-center gap-2 cursor-pointer"
       onClick={handleExit}
+      type="button"
     >
-      <CircleChevronLeft />
-      <h1 className="text-lg font-semibold">Thoát phòng live</h1>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <CircleChevronLeft />
+        </TooltipTrigger>
+        <TooltipContent className="bg-amber-400 text-black">
+          <p>Quay về trang danh sách live</p>
+        </TooltipContent>
+      </Tooltip>
     </button>
   );
 }
