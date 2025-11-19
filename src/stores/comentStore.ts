@@ -173,7 +173,6 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
     createComment: async (payload) => {
       set({ isLoading: true, error: null });
       try {
-        console.log("[COMMENT SOCKET] Creating comment:", payload);
         const res = await CommentServices.createComment(payload);
         if (res.EC !== 1 || !res.data) {
           set({
@@ -245,9 +244,6 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     reactComment: async (commentId, type) => {
       try {
-        console.log(
-          `[COMMENT SOCKET] Reacting to comment ${commentId} with type ${type}`
-        );
         const res = await CommentServices.reactToComment(commentId, type);
         if (res.EC !== 1 || !res.data) {
           set({ error: res.EM || "Error reacting to comment" });
@@ -309,10 +305,6 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     createCommentRealtime: (newComment: BackendComment) =>
       set((state) => {
-        console.log(
-          "[COMMENT SOCKET] Received createCommentRealtime:",
-          newComment
-        );
         const mappedComment = mapBackendToItem(newComment);
         const exists = existsInTree(state.comments, mappedComment.id);
         if (exists) {
@@ -350,11 +342,9 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     replyCommentRealtime: (data) =>
       set((state) => {
-        console.log("[COMMENT SOCKET] Received replyCommentRealtime:", data);
         const mappedComment = mapBackendToItem(data.comment);
         const exists = existsInTree(state.comments, mappedComment.id);
         if (exists) {
-          console.log("[COMMENT SOCKET] Reply already exists, skipping");
           return state;
         }
 
@@ -384,7 +374,6 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
     },
 
     reactCommentRealtime: (reaction) => {
-      console.log("[COMMENT SOCKET] Received reactCommentRealtime:", reaction);
       const { commentId, totalLike, totalDislike, userReaction, userId } =
         reaction;
       const currentUser = useAuthStore.getState().authUser;

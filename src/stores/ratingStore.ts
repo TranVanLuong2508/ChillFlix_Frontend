@@ -91,10 +91,6 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
         const response = (await ratingService.createRating(data)) as any;
 
         if (response.EC === 1) {
-          console.log(
-            "[RATING SOCKET] Created rating, waiting for socket broadcast:",
-            response
-          );
           set({ isLoading: false });
           return response;
         } else {
@@ -120,10 +116,6 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
         const response = (await ratingService.deleteRating(ratingId)) as any;
 
         if (response.EC === 1) {
-          console.log(
-            "[RATING SOCKET] Deleted rating, waiting for socket broadcast:",
-            response
-          );
           set({ isLoading: false });
           return response;
         } else {
@@ -144,21 +136,15 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
     },
 
     updateRatingRealtime: (data) => {
-      console.log("[RATING SOCKET] Received updateRatingRealtime:", data);
       set((state) => {
         const { averageRating, totalRatings, newRating } = data;
 
         if (newRating) {
-          console.log("[RATING SOCKET] Processing new rating:", newRating);
           const existingIndex = state.ratings.findIndex(
             (r) => r.ratingId === newRating.ratingId
           );
 
           if (existingIndex >= 0) {
-            console.log(
-              "[RATING SOCKET] Updating existing rating at index",
-              existingIndex
-            );
             const updatedRatings = [...state.ratings];
             updatedRatings[existingIndex] = newRating;
             return {
@@ -169,7 +155,6 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
             };
           }
 
-          console.log("[RATING SOCKET] Adding new rating to list");
           return {
             ...state,
             ratings: [newRating, ...state.ratings],
@@ -178,7 +163,6 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
           };
         }
 
-        console.log("[RATING SOCKET] Updating only stats (no new rating)");
         return {
           ...state,
           averageRating,
@@ -188,7 +172,6 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
     },
 
     deleteRatingRealtime: (ratingId: string) => {
-      console.log("[RATING SOCKET] Received deleteRatingRealtime:", ratingId);
       set((state) => ({
         ...state,
         ratings: state.ratings.filter((r) => r.ratingId !== ratingId),

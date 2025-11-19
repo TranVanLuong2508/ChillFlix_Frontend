@@ -149,7 +149,6 @@ export default function Header() {
     };
 
     const handleReplyNotification = async (data: any) => {
-      console.log('[COMMENT SOCKET] Received reply notification:', data);
       if (!authUser || String(data.targetUserId) !== String(authUser.userId)) return;
       const message = `${data.replyComment.user.fullName} đã trả lời bình luận của bạn: "${data.replyComment.content}"`;
 
@@ -162,7 +161,6 @@ export default function Header() {
     };
 
     const handleReactionNotification = async (data: any) => {
-      console.log('[COMMENT SOCKET] Received reaction notification:', data);
       if (!authUser || String(data.targetUserId) !== String(authUser.userId)) return;
       const reactionText = data.reactionType === 'LIKE' ? 'thích' : 'không thích';
       const message = `${data.reactionUser.fullName} đã ${reactionText} bình luận của bạn`;
@@ -560,7 +558,6 @@ export default function Header() {
                                 const isOnSameFilm = n.result?.slug && currentPath.includes(`/film-detail/${n.result.slug}`);
 
                                 if (isOnSameFilm) {
-                                  // Switch to comments tab first
                                   const { eventBus } = await import('@/lib/eventBus');
                                   eventBus.emit('switchTab', 'comments');
 
