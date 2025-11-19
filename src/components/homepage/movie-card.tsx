@@ -20,7 +20,6 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
         if (typeof genre === "string") return genre
         return genre?.valueVi || genre?.valueEn || ""
     }
-    console.log(item.badges)
     return (
         <div
             ref={cardContainerRef}
@@ -28,8 +27,7 @@ export default function MovieCard({ item, badgeColor = "bg-blue-600", showProgre
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div className="relative overflow-visible rounded-lg bg-slate-800 transition-all duration-300 w-90 h-48"
-            >
+            <div className="relative overflow-visible rounded-lg bg-slate-800 transition-all duration-300 w-90 h-48">
                 {/* Image */}
                 <div className="relative w-full h-full  bg-slate-700 rounded-lg">
                     <img
