@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-
+@config "../../tailwind.config.ts"; /* Custom animate tailwind */
 /* close radix ul scrollbar */
 
 :root {

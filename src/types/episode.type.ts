@@ -6,3 +6,11 @@ export interface EpisodeDetail {
   videoUrl: string;
   thumbUrl: string;
 }
+
+export interface EpisodeStream extends EpisodeDetail {
+  part: {
+    id: string;
+    title: string;
+    partNumber: number;
+  }
+}
