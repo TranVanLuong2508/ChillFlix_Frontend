@@ -29,7 +29,6 @@ export default function MovieCard({
     if (typeof genre === "string") return genre;
     return genre?.valueVi || genre?.valueEn || "";
   };
-  console.log(item.badges);
   return (
     <div
       ref={cardContainerRef}

@@ -37,6 +37,12 @@ const filmServices = {
   async getHeroSlides() {
     return publicAxios.get(`${baseURL}/films?current=1&pageSize=5`);
   },
+  async getByCountry(countryName: string, page: number = 1, pageSize: number = 20) {
+    return publicAxios.get(`/films/by-country/${countryName}?current=${page}&pageSize=${pageSize}`);
+  },
+  async getByGenre(genreName: string, page: number = 1, pageSize: number = 20) {
+    return publicAxios.get(`/films/by-genre/${genreName}?current=${page}&pageSize=${pageSize}`);
+  },
 };
 
 export default filmServices;
