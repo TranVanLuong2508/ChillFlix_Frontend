@@ -364,9 +364,6 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
           <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
             Đánh giá {totalRatings > 0 && `(${totalRatings})`}
           </p>
-          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
-            Đánh giá
-          </p>
         </Button>
       </div>
 
