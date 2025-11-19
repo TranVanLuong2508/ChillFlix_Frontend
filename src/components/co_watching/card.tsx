@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button"
+import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
 import { EyeIcon } from "lucide-react"
 import Link from "next/link"
 
 interface CardProps {
   thumbUrl: string;
   name: string;
-  duration: number;
+  createdAt: string;
   filmTitle: string;
   view?: number;
   hostName: string;
@@ -15,7 +17,7 @@ interface CardProps {
 export const Card = ({
   thumbUrl,
   name,
-  duration,
+  createdAt,
   filmTitle,
   view = 0,
   hostName,
@@ -29,14 +31,14 @@ export const Card = ({
             <img
               src={thumbUrl}
               alt="thumbURL"
-              className="object-cover object-center max-h-[250px] w-auto"
+              className="object-cover object-center max-h-[210px] w-auto"
             />
           </div>
-          <div className="absolute top-0 right-0 p-4">
+          <div className="absolute top-0 right-0 p-3">
             <Button
               variant={"ghost"}
               size={"sm"}
-              className="bg-red-600/85 hover:bg-red-600/80 hover:text-white"
+              className="bg-red-600/85 hover:bg-red-600/80 hover:text-white text-[10px] leading-0 h-6"
             >
               LIVE
             </Button>
@@ -45,17 +47,17 @@ export const Card = ({
             <Button
               variant={"ghost"}
               size={"sm"}
-              className="border border-zinc-400 hover:text-white hover:bg-transparent text-zinc-400"
+              className="border border-zinc-400 hover:text-white hover:bg-transparent text-zinc-400 text-xs"
             >
               <p className="font-semibold">{view}</p>
-              <EyeIcon className="size-4" />
+              <EyeIcon className="size-3" />
             </Button>
           </div>
         </div>
 
       </div>
       <div className="pt-2 flex items-center gap-4">
-        <div className="size-14 rounded-full overflow-hidden">
+        <div className="size-11 rounded-full overflow-hidden shrink-0">
           <img
             src="https://static.nutscdn.com/vimg/300-0/d551d3a7f93e4d6214a78456bc80cce9.jpg"
             alt="avatar"
@@ -63,9 +65,18 @@ export const Card = ({
           />
         </div>
         <div>
-          <h3 className="text-xl">{name}</h3>
-          <h3 className="text-lg font-semibold text-white/50 italic">{filmTitle}</h3>
-          <p className="text-white/50">{hostName} • 2 giờ trước</p>
+          <h3
+            className="text-[16px] overflow-hidden"
+            style={{
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: 2,
+            }}
+          >
+            {name}
+          </h3>
+          <h3 className="text-sm font-semibold text-white/50 italic">{filmTitle}</h3>
+          <p className="text-white/50 text-xs">{hostName} • {formatDistanceToNow(new Date(createdAt), { addSuffix: true, locale: vi })}</p>
         </div>
       </div>
     </Link>

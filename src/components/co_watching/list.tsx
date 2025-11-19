@@ -1,6 +1,5 @@
 "use client";
 
-import { ListVideo } from "lucide-react"
 import { Card } from "./card"
 import { useEffect, useRef, useState } from "react";
 import roomServices from "@/services/co-watching/roomService";
@@ -77,7 +76,7 @@ export const List = ({ query }: ListProps) => {
             key={i}
             thumbUrl={item.thumbUrl}
             name={item.name}
-            duration={item.duration}
+            createdAt={item.createdAt}
             filmTitle={item.film.title}
             view={100}
             hostName={item.host.fullName}
