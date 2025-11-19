@@ -458,8 +458,9 @@ export default function Header() {
                                 {authUser.fullName}
                               </h3>
                               <p className="text-gray-400 text-xs">
-                                Nâng cấp tài khoản ChillFlix để có trải nghiệm
-                                đẳng cấp hơn.
+                                {isAuthenticated && authUser.isVip
+                                  ? "Bạn đang là thành viên VIP"
+                                  : " Nâng cấp tài khoản ChillFlix để có trải nghiệm đẳng cấp hơn."}
                               </p>
                             </div>
                           </div>
@@ -469,7 +470,9 @@ export default function Header() {
                             }}
                             className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#0f1419] font-semibold py-2 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all cursor-pointer"
                           >
-                            Nâng cấp ngay
+                            {isAuthenticated && authUser.isVip
+                              ? "Xem thông tin VIP"
+                              : "Nâng cấp ngay"}
                           </button>
                         </div>
                         <div className="py-2">
