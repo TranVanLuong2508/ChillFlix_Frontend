@@ -35,7 +35,7 @@ export default function VipUpgradeContent() {
   useEffect(() => {
     fetchPlanList();
     fetchUserPlanInfor();
-  }, []);
+  }, [authUser]);
 
   useEffect(() => {
     const statusResponse = searchParams.get("responseCode");
@@ -126,7 +126,7 @@ export default function VipUpgradeContent() {
       {authUser.isVip === true ? <VipPlanInfo vipPlanUser={vipPlan} /> : <></>}
 
       {/* Confirm Purchase */}
-      {authUser.isVip === false ? (
+      {authUser.isVip === false || authUser.isVip === null ? (
         <>
           <VipBenifitBanner />
           <VipSilder
