@@ -33,15 +33,16 @@ import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 import { socket } from "@/lib/socket";
 import { useCommentStore } from "@/stores/comentStore";
-import { notificationService } from "@/services/notificationService";
-import type { Notification } from "@/types/notification.type";
+import { useNotificationStore } from "@/stores/notificationStore";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
-  const { openLoginModal } = useAuthModalStore();
+  const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const [showAllReadNotifications, setShowAllReadNotifications] = useState(false);
 
+  const { openLoginModal } = useAuthModalStore();
   const { goHome, goProfile, goUpgradeVip } = useAppRouter();
   const router = useRouter();
   const { openDrawer } = useChatDrawerStore();
@@ -60,13 +61,16 @@ export default function Header() {
     reactCommentRealtime,
   } = useCommentStore();
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [notificationPage, setNotificationPage] = useState(1);
-  const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [showAllNotifications, setShowAllNotifications] = useState(false);
-  const [showAllReadNotifications, setShowAllReadNotifications] = useState(false);
+  const {
+    notifications,
+    unreadCount,
+    fetchNotifications,
+    fetchUnreadCount,
+    markAsRead,
+    deleteNotification,
+    addNotification,
+    reset: resetNotifications,
+  } = useNotificationStore();
 
   useEffect(() => {
     fetchGenresList();
@@ -74,78 +78,23 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const fetchData = async () => {
       if (authUser?.userId) {
-        setNotifications([]);
-        setUnreadCount(0);
-
-          // Delay nhỏ để đảm bảo token đã được set
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        try {
-          const { notificationService } = await import('@/services/notificationService');
-          const [notifData, countData] = await Promise.all([
-            notificationService.getNotifications(1, 20),
-            notificationService.getUnreadCount(),
-          ]) as [any, any];
-
-          const actualData = Array.isArray(notifData?.data) ? notifData.data : notifData?.data?.data;
-          const actualMeta = notifData?.meta || notifData?.data?.meta;
-
-          if (notifData?.EC === 1 && Array.isArray(actualData)) {
-            const dbNotifications = actualData.filter(n => n.notificationId > 0);
-
-            setNotifications(dbNotifications);
-            setNotificationPage(1);
-            setHasMoreNotifications(actualMeta?.page < actualMeta?.totalPages);
-          } else {
-            setNotifications([]);
-            setHasMoreNotifications(false);
-          }
-
-          const actualCount = countData?.data?.count ?? countData?.count;
-
-          if (countData?.EC === 1 && typeof actualCount === 'number') {
-            setUnreadCount(actualCount);
-          } else {
-            setUnreadCount(0);
-          }
-        } catch (error) {
-          console.error('[NOTIFICATION] Error fetching notifications:', error);
-        }
+        await Promise.all([
+          fetchNotifications(1, 20),
+          fetchUnreadCount(),
+        ]);
       } else {
-        setNotifications([]);
-        setUnreadCount(0);
-        setNotificationPage(1);
-        setHasMoreNotifications(true);
+        resetNotifications();
       }
     };
 
-    fetchNotifications();
+    fetchData();
   }, [authUser?.userId, isAuthenticated]);
 
-  const loadMoreNotifications = async () => {
-    if (!authUser?.userId || loadingMore || !hasMoreNotifications) return;
 
-    setLoadingMore(true);
-    try {
-      const { notificationService } = await import('@/services/notificationService');
-      const nextPage = notificationPage + 1;
-      const notifData = await notificationService.getNotifications(nextPage, 20) as any;
-
-      if (notifData?.EC === 1 && notifData?.data && Array.isArray(notifData.data) && notifData.data.length > 0) {
-        setNotifications(prev => [...prev, ...notifData.data]);
-        setNotificationPage(nextPage);
-        setHasMoreNotifications(notifData.meta?.page < notifData.meta?.totalPages);
-      } else {
-        setHasMoreNotifications(false);
-      }
-    } catch (error) {
-      console.error('Error loading more notifications:', error);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
 
   useEffect(() => {
     const userId = authUser?.userId;
@@ -203,25 +152,11 @@ export default function Header() {
       console.log('[COMMENT SOCKET] Received reply notification:', data);
       if (!authUser || String(data.targetUserId) !== String(authUser.userId)) return;
       const message = `${data.replyComment.user.fullName} đã trả lời bình luận của bạn: "${data.replyComment.content}"`;
-      try {
-        const { notificationService } = await import('@/services/notificationService');
-        const [notifData, countData] = await Promise.all([
-          notificationService.getNotifications(1, 20),
-          notificationService.getUnreadCount(),
-        ]) as [any, any];
 
-        const actualData = Array.isArray(notifData?.data) ? notifData.data : notifData?.data?.data;
-        if (notifData?.EC === 1 && Array.isArray(actualData)) {
-          setNotifications(actualData.filter(n => n.notificationId > 0));
-        }
-
-        const actualCount = countData?.data?.count ?? countData?.count;
-        if (countData?.EC === 1 && typeof actualCount === 'number') {
-          setUnreadCount(actualCount);
-        }
-      } catch (error) {
-        console.error('Error fetching notifications after reply:', error);
-      }
+      await Promise.all([
+        fetchNotifications(1, 20),
+        fetchUnreadCount(),
+      ]);
 
       toast.success(message);
     };
@@ -231,32 +166,17 @@ export default function Header() {
       if (!authUser || String(data.targetUserId) !== String(authUser.userId)) return;
       const reactionText = data.reactionType === 'LIKE' ? 'thích' : 'không thích';
       const message = `${data.reactionUser.fullName} đã ${reactionText} bình luận của bạn`;
-      try {
-        const { notificationService } = await import('@/services/notificationService');
-        const [notifData, countData] = await Promise.all([
-          notificationService.getNotifications(1, 20),
-          notificationService.getUnreadCount(),
-        ]) as [any, any];
-
-        const actualData = Array.isArray(notifData?.data) ? notifData.data : notifData?.data?.data;
-        if (notifData?.EC === 1 && Array.isArray(actualData)) {
-          setNotifications(actualData.filter(n => n.notificationId > 0));
-        }
-
-        const actualCount = countData?.data?.count ?? countData?.count;
-        if (countData?.EC === 1 && typeof actualCount === 'number') {
-          setUnreadCount(actualCount);
-        }
-      } catch (error) {
-        console.error('Error fetching notifications after reaction:', error);
-      }
+      await Promise.all([
+        fetchNotifications(1, 20),
+        fetchUnreadCount(),
+      ]);
 
       toast.success(message);
     };
 
     const handleDeleteComment = ({ commentId }: any) => {
       removeCommentRealtime(commentId);
-      toast.warning("Một bình luận đã bị xóa");
+      toast.warning("Bạn đã xóa một bình luận");
     };
 
     const handleCountComments = ({ filmId, total }: any) => {
@@ -526,20 +446,8 @@ export default function Header() {
                               onClick={async () => {
                                 if (n.notificationId > 0) {
                                   try {
-                                    await notificationService.markAsRead(n.notificationId);
+                                    await markAsRead(n.notificationId);
 
-                                    setNotifications(prev => {
-                                      const updated = prev.map(notif =>
-                                        notif.notificationId === n.notificationId ? { ...notif, isRead: true } : notif
-                                      );
-                                      return updated;
-                                    });
-
-                                    const countData = await notificationService.getUnreadCount() as any;
-                                    const actualCount = countData?.data?.count ?? countData?.count;
-                                    if (countData?.EC === 1 && typeof actualCount === 'number') {
-                                      setUnreadCount(actualCount);
-                                    }
                                     if (!n.result?.filmId) {
                                       return;
                                     }
@@ -548,6 +456,9 @@ export default function Header() {
                                     const isOnSameFilm = n.result?.slug && currentPath.includes(`/film-detail/${n.result.slug}`);
 
                                     if (isOnSameFilm) {
+                                      const { eventBus } = await import('@/lib/eventBus');
+                                      eventBus.emit('switchTab', 'comments');
+
                                       setTimeout(() => {
                                         const commentElement = document.getElementById(`comment-${commentId}`);
                                         if (commentElement) {
@@ -557,16 +468,8 @@ export default function Header() {
                                           setTimeout(() => {
                                             const contentDiv = commentElement.querySelector(':scope > .flex.items-start') as HTMLElement;
                                             const target = contentDiv || commentElement;
-                                            target.style.backgroundColor = 'rgba(251, 191, 36, 0.15)';
-                                            target.style.borderRadius = '8px';
-                                            target.style.transition = 'background-color 0.3s ease';
-                                            setTimeout(() => {
-                                              target.style.backgroundColor = 'transparent';
-                                              setTimeout(() => {
-                                                target.style.transition = '';
-                                                target.style.borderRadius = '';
-                                              }, 300);
-                                            }, 2000);
+                                            target.classList.add('highlight-comment');
+                                            setTimeout(() => target.classList.remove('highlight-comment'), 2800);
                                           }, 800);
                                         }
                                       }, 100);
@@ -606,12 +509,8 @@ export default function Header() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     if (n.notificationId > 0) {
-                                      notificationService.deleteNotification(n.notificationId)
-                                        .then(() => {
-                                          setNotifications(prev => prev.filter(notif => notif.notificationId !== n.notificationId));
-                                          setUnreadCount(prev => Math.max(0, prev - 1));
-                                        })
-                                        .catch(err => console.error('Error deleting notification:', err));
+                                      deleteNotification(n.notificationId)
+                                        .catch((err: any) => console.error('Error deleting notification:', err));
                                     }
                                   }}
                                   className="text-gray-400 hover:text-red-400 transition-colors p-1 flex-shrink-0"
@@ -653,38 +552,34 @@ export default function Header() {
                             <li
                               key={n.notificationId}
                               className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all cursor-pointer opacity-70"
-                              onClick={() => {
-                                if (n.result?.filmId) {
-                                  const commentId = n.result.commentId || n.result.parentId;
-                                  const currentPath = window.location.pathname;
-                                  const isOnSameFilm = n.result?.slug && currentPath.includes(`/film-detail/${n.result.slug}`);
+                              onClick={async () => {
+                                if (!n.result?.filmId) return;
 
-                                  if (isOnSameFilm) {
-                                    setTimeout(() => {
-                                      const commentElement = document.getElementById(`comment-${commentId}`);
-                                      if (commentElement) {
-                                        const elementPosition = commentElement.getBoundingClientRect().top + window.pageYOffset;
-                                        const offsetPosition = elementPosition - 100;
-                                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                                        setTimeout(() => {
-                                          const contentDiv = commentElement.querySelector(':scope > .flex.items-start') as HTMLElement;
-                                          const target = contentDiv || commentElement;
-                                          target.style.backgroundColor = 'rgba(251, 191, 36, 0.15)';
-                                          target.style.borderRadius = '8px';
-                                          target.style.transition = 'background-color 0.3s ease';
-                                          setTimeout(() => {
-                                            target.style.backgroundColor = 'transparent';
-                                            setTimeout(() => {
-                                              target.style.transition = '';
-                                              target.style.borderRadius = '';
-                                            }, 300);
-                                          }, 2000);
-                                        }, 800);
-                                      }
-                                    }, 100);
-                                  } else if (n.result?.slug) {
-                                    router.push(`/film-detail/${n.result.slug}?commentId=${commentId}`);
-                                  }
+                                const commentId = n.result.commentId || n.result.parentId;
+                                const currentPath = window.location.pathname;
+                                const isOnSameFilm = n.result?.slug && currentPath.includes(`/film-detail/${n.result.slug}`);
+
+                                if (isOnSameFilm) {
+                                  // Switch to comments tab first
+                                  const { eventBus } = await import('@/lib/eventBus');
+                                  eventBus.emit('switchTab', 'comments');
+
+                                  setTimeout(() => {
+                                    const commentElement = document.getElementById(`comment-${commentId}`);
+                                    if (commentElement) {
+                                      const elementPosition = commentElement.getBoundingClientRect().top + window.pageYOffset;
+                                      const offsetPosition = elementPosition - 100;
+                                      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                                      setTimeout(() => {
+                                        const contentDiv = commentElement.querySelector(':scope > .flex.items-start') as HTMLElement;
+                                        const target = contentDiv || commentElement;
+                                        target.classList.add('highlight-comment');
+                                        setTimeout(() => target.classList.remove('highlight-comment'), 2800);
+                                      }, 800);
+                                    }
+                                  }, 100);
+                                } else if (n.result?.slug) {
+                                  router.push(`/film-detail/${n.result.slug}?commentId=${commentId}`);
                                 }
                               }}
                             >
@@ -699,11 +594,8 @@ export default function Header() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     if (n.notificationId > 0) {
-                                      notificationService.deleteNotification(n.notificationId)
-                                        .then(() => {
-                                          setNotifications(prev => prev.filter(notif => notif.notificationId !== n.notificationId));
-                                        })
-                                        .catch(err => console.error('Error deleting notification:', err));
+                                      deleteNotification(n.notificationId)
+                                        .catch((err: any) => console.error('Error deleting notification:', err));
                                     }
                                   }}
                                   className="text-gray-400 hover:text-red-400 transition-colors p-1 flex-shrink-0"

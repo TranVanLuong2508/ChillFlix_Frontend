@@ -233,3 +233,25 @@ input:-webkit-autofill:active {
   background-color: #3a4050;
 }
 
+/* Highlight comment animation */
+@keyframes highlight-fade {
+  0% {
+    background-color: transparent;
+  }
+  10% {
+    background-color: rgba(251, 191, 36, 0.15);
+  }
+  90% {
+    background-color: rgba(251, 191, 36, 0.15);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.highlight-comment {
+  animation: highlight-fade 2.8s ease-in-out;
+  border-radius: 8px;
+}
+
+

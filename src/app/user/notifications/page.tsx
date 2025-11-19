@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import PlaylistSidebar from "@/components/users/sidebar"
-import ProfileRight from "@/components/users/profile-right"
+import Notifications from "@/components/custom/Notification"
 
 export default function ProfilePage() {
     const [userData, setUserData] = useState({ fullName: "User", email: "user@example.com" })
@@ -24,10 +24,10 @@ export default function ProfilePage() {
         <div className="min-h-screen p-8" style={{ backgroundColor: "#1a1d24" }}>
             <div className="flex gap-8 max-w-7xl mx-auto">
                 <PlaylistSidebar userName={userData.fullName} userEmail={userData.email} />
-                <h4 className="text-2xl font-bold text-white mb-2">Thông báo</h4>
-            </div>
-            <div>
-
+                <div className="flex-1">
+                    <h4 className="text-2xl font-bold text-white mb-6">Thông báo</h4>
+                    <Notifications />
+                </div>
             </div>
         </div>
     )
