@@ -28,6 +28,7 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
 
   const { dataRoom, getRoomData } = useCoWatchingStore();
   const { partData, getPartData } = useFilmStore();
+  const { handleUpdateEpisode } = useCoWatchingStore();
 
   useEffect(() => {
     if (!dataRoom || dataRoom.room.roomId !== roomId) {
@@ -54,7 +55,8 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
         syncMode,
         isHandlingRemoteEvent,
         hasInitialSynced,
-        onShowInteractionPrompt: setShowInteractionPrompt
+        onShowInteractionPrompt: setShowInteractionPrompt,
+        handleUpdateEpisode,
       });
     }
   );
@@ -64,7 +66,8 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
     handlePause,
     handleSeek,
     handleArtReady,
-    handleManualSync
+    handleManualSync,
+    handleSyncEpisode,
   } = useVideoSyncControls({
     emitSync,
     syncMode,
@@ -106,6 +109,7 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
         handleArtReady={handleArtReady}
         handleSeek={handleSeek}
         handleManualSync={handleManualSync}
+        handleSyncEpisode={handleSyncEpisode}
       />
     </div>
   )

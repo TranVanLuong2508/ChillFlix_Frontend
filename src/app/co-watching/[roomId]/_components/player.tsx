@@ -15,6 +15,7 @@ import { roomRes } from "@/types/co_watching.type";
 import { FilmDataStream } from "@/types/film.type";
 import { useFilmStore } from "@/stores/filmStore";
 import PlayListNav from "./playListNav";
+import { useCoWatchingStore } from "@/stores/co-watchingStore";
 
 const ArtPlayerClient = dynamic(
   () => import("./ArtPlayerClient"),
@@ -50,6 +51,7 @@ interface PlayerProps {
   handleSeek: (time: number) => void;
   handleArtReady: (art: Artplayer) => void;
   handleManualSync: () => void;
+  handleSyncEpisode: (part: number, episode: number) => void;
 }
 
 const Player = ({
@@ -58,7 +60,8 @@ const Player = ({
   handlePause,
   handleSeek,
   handleArtReady,
-  handleManualSync
+  handleManualSync,
+  handleSyncEpisode,
 }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenListPart, setIsOpenListPart] = useState(false);
@@ -68,6 +71,13 @@ const Player = ({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   const { partData } = useFilmStore();
+  const { part, episode, handleUpdateEpisode } = useCoWatchingStore();
+
+  useEffect(() => {
+    setCurrentPart(part);
+    setCurrentEpisode(episode);
+  }, [part, episode]);
+
 
   useEffect(() => {
     if (!partData?.length) {
@@ -87,6 +97,9 @@ const Player = ({
   const handleChangeEpisode = (part: number, episode: number) => {
     setCurrentPart(part);
     setCurrentEpisode(episode);
+
+    handleSyncEpisode(part, episode);
+    handleUpdateEpisode(part, episode);
   }
 
   return (
@@ -96,8 +109,8 @@ const Player = ({
           <StreamInfo
             name={dataRoom.room.name}
             filmTitle={dataRoom.filmData.film.title}
-            episodeNumber={dataRoom.room.episodeNumber}
-            partNumber={dataRoom.room.partNumber}
+            episodeNumber={currentEpisode}
+            partNumber={currentPart}
             onOpenChange={setIsOpen}
             onOpenList={setIsOpenListPart}
           />
@@ -113,7 +126,6 @@ const Player = ({
             handleChangeEpisode={handleChangeEpisode}
             open={isOpenListPart}
             onOpenChange={setIsOpenListPart}
-
           />
           <div className="relative">
             {videoUrl ? (

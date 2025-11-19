@@ -56,9 +56,11 @@ export interface getAllStreamRes {
 export type SyncMode = 'initial' | 'manual';
 
 export interface SyncEvent {
-  type: 'play' | 'pause' | 'seek' | 'requestSync' | 'syncResponse';
+  type: 'play' | 'pause' | 'seek' | 'requestSync' | 'syncResponse' | 'syncEpisode';
   currentTime?: number;
   isPlaying?: boolean;
+  part?: number;
+  episode?: number;
 }
 
 export interface VideoSyncState {
@@ -82,6 +84,7 @@ export interface RemoteEventHandlerParams {
   isHandlingRemoteEvent: React.MutableRefObject<boolean>;
   hasInitialSynced: React.MutableRefObject<boolean>;
   onShowInteractionPrompt: (show: boolean) => void;
+  handleUpdateEpisode: (part: number, episode: number) => void;
 }
 
 export interface LocalControlParams {

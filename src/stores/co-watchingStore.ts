@@ -9,15 +9,26 @@ interface CoWatchingState {
     room: roomRes,
     filmData: FilmDataStream;
   } | null;
+
+  part: number;
+  episode: number;
 }
 
 interface CoWatchingAction {
   create: (payload: roomPayload) => Promise<void>;
   getRoomData: (roomId: string) => Promise<void>;
+  handleUpdateEpisode: (part: number, episode: number) => void;
 }
 
 export const useCoWatchingStore = create<CoWatchingState & CoWatchingAction>((set) => ({
   dataRoom: null,
+
+  part: 1,
+  episode: 1,
+
+  handleUpdateEpisode: (part, episode) => {
+    set({ part: part, episode: episode });
+  },
 
   create: async (payload) => {
     try {
@@ -36,7 +47,10 @@ export const useCoWatchingStore = create<CoWatchingState & CoWatchingAction>((se
           dataRoom: {
             room: res.data.room,
             filmData: { film: res.data.film, filmImages }
-          }
+          },
+
+          part: res.data.room.partNumber,
+          episode: res.data.room.episodeNumber,
         });
       }
     } catch (error) {
@@ -61,7 +75,10 @@ export const useCoWatchingStore = create<CoWatchingState & CoWatchingAction>((se
           dataRoom: {
             room: res.data.room,
             filmData: { film: res.data.film, filmImages }
-          }
+          },
+
+          part: res.data.room.partNumber,
+          episode: res.data.room.episodeNumber,
         });
       }
 

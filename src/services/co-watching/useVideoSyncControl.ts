@@ -55,11 +55,20 @@ export function useVideoSyncControls(params: LocalControlParams) {
     }
   }, [emitSync, artInstanceRef]);
 
+
+  const handleSyncEpisode = useCallback((part: number, episode: number) => {
+    if (!isHandlingRemoteEvent.current) {
+      emitSync({ type: 'syncEpisode', part: part, episode: episode });
+      hasInitialSynced.current = false;
+    }
+  }, [emitSync])
+
   return {
     handlePlay,
     handlePause,
     handleSeek,
     handleArtReady,
-    handleManualSync
+    handleManualSync,
+    handleSyncEpisode,
   };
 }

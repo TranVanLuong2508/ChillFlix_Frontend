@@ -129,7 +129,7 @@ const PlayListNav = ({
   open,
 
   handleChangeEpisode,
-  onOpenChange
+  onOpenChange,
 }: PlayListNavProps) => {
 
   const { partData } = useFilmStore();

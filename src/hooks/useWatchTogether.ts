@@ -40,7 +40,7 @@ export const useWatchTogether = (
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      socket.emit('join_room', { roomId }, (response?: any) => {
+      socket.emit('join_room', { roomId }, (response?: unknown) => {
         console.log('Joined room:', roomId, response);
         isReadyRef.current = true;
 
@@ -103,7 +103,6 @@ export const useWatchTogether = (
       pendingEventsRef.current.push(event);
       return;
     };
-
     socket.emit('sync_event', { roomId, event })
 
   }, [roomId])

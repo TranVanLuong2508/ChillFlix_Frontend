@@ -10,7 +10,8 @@ export function useVideoSyncHandler() {
       syncMode,
       isHandlingRemoteEvent,
       hasInitialSynced,
-      onShowInteractionPrompt
+      onShowInteractionPrompt,
+      handleUpdateEpisode,
     } = params;
 
     console.log('Handling remote event:', event);
@@ -42,6 +43,16 @@ export function useVideoSyncHandler() {
       return;
     }
 
+
+    if (event.type === 'syncEpisode') {
+      if (event.part && event.episode) {
+        await handleAutoplay(art);
+        handleUpdateEpisode(event.part, event.episode);
+        hasInitialSynced.current = false;
+      }
+      return;
+    }
+
     // Chỉ tự động đồng bộ ở lần đầu tiên
     if (syncMode === 'initial' && hasInitialSynced.current) {
       console.log('Skipping auto-sync (not in initial mode)');
@@ -59,7 +70,7 @@ export function useVideoSyncHandler() {
       } else if (event.type === 'seek') {
         art.currentTime = event.currentTime || 0;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error handling sync event:', error);
       onShowInteractionPrompt(true);
     }
