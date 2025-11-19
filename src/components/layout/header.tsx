@@ -445,7 +445,7 @@ export default function Header() {
                             .map((n) => (
                               <li
                                 key={n.notificationId}
-                                className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all cursor-pointer"
+                                className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-gray-700 transition-all cursor-pointer"
                                 onClick={async () => {
                                   if (n.notificationId > 0) {
                                     try {
@@ -624,7 +624,7 @@ export default function Header() {
                             .map((n) => (
                               <li
                                 key={n.notificationId}
-                                className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all cursor-pointer opacity-70"
+                                className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-gray-700 transition-all cursor-pointer opacity-70"
                                 onClick={async () => {
                                   if (!n.result?.filmId) return;
 

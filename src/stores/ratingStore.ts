@@ -114,7 +114,7 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
       set({ isLoading: true, error: null });
       try {
         const response = (await ratingService.deleteRating(ratingId)) as any;
-
+        console.log("deleteRating response", response);
         if (response.EC === 1) {
           set({ isLoading: false });
           return response;

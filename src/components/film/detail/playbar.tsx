@@ -308,7 +308,7 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
       <div className="flex items-center justify-between w-full mt-4 md:px-6">
         <div className="flex items-center justify-center">
           <button
-            onClick={() => {}}
+            onClick={() => { }}
             className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 ease-in-out cursor-pointer"
           >
             <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent"></span>
@@ -364,9 +364,7 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
           <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
             Đánh giá {totalRatings > 0 && `(${totalRatings})`}
           </p>
-          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
-            Đánh giá
-          </p>
+
         </Button>
       </div>
 
