@@ -9,6 +9,7 @@ import {
   Star,
   LucideIcon,
 } from "lucide-react";
+import { useRatingStore } from "@/stores/ratingStore";
 
 import {
   DropdownMenu,
@@ -20,22 +21,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { eventBus } from "@/lib/eventBus";
 import { userFavoriteStore } from "@/stores/favoriteStore";
-import { useParams } from "next/navigation";
 import { userServices } from "@/services";
 import { useFilmStore } from "@/stores/filmStore";
 import { userPlaylistStore } from "@/stores/playlistStore";
 import { toast } from "sonner";
-import { IPlaylist } from "@/types/user.type";
 import { PlayListMessage } from "@/constants/messages/user.message";
 import CreatePlaylistModal from "@/components/users/playlists/CreatePlaylistModal";
 
@@ -247,6 +244,7 @@ const ModalShare = ({
 export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   const [liked, setLiked] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const { averageRating, totalRatings } = useRatingStore();
 
   //luong add
   const { favoriteList, fetchFavoriteList } = userFavoriteStore();
@@ -361,7 +359,10 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
         >
           <p className="flex items-center justify-center gap-1">
             <Star className="text-yellow-500" />
-            4.0
+            {averageRating > 0 ? averageRating.toFixed(1) : "0.0"}
+          </p>
+          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
+            Đánh giá {totalRatings > 0 && `(${totalRatings})`}
           </p>
           <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
             Đánh giá

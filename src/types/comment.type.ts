@@ -53,7 +53,14 @@ export interface CommentItem {
     name: string;
     avatar?: string;
   };
-
+  parent?: {
+    id: string;
+    user: {
+      id: number | string;
+      name: string;
+      avatar?: string;
+    };
+  } | null;
   replies: CommentItem[];
 }
 

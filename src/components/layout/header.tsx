@@ -9,6 +9,7 @@ import {
   CircleUserRound,
   RotateCw,
   LogOut,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useAppRouter } from "@/hooks/useAppRouter";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
 import { AuthenticationsMessage } from "@/constants/messages/user.message";
@@ -33,6 +35,7 @@ import { socket } from "@/lib/socket";
 import { useCommentStore } from "@/stores/comentStore";
 import SearchDropdown from "./header/search-dropdown";
 import { usePathname } from "next/navigation";
+import { useNotificationStore } from "@/stores/notificationStore";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
@@ -45,8 +48,12 @@ export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const pathname = usePathname();
   //
+  const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const [showAllReadNotifications, setShowAllReadNotifications] =
+    useState(false);
 
   const { goHome, goProfile, goUpgradeVip } = useAppRouter();
+  const router = useRouter();
   const { openDrawer } = useChatDrawerStore();
   const { logOutAction, isAuthenticated, isLoading, authUser } = useAuthStore();
   const {
@@ -54,7 +61,19 @@ export default function Header() {
     createCommentRealtime,
     replyCommentRealtime,
     countCommentsRealtime,
+    reactCommentRealtime,
   } = useCommentStore();
+
+  const {
+    notifications,
+    unreadCount,
+    fetchNotifications,
+    fetchUnreadCount,
+    markAsRead,
+    deleteNotification,
+    addNotification,
+    reset: resetNotifications,
+  } = useNotificationStore();
 
   useEffect(() => {
     fetchGenresList();
@@ -64,6 +83,27 @@ export default function Header() {
   useEffect(() => {
     setIsUserMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (authUser?.userId) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+      } else {
+        resetNotifications();
+      }
+    };
+
+    fetchData();
+  }, [authUser?.userId, isAuthenticated]);
+
+  useEffect(() => {
+    const userId = authUser?.userId;
+    if (userId) {
+      socket.emit("register", { userId });
+    }
+  }, [authUser?.userId]);
 
   const fetchGenresList = async () => {
     const res = await allCodeServie.getGenresList();
@@ -89,68 +129,80 @@ export default function Header() {
         logOutAction();
       }
     } catch (error) {
-      console.log("Error Logout: ", error);
+      toast.error("Đăng xuất thất bại. Vui lòng thử lại.");
     }
   };
 
-  const [notifications, setNotifications] = useState<
-    { id: string; type: string; message: string; createdAt: Date }[]
-  >([]);
-
   useEffect(() => {
-    socket.off("connect");
-    socket.off("newComment");
-    socket.off("replyComment");
-    socket.off("deleteComment");
+    const handleConnect = () => {
+      if (authUser?.userId) {
+        socket.emit("register", { userId: authUser.userId });
+      }
+    };
 
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-    });
-
-    socket.on("newComment", (data) => {
-      const currentUser = useAuthStore.getState().authUser;
-      if (data.user?.userId === currentUser?.userId) return;
+    const handleNewComment = (data: any) => {
+      if (data.user?.userId === authUser?.userId || data?.parent) return;
       createCommentRealtime(data);
-    });
+    };
 
-    socket.on("replyComment", (data) => {
-      const currentUser = useAuthStore.getState().authUser;
-      if (data.replyComment?.user?.userId === currentUser?.userId) return;
-
+    const handleReplyComment = (data: any) => {
+      if (data.replyComment?.user?.userId === authUser?.userId) return;
       replyCommentRealtime({
         parentId: data.parentId,
         comment: data.replyComment,
       });
+    };
 
-      const message = `${data.replyComment.user?.fullName} đã trả lời bình luận của ${data.replyToUser?.fullName}: "${data.replyComment.content}"`;
-      setNotifications((prev) => [
-        {
-          id: crypto.randomUUID(),
-          type: "reply",
-          message,
-          createdAt: new Date(),
-        },
-        ...prev,
-      ]);
+    const handleReplyNotification = async (data: any) => {
+      if (!authUser || String(data.targetUserId) !== String(authUser.userId))
+        return;
+      const message = `${data.replyComment.user.fullName} đã trả lời bình luận của bạn: "${data.replyComment.content}"`;
+
+      await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+
       toast.success(message);
-    });
+    };
 
-    socket.on("deleteComment", ({ commentId }) => {
+    const handleReactionNotification = async (data: any) => {
+      if (!authUser || String(data.targetUserId) !== String(authUser.userId))
+        return;
+      const reactionText =
+        data.reactionType === "LIKE" ? "thích" : "không thích";
+      const message = `${data.reactionUser.fullName} đã ${reactionText} bình luận của bạn`;
+      await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+
+      toast.success(message);
+    };
+
+    const handleDeleteComment = ({ commentId }: any) => {
       removeCommentRealtime(commentId);
-      toast.warning("Một bình luận đã bị xóa");
-    });
-    socket.on("countComments", (data) => {
-      const { filmId: eventFilmId, total } = data;
-      countCommentsRealtime(eventFilmId, total);
-    });
+      toast.warning("Bạn đã xóa một bình luận");
+    };
+
+    const handleCountComments = ({ filmId, total }: any) => {
+      countCommentsRealtime(filmId, total);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("newComment", handleNewComment);
+    socket.on("replyComment", handleReplyComment);
+    socket.on("replyNotification", handleReplyNotification);
+    socket.on("reactionNotification", handleReactionNotification);
+    socket.on("deleteComment", handleDeleteComment);
+    socket.on("countComments", handleCountComments);
+    socket.on("reactComment", reactCommentRealtime);
 
     return () => {
-      socket.off("connect");
-      socket.off("newComment");
-      socket.off("replyComment");
-      socket.off("deleteComment");
+      socket.off("connect", handleConnect);
+      socket.off("newComment", handleNewComment);
+      socket.off("replyComment", handleReplyComment);
+      socket.off("replyNotification", handleReplyNotification);
+      socket.off("reactionNotification", handleReactionNotification);
+      socket.off("deleteComment", handleDeleteComment);
+      socket.off("countComments", handleCountComments);
+      socket.off("reactComment", reactCommentRealtime);
     };
-  }, []);
+  }, [authUser?.userId]);
 
   return (
     <header className="sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
@@ -291,7 +343,14 @@ export default function Header() {
               <span>Chat với FlixAI</span>
             </button>
 
-            <DropdownMenu>
+            <DropdownMenu
+              onOpenChange={(open) => {
+                if (!open) {
+                  setShowAllNotifications(false); // Reset when closing dropdown
+                  setShowAllReadNotifications(false); // Reset read tab
+                }
+              }}
+            >
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
@@ -299,7 +358,11 @@ export default function Header() {
                   className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] relative cursor-pointer transition-all duration-200 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none"
                 >
                   <Bell className="w-8 h-8" strokeWidth={2.6} />
-                  {/* <span className="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span> */}
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Button>
               </DropdownMenuTrigger>
 
@@ -313,7 +376,14 @@ export default function Header() {
                     data-[state=open]:scale-100 data-[state=open]:opacity-100
                   "
               >
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <Tabs
+                  value={activeTab}
+                  onValueChange={(value) => {
+                    setActiveTab(value);
+                    setShowAllNotifications(false); // Reset when changing tab
+                    setShowAllReadNotifications(false); // Reset read tab
+                  }}
+                >
                   {/* Header Tabs */}
                   <div className="border-b border-[#2a3040] relative overflow-hidden">
                     <TabsList className="bg-transparent flex text-sm font-medium w-full justify-start relative">
@@ -356,50 +426,321 @@ export default function Header() {
 
                   <TabsContent
                     value="community"
-                    className="p-4 text-sm text-gray-300 max-h-80 overflow-y-auto text-left"
+                    className={`p-4 text-sm text-gray-300 text-left ${
+                      showAllNotifications
+                        ? "max-h-[500px] overflow-y-auto"
+                        : ""
+                    }`}
                   >
-                    {notifications.length === 0 ? (
+                    {notifications.filter((n) => !n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
-                        Không có thông báo cộng đồng nào
+                        Không có thông báo chưa đọc
                       </div>
                     ) : (
-                      <ul className="space-y-3">
-                        {notifications.map((n) => (
-                          <li
-                            key={n.id}
-                            className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all"
+                      <>
+                        <ul className="space-y-3">
+                          {notifications
+                            .filter((n) => !n.isRead)
+                            .slice(0, showAllNotifications ? undefined : 3)
+                            .map((n) => (
+                              <li
+                                key={n.notificationId}
+                                className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all cursor-pointer"
+                                onClick={async () => {
+                                  if (n.notificationId > 0) {
+                                    try {
+                                      await markAsRead(n.notificationId);
+
+                                      if (!n.result?.filmId) {
+                                        return;
+                                      }
+                                      const commentId =
+                                        n.result.commentId || n.result.parentId;
+                                      const currentPath =
+                                        window.location.pathname;
+                                      const isOnSameFilm =
+                                        n.result?.slug &&
+                                        currentPath.includes(
+                                          `/film-detail/${n.result.slug}`
+                                        );
+
+                                      if (isOnSameFilm) {
+                                        const { eventBus } = await import(
+                                          "@/lib/eventBus"
+                                        );
+                                        eventBus.emit("switchTab", "comments");
+
+                                        setTimeout(() => {
+                                          const commentElement =
+                                            document.getElementById(
+                                              `comment-${commentId}`
+                                            );
+                                          if (commentElement) {
+                                            const elementPosition =
+                                              commentElement.getBoundingClientRect()
+                                                .top + window.pageYOffset;
+                                            const offsetPosition =
+                                              elementPosition - 100;
+                                            window.scrollTo({
+                                              top: offsetPosition,
+                                              behavior: "smooth",
+                                            });
+                                            setTimeout(() => {
+                                              const contentDiv =
+                                                commentElement.querySelector(
+                                                  ":scope > .flex.items-start"
+                                                ) as HTMLElement;
+                                              const target =
+                                                contentDiv || commentElement;
+                                              target.classList.add(
+                                                "highlight-comment"
+                                              );
+                                              setTimeout(
+                                                () =>
+                                                  target.classList.remove(
+                                                    "highlight-comment"
+                                                  ),
+                                                2800
+                                              );
+                                            }, 800);
+                                          }
+                                        }, 100);
+                                        return;
+                                      }
+                                      if (n.result?.slug) {
+                                        router.push(
+                                          `/film-detail/${n.result.slug}?commentId=${commentId}`
+                                        );
+                                      } else {
+                                        try {
+                                          const filmServices = (
+                                            await import(
+                                              "@/services/filmService"
+                                            )
+                                          ).default;
+                                          const filmData =
+                                            (await filmServices.getFilmById(
+                                              String(n.result.filmId)
+                                            )) as any;
+                                          const slug =
+                                            filmData?.data?.film?.slug ||
+                                            filmData?.data?.slug;
+                                          if (filmData?.EC === 1 && slug) {
+                                            router.push(
+                                              `/film-detail/${slug}?commentId=${commentId}`
+                                            );
+                                          } else {
+                                            console.error(
+                                              "[NAVIGATE] No slug found in filmData"
+                                            );
+                                          }
+                                        } catch (err) {
+                                          console.error(
+                                            "[NAVIGATE] Failed to fetch film slug:",
+                                            err
+                                          );
+                                        }
+                                      }
+                                    } catch (error) {
+                                      console.error(
+                                        "Failed to mark notification as read:",
+                                        error
+                                      );
+                                    }
+                                  }
+                                }}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <div className="w-2 h-2 bg-red-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                                  <div className="flex-1 min-w-0 overflow-hidden">
+                                    <div className="text-[13px] break-words word-break break-all line-clamp-3 overflow-hidden">
+                                      {n.message}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {new Date(n.createdAt).toLocaleTimeString(
+                                        "vi-VN"
+                                      )}
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (n.notificationId > 0) {
+                                        deleteNotification(
+                                          n.notificationId
+                                        ).catch((err: any) =>
+                                          console.error(
+                                            "Error deleting notification:",
+                                            err
+                                          )
+                                        );
+                                      }
+                                    }}
+                                    className="text-gray-400 hover:text-red-400 transition-colors p-1 flex-shrink-0"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              </li>
+                            ))}
+                        </ul>
+
+                        {notifications.filter((n) => !n.isRead).length > 3 && (
+                          <button
+                            onClick={() =>
+                              setShowAllNotifications(!showAllNotifications)
+                            }
+                            className="w-full mt-3 py-2 text-center text-sm text-yellow-400 hover:text-yellow-300 transition-colors font-medium"
                           >
-                            <div className="text-[13px]">{n.message}</div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {n.createdAt.toLocaleTimeString("vi-VN")}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
+                            {showAllNotifications
+                              ? "Thu gọn"
+                              : `Xem tất cả (${
+                                  notifications.filter((n) => !n.isRead).length
+                                } thông báo)`}
+                          </button>
+                        )}
+                      </>
                     )}
                   </TabsContent>
 
                   <TabsContent
                     value="read"
-                    className="p-4 text-sm text-center text-gray-400 "
+                    className={`p-4 text-sm text-gray-300 text-left ${
+                      showAllReadNotifications
+                        ? "max-h-[500px] overflow-y-auto"
+                        : ""
+                    }`}
                   >
-                    Chưa có thông báo đã đọc
+                    {notifications.filter((n) => n.isRead).length === 0 ? (
+                      <div className="text-center text-gray-500">
+                        Chưa có thông báo đã đọc
+                      </div>
+                    ) : (
+                      <>
+                        <ul className="space-y-3">
+                          {notifications
+                            .filter((n) => n.isRead)
+                            .slice(0, showAllReadNotifications ? undefined : 3)
+                            .map((n) => (
+                              <li
+                                key={n.notificationId}
+                                className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all cursor-pointer opacity-70"
+                                onClick={async () => {
+                                  if (!n.result?.filmId) return;
+
+                                  const commentId =
+                                    n.result.commentId || n.result.parentId;
+                                  const currentPath = window.location.pathname;
+                                  const isOnSameFilm =
+                                    n.result?.slug &&
+                                    currentPath.includes(
+                                      `/film-detail/${n.result.slug}`
+                                    );
+
+                                  if (isOnSameFilm) {
+                                    const { eventBus } = await import(
+                                      "@/lib/eventBus"
+                                    );
+                                    eventBus.emit("switchTab", "comments");
+
+                                    setTimeout(() => {
+                                      const commentElement =
+                                        document.getElementById(
+                                          `comment-${commentId}`
+                                        );
+                                      if (commentElement) {
+                                        const elementPosition =
+                                          commentElement.getBoundingClientRect()
+                                            .top + window.pageYOffset;
+                                        const offsetPosition =
+                                          elementPosition - 100;
+                                        window.scrollTo({
+                                          top: offsetPosition,
+                                          behavior: "smooth",
+                                        });
+                                        setTimeout(() => {
+                                          const contentDiv =
+                                            commentElement.querySelector(
+                                              ":scope > .flex.items-start"
+                                            ) as HTMLElement;
+                                          const target =
+                                            contentDiv || commentElement;
+                                          target.classList.add(
+                                            "highlight-comment"
+                                          );
+                                          setTimeout(
+                                            () =>
+                                              target.classList.remove(
+                                                "highlight-comment"
+                                              ),
+                                            2800
+                                          );
+                                        }, 800);
+                                      }
+                                    }, 100);
+                                  } else if (n.result?.slug) {
+                                    router.push(
+                                      `/film-detail/${n.result.slug}?commentId=${commentId}`
+                                    );
+                                  }
+                                }}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <div className="flex-1 min-w-0 overflow-hidden">
+                                    <div className="text-[13px] break-words word-break break-all line-clamp-3 overflow-hidden">
+                                      {n.message}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {new Date(n.createdAt).toLocaleTimeString(
+                                        "vi-VN"
+                                      )}
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (n.notificationId > 0) {
+                                        deleteNotification(
+                                          n.notificationId
+                                        ).catch((err: any) =>
+                                          console.error(
+                                            "Error deleting notification:",
+                                            err
+                                          )
+                                        );
+                                      }
+                                    }}
+                                    className="text-gray-400 hover:text-red-400 transition-colors p-1 flex-shrink-0"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              </li>
+                            ))}
+                        </ul>
+
+                        {notifications.filter((n) => n.isRead).length > 3 && (
+                          <button
+                            onClick={() =>
+                              setShowAllReadNotifications(
+                                !showAllReadNotifications
+                              )
+                            }
+                            className="w-full mt-3 py-2 text-center text-sm text-yellow-400 hover:text-yellow-300 transition-colors font-medium"
+                          >
+                            {showAllReadNotifications
+                              ? "Thu gọn"
+                              : `Xem tất cả (${
+                                  notifications.filter((n) => n.isRead).length
+                                } thông báo)`}
+                          </button>
+                        )}
+                      </>
+                    )}
                   </TabsContent>
                 </Tabs>
 
                 <DropdownMenuSeparator className="bg-[#2a3040] p-0 m-0" />
-
-                {/* Nút xem toàn bộ */}
-                <div
-                  className="    p-3 text-center text-sm font-medium text-yellow-400
-                        cursor-pointer transition-all duration-300
-                        bg-[#1a1f2e]/40 backdrop-blur-md border-t border-[#2a3040]/70
-                        hover:bg-[#2a3040]/60 hover:text-yellow-300
-                        hover:shadow-[0_0_10px_rgba(245,213,71,0.2)]
-                        active:scale-[0.98]"
-                >
-                  Xem toàn bộ
-                </div>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -511,7 +852,7 @@ export default function Header() {
                         {/* Logout */}
                         <button
                           onClick={() => haneleLogOut()}
-                          className="w-full cursor-pointer flex items-center gap-3 px-4 py-3 hover:bg-[#2a3040]/60 hover:text-yellow-400 text-gray-300 transition text-sm hover:shadow-[0_0_10px_rgba(245,213,71,0.2)] cursor-pointer"
+                          className="w-full cursor-pointer flex items-center gap-3 px-4 py-3 hover:bg-[#2a3040]/60 hover:text-yellow-400 text-gray-300 transition text-sm hover:shadow-[0_0_10px_rgba(245,213,71,0.2)]"
                         >
                           <span className="text-lg">
                             <LogOut />
