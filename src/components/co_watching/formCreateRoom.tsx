@@ -14,13 +14,16 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import SearchDropdown from "@/app/co-watching/create/_components/search-dropdown";
 import { IFilmSearch } from "@/types/search.type";
+import { FilmDetail } from "@/types/film.type";
 
 interface FormCreateRoomProps {
+  filmData: FilmDetail;
   setSelectedFilm: (film: IFilmSearch) => void;
   resetFilmDetail: () => void;
 }
 
 export const FormCreateRoom = ({
+  filmData,
   setSelectedFilm,
   resetFilmDetail
 }
@@ -39,6 +42,16 @@ export const FormCreateRoom = ({
   const [filmId, setFilmId] = useState("");
   const [thumbUrl, setThumbUrl] = useState("");
 
+  useEffect(() => {
+    if (!authUser.userId || !filmData) {
+      return;
+    }
+
+    setRoomName(`Xem phim ${filmData.film.title} cùng ${authUser.fullName} nhé!`);
+    setFilmId(filmData.film.filmId);
+    setThumbUrl(filmData.filmImages.poster);
+  }, [filmData, authUser]);
+
 
   const createRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,7 +60,6 @@ export const FormCreateRoom = ({
       toast.error("Vui lòng đăng nhập lại để tạo phòng!");
       return;
     }
-
     if (!filmId) {
       toast.error("Vui lòng chọn phim!");
       return;
@@ -64,7 +76,6 @@ export const FormCreateRoom = ({
     }
 
     await create(data);
-
   }
 
   useEffect(() => {
@@ -92,11 +103,11 @@ export const FormCreateRoom = ({
             <Label
               className="text-lg font-semibold pb-2"
             >
-              Chọn phim khác
+              Tìm kiếm phim khác
             </Label>
             <div className="mt-2">
               <SearchDropdown
-                className="py-2"
+                className="py-3 bg-transparent rounded-lg !text-sm text-white caret-amber-400 active:text-white border-zinc-500 active:border-zinc-500 active:ring-0 focus-visible:ring-0 selection:bg-amber-400 selection:text-black"
                 onSelectFilm={(film) => {
                   setSelectedFilm(film);
                 }}
@@ -116,6 +127,7 @@ export const FormCreateRoom = ({
               id="room-name"
               placeholder="Nhập tên phòng"
               className="!text-sm text-white caret-amber-400 active:text-white py-5 px-4 border-zinc-500 active:border-zinc-500 active:ring-0 focus-visible:ring-0 selection:bg-amber-400 selection:text-black"
+              value={roomName}
               onChange={(evt) => setRoomName(evt.target.value)}
             />
           </div>

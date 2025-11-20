@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface SearchDropdownProps {
-  className: string;
+  className?: string;
   onSelectFilm: (film: IFilmSearch) => void;
 }
 
@@ -96,7 +96,7 @@ export default function SearchDropdown({ className, onSelectFilm }: SearchDropdo
             className={cn("form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-gray-900 dark:text-white focus:outline-0 focus:ring-3 focus:ring-primary/50 focus:border-primary/50 h-full placeholder:text-gray-500 dark:placeholder:text-[#a19cba] px-4 text-base font-normal leading-normal border-y border-gray-300 dark:border-[#3f3b54] bg-gray-100 dark:bg-[#1d1b27] pl-12 py-4 rounded-3xl", className)}
           />
           {keyword.trim() !== "" && showDropdown && (
-            <div className="absolute left-0 mt-3  w-full bg-[#1a1f2e]/50  border border-[#2a3040] rounded-xl shadow-2xl p-3 z-50">
+            <div className="absolute left-0 mt-4  w-full bg-[#1a1f2e]/30 backdrop-blur-sm  border border-[#2a3040] rounded-xl p-3 z-50 shadow-[0px_0px_10px_0px_#d4d4d8]">
               {/* Loading */}
               {isSearching && (
                 <div className="flex items-center justify-center py-6 text-gray-400">

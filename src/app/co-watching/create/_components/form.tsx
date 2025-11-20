@@ -30,8 +30,7 @@ export const Form = () => {
 
   return (
     <div className="">
-
-      {!filmData && flag === 0 && (
+      {!selectedFilm && flag === 0 && (
         <div className="@container">
           <div className="flex mt-16 min-h-[600px] flex-col gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-center justify-start p-6 text-center" data-alt="Abstract gradient background with film reel overlay">
             <div className="flex flex-col gap-2">
@@ -58,12 +57,16 @@ export const Form = () => {
         <div className="pt-8 grid grid-cols-12 gap-8 min-h-[90vh] max-h-[90vh]">
           <div className={cn(
             "col-span-5 rounded-3xl bg-[#212a56] overflow-hidden transition-all duration-240 ease",
-            "hover:shadow-[0px_0px_22px_0px_rgba(234,_179,_8,_1)] ring-1 ring-offset-transparent hover:ring-amber-400"
+            "hover:shadow-[0px_0px_22px_0px_rgba(234,_179,_8,_1)] ring-1 ring-transparent ring-offset-transparent hover:ring-amber-400 cursor-pointer"
           )}>
             <FilmCard filmData={filmData} />
           </div>
           <div className="col-span-7 rounded-3xl">
-            <FormCreateRoom setSelectedFilm={setSelectedFilm} resetFilmDetail={resetFilmDetail} />
+            <FormCreateRoom
+              filmData={filmData}
+              setSelectedFilm={setSelectedFilm}
+              resetFilmDetail={resetFilmDetail}
+            />
           </div>
         </div>
       )}
