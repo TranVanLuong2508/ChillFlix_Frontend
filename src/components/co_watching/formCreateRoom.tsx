@@ -7,23 +7,26 @@ import { toast } from "sonner";
 import { co_watchingPath } from "@/constants/path";
 import { useAuthStore } from "@/stores/authStore";
 import { useCoWatchingStore } from "@/stores/co-watchingStore";
+import { IFilmSearch } from "@/types/search.type";
+import { FilmDetail } from "@/types/film.type";
+import { PartDetail } from "@/types/part.type";
 
-import { PartEpisodeDialog } from "./partEpisodeDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { PartEpisodeDialog } from "./partEpisodeDialog";
 import SearchDropdown from "@/app/co-watching/create/_components/search-dropdown";
-import { IFilmSearch } from "@/types/search.type";
-import { FilmDetail } from "@/types/film.type";
 
 interface FormCreateRoomProps {
   filmData: FilmDetail;
+  partData: PartDetail[],
   setSelectedFilm: (film: IFilmSearch) => void;
   resetFilmDetail: () => void;
 }
 
 export const FormCreateRoom = ({
   filmData,
+  partData,
   setSelectedFilm,
   resetFilmDetail
 }
@@ -32,7 +35,7 @@ export const FormCreateRoom = ({
   const router = useRouter();
 
   const { authUser } = useAuthStore();
-  const { dataRoom, create } = useCoWatchingStore();
+  const { dataRoom, createLiveRoom } = useCoWatchingStore();
 
   const [roomName, setRoomName] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
@@ -75,7 +78,7 @@ export const FormCreateRoom = ({
       thumbUrl: thumbUrl
     }
 
-    await create(data);
+    await createLiveRoom(data);
   }
 
   useEffect(() => {
@@ -188,6 +191,7 @@ export const FormCreateRoom = ({
         </div>
       </form>
       <PartEpisodeDialog
+        partData={partData}
         open={open}
         setOpen={setOpen}
         part={part}

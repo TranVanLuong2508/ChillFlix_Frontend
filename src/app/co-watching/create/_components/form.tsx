@@ -1,24 +1,32 @@
 "use client";
 
-import { FormCreateRoom } from "@/components/co_watching/formCreateRoom";
-import { cn } from "@/lib/utils";
-import { useFilmStore } from "@/stores/filmStore";
-import { IFilmSearch } from "@/types/search.type";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { IFilmSearch } from "@/types/search.type";
+import { useFilmStore } from "@/stores/filmStore";
+
 import SearchDropdown from "./search-dropdown";
 import { FilmCard } from "./filmCard";
+import { FormCreateRoom } from "@/components/co_watching/formCreateRoom";
 
 export const Form = () => {
 
   const [selectedFilm, setSelectedFilm] = useState<IFilmSearch | null>(null);
-
-  const { filmData, getDetailFilm, resetFilmDetail } = useFilmStore();
   const [flag, setFlag] = useState(0);
+
+  const { filmData, partData, getDetailFilm, resetFilmDetail, getPartData } = useFilmStore();
 
   useEffect(() => {
     handleGetDataFilm();
   }, [selectedFilm]);
 
+
+  useEffect(() => {
+    if (!filmData || (partData && partData[0].filmId === filmData.film.filmId)) {
+      return;
+    }
+    getPartData(filmData.film.filmId);
+  }, [filmData, partData, getPartData]);
 
   const handleGetDataFilm = async () => {
     if (!selectedFilm || (filmData && selectedFilm.filmId === filmData.film.filmId)) return;
@@ -34,7 +42,7 @@ export const Form = () => {
         <div className="@container">
           <div className="flex mt-16 min-h-[600px] flex-col gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-center justify-start p-6 text-center" data-alt="Abstract gradient background with film reel overlay">
             <div className="flex flex-col gap-2">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl">
+              <h1 className="text-amber-400 text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl">
                 Tìm kiếm phim để xem cùng nhau
               </h1>
               <h2 className="text-zinc-400 leading-normal max-w-xl mx-auto">
@@ -53,7 +61,7 @@ export const Form = () => {
           </div>
         </div>
       )}
-      {filmData && (
+      {filmData && partData && (
         <div className="pt-8 grid grid-cols-12 gap-8 min-h-[90vh] max-h-[90vh]">
           <div className={cn(
             "col-span-5 rounded-3xl bg-[#212a56] overflow-hidden transition-all duration-240 ease",
@@ -64,6 +72,7 @@ export const Form = () => {
           <div className="col-span-7 rounded-3xl">
             <FormCreateRoom
               filmData={filmData}
+              partData={partData}
               setSelectedFilm={setSelectedFilm}
               resetFilmDetail={resetFilmDetail}
             />
