@@ -12,8 +12,20 @@ import { PartEpisodeDialog } from "./partEpisodeDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import SearchDropdown from "@/app/co-watching/create/_components/search-dropdown";
+import { IFilmSearch } from "@/types/search.type";
 
-export const FormCreateRoom = () => {
+interface FormCreateRoomProps {
+  setSelectedFilm: (film: IFilmSearch) => void;
+  resetFilmDetail: () => void;
+}
+
+export const FormCreateRoom = ({
+  setSelectedFilm,
+  resetFilmDetail
+}
+  : FormCreateRoomProps
+) => {
   const router = useRouter();
 
   const { authUser } = useAuthStore();
@@ -24,6 +36,8 @@ export const FormCreateRoom = () => {
   const [open, setOpen] = useState(false);
   const [part, setPart] = useState('1');
   const [episode, setEpisode] = useState('1')
+  const [filmId, setFilmId] = useState("");
+  const [thumbUrl, setThumbUrl] = useState("");
 
 
   const createRoom = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,14 +48,19 @@ export const FormCreateRoom = () => {
       return;
     }
 
+    if (!filmId) {
+      toast.error("Vui lòng chọn phim!");
+      return;
+    }
+
     const data = {
       name: roomName,
       isPrivate: isPrivate,
       isLive: true,
-      filmId: "9cda998e-f711-4476-873c-96ec8af4a748",
+      filmId: filmId,
       partNumber: +part,
       episodeNumber: +episode,
-      thumbUrl: "/co-watching/thumbUrl.png"
+      thumbUrl: thumbUrl
     }
 
     await create(data);
@@ -60,10 +79,31 @@ export const FormCreateRoom = () => {
     handleRedirect();
   }, [dataRoom, router]);
 
+  const handleCancel = () => {
+    resetFilmDetail();
+    router.push(co_watchingPath.MAIN());
+  }
+
   return (
     <>
       <form onSubmit={createRoom}>
         <div className="space-y-4">
+          <div className="p-6 pt-5 text-white bg-[#282b3a] rounded-3xl">
+            <Label
+              className="text-lg font-semibold pb-2"
+            >
+              Chọn phim khác
+            </Label>
+            <div className="mt-2">
+              <SearchDropdown
+                className="py-2"
+                onSelectFilm={(film) => {
+                  setSelectedFilm(film);
+                }}
+              />
+            </div>
+          </div>
+
           <div className="p-6 pt-5 text-white bg-[#282b3a] rounded-3xl">
             <Label
               htmlFor="room-name"
@@ -79,6 +119,7 @@ export const FormCreateRoom = () => {
               onChange={(evt) => setRoomName(evt.target.value)}
             />
           </div>
+
           <div className="p-6 pt-5 text-white bg-[#282b3a] rounded-3xl">
             <div className="flex items-center pb-2 justify-between">
               <h3 className="text-lg font-semibold">
@@ -126,6 +167,7 @@ export const FormCreateRoom = () => {
               <button
                 className="w-full bg-zinc-300 py-3 rounded-2xl cursor-pointer text-lg font-semibold hover:shadow-[0px_0px_10px_0px_#d4d4d8] transition-all ease duration-200"
                 type="button"
+                onClick={handleCancel}
               >
                 Hủy bỏ
               </button>

@@ -1,0 +1,162 @@
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SearchMessage } from "@/constants/messages/search.message";
+import { cn } from "@/lib/utils";
+import { searchService } from "@/services/searchService";
+import { IFilmSearch } from "@/types/search.type";
+import { Loader, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+
+interface SearchDropdownProps {
+  className: string;
+  onSelectFilm: (film: IFilmSearch) => void;
+}
+
+export default function SearchDropdown({ className, onSelectFilm }: SearchDropdownProps) {
+  const [filmResult, setFilmResult] = useState<IFilmSearch[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [keyword, setKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (keyword.trim() === "") {
+      setShowDropdown(false);
+      setFilmResult([]);
+      return;
+    }
+    const searchHander = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 500);
+    return () => clearTimeout(searchHander);
+  }, [keyword]);
+
+  useEffect(() => {
+    if (debouncedKeyword.trim() === "") return;
+    fetchSearchFilmResult();
+  }, [debouncedKeyword]);
+
+  const fetchSearchFilmResult = async () => {
+    if (debouncedKeyword.trim() === "") {
+      setFilmResult([]);
+      setShowDropdown(false);
+      return;
+    }
+    setIsSearching(true);
+    setShowDropdown(true);
+    try {
+      const res = await searchService.callSearchFilm(debouncedKeyword);
+      await new Promise((r) => setTimeout(r, 500));
+      if (res && res.EC === 1) {
+        if (
+          res.data?.films.length !== undefined &&
+          res.data?.films.length > 0
+        ) {
+          setFilmResult(res.data.films);
+        } else {
+          setFilmResult([]);
+        }
+      }
+    } catch (error) {
+      console.log("Error from search film fetch function: ", error);
+      toast.error(SearchMessage.error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleChangSeachValue = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setKeyword(event.target.value);
+    setFilmResult([]);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (!wrapperRef.current?.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  return (
+    <>
+      <div className="flex-1 w-full" ref={wrapperRef}>
+        <div className="relative ">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 size-5 text-gray-500" />
+          <Input
+            value={keyword}
+            onChange={handleChangSeachValue}
+            type="text"
+            placeholder="Tìm kiếm phim để tạo phòng..."
+            className={cn("form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-gray-900 dark:text-white focus:outline-0 focus:ring-3 focus:ring-primary/50 focus:border-primary/50 h-full placeholder:text-gray-500 dark:placeholder:text-[#a19cba] px-4 text-base font-normal leading-normal border-y border-gray-300 dark:border-[#3f3b54] bg-gray-100 dark:bg-[#1d1b27] pl-12 py-4 rounded-3xl", className)}
+          />
+          {keyword.trim() !== "" && showDropdown && (
+            <div className="absolute left-0 mt-3  w-full bg-[#1a1f2e]/50  border border-[#2a3040] rounded-xl shadow-2xl p-3 z-50">
+              {/* Loading */}
+              {isSearching && (
+                <div className="flex items-center justify-center py-6 text-gray-400">
+                  <Loader
+                    className="animate-spin"
+                    size={20}
+                    style={{ animationDuration: "1.5s" }}
+                  />{" "}
+                  <span className="ml-1.5">Đang tìm phim</span>
+                </div>
+              )}
+
+              {/* Không có kết quả */}
+              {!isSearching && filmResult.length === 0 && (
+                <div className="text-gray-400 text-center py-4">
+                  Không tìm thấy kết quả nào
+                </div>
+              )}
+
+              {/* Có kết quả */}
+              {!isSearching && filmResult.length > 0 && (
+                <>
+                  <p className="text-gray-300 text-sm mb-2">Danh sách phim</p>
+
+                  <ScrollArea className="max-h-90 rounded-md overflow-auto">
+                    <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                      {filmResult.map((film) => (
+                        <div
+                          key={film.filmId}
+                          onClick={() => {
+                            onSelectFilm(film);
+                            setKeyword("");
+                            setDebouncedKeyword("");
+                            setShowDropdown(false);
+                            setFilmResult([]);
+                          }}
+                          className="flex gap-3 cursor-pointer p-2 hover:bg-[#2a3040] rounded-lg transition"
+                        >
+                          <img
+                            src={film.thumbUrl}
+                            className="w-12 h-16 object-cover rounded-md"
+                          />
+                          <div className="flex flex-col items-start gap-1">
+                            <span className="text-white font-semibold text-sm">
+                              {film.title}
+                            </span>
+                            <span className="text-gray-400 text-xs italic">
+                              {film.originalTitle}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div >
+    </>
+  );
+}

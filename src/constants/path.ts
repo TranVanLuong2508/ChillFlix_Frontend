@@ -19,6 +19,7 @@ export const playPath = {
 };
 
 export const co_watchingPath = {
+  MAIN: () => `/co-watching`,
   CREATE: () => `/co-watching/create`,
   PLAY: (id: string) => `/co-watching/${id}`
 }
