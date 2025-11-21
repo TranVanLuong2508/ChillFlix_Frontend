@@ -26,10 +26,10 @@ export default function FilmInfo() {
     return <div className="text-center py-20">Has error !</div>;
   }
 
-  const { film, filmImages, actors, directors } = filmData;
+  const { film, filmImages, actors, directors, producers } = filmData;
   return (
     <div className="flex flex-col gap-4 px-6 py-6 rounded-lg">
-      <div className="flex items-center justify-center mb-6">
+      <div className="flex items-center mb-6">
         <img
           src={filmImages.poster}
           alt={film.title}
@@ -82,7 +82,10 @@ export default function FilmInfo() {
 
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Thời lượng: </h3>
-        <span className="text-gray-300"> {Math.floor(film.duration / 60)}h {film.duration % 60}m</span>
+        <span className="text-gray-300">
+          {" "}
+          {Math.floor(film.duration / 60)}h {film.duration % 60}m
+        </span>
       </div>
 
       <div className="flex items-center gap-2 text-sm">
@@ -93,18 +96,22 @@ export default function FilmInfo() {
       </div>
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Sản xuất:</h3>
-        <button className="text-gray-300 cursor-pointer hover:text-yellow-400"></button>
+        {Array.isArray(producers) && producers.length > 0 ? (
+          <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
+            {" "}
+            {producers.map((p) => p.producerName).join(", ")}
+          </button>
+        ) : (
+          <p className="text-gray-400 italic">Chưa cập nhật nhà sản xuất</p>
+        )}
       </div>
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Đạo diễn:</h3>
         {Array.isArray(directors) && directors.length > 0 ? (
-          directors.map((d) => (
-            <div key={d.directorId} className="flex items-center gap-2">
-              <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
-                {d.directorName}
-              </button>
-            </div>
-          ))
+          <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
+            {" "}
+            {directors.map((d) => d.directorName).join(", ")}
+          </button>
         ) : (
           <p className="text-gray-400 italic">Chưa cập nhật đạo diễn</p>
         )}
@@ -112,35 +119,35 @@ export default function FilmInfo() {
 
       <div className="mt-2">
         <h3 className="text-2xl font-semibold text-white">Diễn viên</h3>
-        <div>
-          {Array.isArray(actors) && actors.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center -ml-2 ">
-              {actors.map((a, index) => (
-                <div
-                  key={`${a.actorId}-${index}`}
-                  onClick={() => goActorDetail(a.actorId)}
-                  className="flex flex-col items-center text-center cursor-pointer group hover:scale-105 transition-transform duration-300"
-                >
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg mt-6 hover:scale-105 transition-transform duration-300">
-                    <img
-                      src={a.avatarUrl || "/images/small.jpg"}
-                      alt={a.actorName}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  <button className="mt-3 text-sm md:text-base text-white group-hover:text-yellow-400 transition-colors whitespace-nowrap cursor-pointer">
-                    {a.actorName}
-                  </button>
+        {Array.isArray(actors) && actors.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-2">
+            {actors.map((a, index) => (
+              <div
+                key={`${a.actorId}-${index}`}
+                onClick={() => goActorDetail(a.actorId)}
+                className="flex flex-col items-center text-center cursor-pointer group hover:scale-105 transition-transform duration-300 min-w-0"
+              >
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg mt-4">
+                  <img
+                    src={a.avatarUrl || "/images/small.jpg"}
+                    alt={a.actorName}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-400 italic mt-2">
-              Chưa có thông tin diễn viên
-            </p>
-          )}
-        </div>
+                <div
+                  className="mt-3 text-sm text-white group-hover:text-yellow-400 transition-colors text-center truncate max-w-[110px] min-w-0"
+                  title={a.actorName}
+                >
+                  {a.actorName}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-400 italic mt-2">
+            Chưa có thông tin diễn viên
+          </p>
+        )}
       </div>
     </div>
   );

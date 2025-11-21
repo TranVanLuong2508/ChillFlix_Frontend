@@ -42,17 +42,13 @@ export default function Ratings() {
         if (!filmId) return;
 
         const handleRatingUpdated = (data: any) => {
-            console.log('[RATING SOCKET] Received ratingUpdated event:', data);
             if (data.filmId === filmId) {
-                console.log('[RATING SOCKET] Updating rating for current film');
                 updateRatingRealtime(data);
             }
         };
 
         const handleRatingDeleted = (data: any) => {
-            console.log('[RATING SOCKET] Received ratingDeleted event:', data);
             if (data.filmId === filmId) {
-                console.log('[RATING SOCKET] Deleting rating for current film');
                 deleteRatingRealtime(data.ratingId);
             }
         };

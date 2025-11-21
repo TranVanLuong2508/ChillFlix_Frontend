@@ -553,7 +553,7 @@ export default function Header() {
                                 <div className="flex items-start gap-2">
                                   <div className="w-2 h-2 bg-red-500 rounded-full mt-1.5 flex-shrink-0"></div>
                                   <div className="flex-1 min-w-0 overflow-hidden">
-                                    <div className="text-[13px] break-words word-break break-all line-clamp-3 overflow-hidden">
+                                    <div className="text-[13px] whitespace-normal break-words line-clamp-3 overflow-hidden">
                                       {n.message}
                                     </div>
                                     <div className="text-xs text-gray-500 mt-1">
@@ -686,8 +686,9 @@ export default function Header() {
                                 }}
                               >
                                 <div className="flex items-start gap-2">
+                                  <div className="w-2 h-2 rounded-full mt-1.5"></div>
                                   <div className="flex-1 min-w-0 overflow-hidden">
-                                    <div className="text-[13px] break-words word-break break-all line-clamp-3 overflow-hidden">
+                                    <div className="text-[13px] whitespace-normal break-words line-clamp-3 overflow-hidden">
                                       {n.message}
                                     </div>
                                     <div className="text-xs text-gray-500 mt-1">
