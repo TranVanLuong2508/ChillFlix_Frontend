@@ -6,6 +6,7 @@ export interface IAuthUser {
   userId: number | null;
   email: string;
   roleId: number | null;
+  roleName: string;
   fullName: string;
   genderCode: string;
   isVip: boolean | null;
@@ -41,6 +42,7 @@ const initialAuthState: IAuthState = {
     userId: null,
     email: "",
     roleId: null,
+    roleName: "",
     fullName: "",
     genderCode: "",
     isVip: null,
@@ -92,6 +94,7 @@ export const useAuthStore = create<IAuthState & authAction>()(
             userId: null,
             email: "",
             roleId: null,
+            roleName: "",
             fullName: "",
             genderCode: "",
             isVip: null,
@@ -122,6 +125,7 @@ export const useAuthStore = create<IAuthState & authAction>()(
             userId: user.userId,
             email: user.email,
             roleId: user.roleId,
+            roleName: user.roleName,
             fullName: user.fullName,
             genderCode: user.genderCode,
             isVip: user.isVip,
