@@ -1,5 +1,6 @@
 import { handleAutoplay, handleSyncResponse, setTemporaryFlag } from '@/utils/videoSyncHelper';
 import type { RemoteEventHandlerParams } from '@/types/co_watching.type';
+import { toast } from 'sonner';
 
 export function useVideoSyncHandler() {
   const handleRemoteEvent = async (params: RemoteEventHandlerParams) => {
@@ -7,9 +8,11 @@ export function useVideoSyncHandler() {
       event,
       art,
       emitSync,
+      leaveRoom,
       syncMode,
       isHandlingRemoteEvent,
       hasInitialSynced,
+      handleBackHome,
       onShowInteractionPrompt,
       handleUpdateEpisode,
     } = params;
@@ -17,6 +20,13 @@ export function useVideoSyncHandler() {
     console.log('Handling remote event:', event);
 
     if (!art) return;
+
+    if (event.type === 'endLive') {
+      toast.success("Chủ phòng đã kết thúc phiên xem chung");
+      leaveRoom();
+      handleBackHome();
+      return;
+    }
 
     // Xử lý request sync từ người khác
     if (event.type === 'requestSync') {

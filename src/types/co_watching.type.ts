@@ -5,6 +5,10 @@ export interface roomRes {
   roomId: string;
   name: string;
   hostId: number;
+  host: {
+    fullName: string;
+    avatarUrl: string;
+  }
   filmId: string;
   partNumber: number;
   episodeNumber: number;
@@ -37,9 +41,9 @@ export interface roomPaginate extends roomRes {
     slug: string;
   };
 
-  host: {
-    fullName: string;
-  };
+  // host: {
+  //   fullName: string;
+  // };
 }
 
 export interface getAllStreamRes {
@@ -56,7 +60,7 @@ export interface getAllStreamRes {
 export type SyncMode = 'initial' | 'manual';
 
 export interface SyncEvent {
-  type: 'play' | 'pause' | 'seek' | 'requestSync' | 'syncResponse' | 'syncEpisode';
+  type: 'play' | 'pause' | 'seek' | 'requestSync' | 'syncResponse' | 'syncEpisode' | 'endLive';
   currentTime?: number;
   isPlaying?: boolean;
   part?: number;
@@ -80,6 +84,8 @@ export interface RemoteEventHandlerParams {
   event: SyncEvent;
   art: Artplayer | null;
   emitSync: (event: SyncEvent) => void;
+  leaveRoom: () => void;
+  handleBackHome: () => void;
   syncMode: SyncMode;
   isHandlingRemoteEvent: React.MutableRefObject<boolean>;
   hasInitialSynced: React.MutableRefObject<boolean>;

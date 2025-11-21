@@ -16,6 +16,11 @@ import { FilmDataStream } from "@/types/film.type";
 import { useFilmStore } from "@/stores/filmStore";
 import PlayListNav from "./playListNav";
 import { useCoWatchingStore } from "@/stores/co-watchingStore";
+import { EndLiveButton } from "./endLiveButton";
+import roomServices from "@/services/co-watching/roomService";
+import { toast } from "sonner";
+import { vi } from "date-fns/locale";
+import { formatDistanceToNow } from "date-fns";
 
 const ArtPlayerClient = dynamic(
   () => import("./ArtPlayerClient"),
@@ -52,6 +57,9 @@ interface PlayerProps {
   handleArtReady: (art: Artplayer) => void;
   handleManualSync: () => void;
   handleSyncEpisode: (part: number, episode: number) => void;
+  handleEndLive: () => void;
+  leaveRoom: () => void;
+  handleBackHome: () => void;
 }
 
 const Player = ({
@@ -62,6 +70,9 @@ const Player = ({
   handleArtReady,
   handleManualSync,
   handleSyncEpisode,
+  handleEndLive,
+  leaveRoom,
+  handleBackHome,
 }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenListPart, setIsOpenListPart] = useState(false);
@@ -102,6 +113,15 @@ const Player = ({
     handleUpdateEpisode(part, episode);
   }
 
+  const handleEnd = async () => {
+    const result = await roomServices.updateRoom(dataRoom.room.roomId, { isLive: false });
+    if (result && result.EC === 0) {
+      toast.success(result.EM)
+      handleEndLive();
+      handleBackHome();
+    }
+  }
+
   return (
     <div>
       <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
@@ -113,6 +133,7 @@ const Player = ({
             partNumber={currentPart}
             onOpenChange={setIsOpen}
             onOpenList={setIsOpenListPart}
+            leaveRoom={leaveRoom}
           />
           <DetailNav
             open={isOpen}
@@ -152,8 +173,8 @@ const Player = ({
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h1 className="font-semibold">Quân đẹp trai</h1>
-                  <p className="text-xs text-zinc-400">tạo 1 ngày trước</p>
+                  <h1 className="font-semibold">{dataRoom.room.host.fullName}</h1>
+                  <p className="text-xs text-zinc-400">{formatDistanceToNow(new Date(dataRoom.room.createdAt), { addSuffix: true, locale: vi })}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -166,6 +187,7 @@ const Player = ({
                   <span className="text-sm">10</span>
                 </Button>
                 <CopyButton />
+                <EndLiveButton handleEnd={handleEnd} />
               </div>
             </div>
           </div>

@@ -2,12 +2,13 @@ import { ListProps } from "@/components/co_watching/list";
 import privateAxios from "@/lib/privateAxios";
 import publicAxios from "@/lib/publicAxios";
 import { IBackendRes } from "@/types/backend.type";
-import { getAllStreamRes, roomData, roomPayload } from "@/types/co_watching.type";
+import { getAllStreamRes, roomData, roomPayload, roomRes } from "@/types/co_watching.type";
 
 const roomServices = {
   createRoom: (payload: roomPayload): Promise<IBackendRes<roomData>> => {
     return privateAxios.post("/co-watching", payload);
   },
+
   getAllStream: (
     current: number,
     pageSize: number,
@@ -23,9 +24,17 @@ const roomServices = {
       }
     });
   },
+
   getRoomData: (roomId: string): Promise<IBackendRes<roomData>> => {
     return privateAxios.get(`/co-watching/${roomId}`);
-  }
+  },
+
+  updateRoom: (
+    roomId: string,
+    data: Partial<roomRes>
+  ): Promise<IBackendRes<roomRes>> => {
+    return privateAxios.patch(`/co-watching/${roomId}`, data)
+  },
 }
 
 export default roomServices;
