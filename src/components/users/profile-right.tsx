@@ -2,6 +2,8 @@
 
 import { Upload } from "lucide-react"
 import { useState, useEffect } from "react"
+import { UploadAvt } from "./upload/upload"
+import { AvatarUser } from "./upload/avatar"
 
 interface AuthUser {
     userId: number
@@ -19,6 +21,7 @@ export default function ProfileRight() {
     const [isEditing, setIsEditing] = useState(false)
     const [tempName, setTempName] = useState("")
     const [selectedGender, setSelectedGender] = useState("U")
+    const [avtUrl, setAvtUrl] = useState("");
 
     useEffect(() => {
         try {
@@ -43,6 +46,7 @@ export default function ProfileRight() {
                 ...authUser,
                 fullName: tempName.trim(),
                 genderCode: selectedGender,
+                avatarUrl: avtUrl,
             }
             localStorage.setItem("authUser", JSON.stringify(updatedUser))
             setAuthUser(updatedUser)
@@ -206,41 +210,7 @@ export default function ProfileRight() {
                 </div>
 
                 {/* Right: Avatar */}
-                <div className="flex flex-col items-center gap-4">
-                    <div
-                        className="w-40 h-40 rounded-full flex items-center justify-center shadow-xl border-4"
-                        style={{
-                            backgroundColor: "#FFD875",
-                            borderColor: "#FFD875",
-                            boxShadow: "0 12px 24px rgba(255, 216, 117, 0.3)",
-                        }}
-                    >
-                        <img
-                            src="/images/vn_flag.svg"
-                            alt="User Avatar"
-                            width={30}
-                            height={30}
-                            className="w-40 h-40 rounded-full cursor-pointer transition border-2 border-yellow-400/50"
-                        />
-                    </div>
-                    <button
-                        className="flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium transition-all"
-                        style={{
-                            backgroundColor: "rgba(255, 216, 117, 0.15)",
-                            color: "#FFD875",
-                            borderColor: "rgba(255, 216, 117, 0.3)",
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = "rgba(255, 216, 117, 0.25)"
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = "rgba(255, 216, 117, 0.15)"
-                        }}
-                    >
-                        <Upload size={16} />
-                        Ảnh có sẵn
-                    </button>
-                </div>
+                <AvatarUser setAvtUrl={setAvtUrl} imageUrl={avtUrl || authUser?.avatarUrl || '/images/vn_flag.svg'} />
             </div>
         </div>
     )
