@@ -69,27 +69,33 @@ export const List = ({ query }: ListProps) => {
   }, [loading, hasMore]);
 
   return (
-    <div className="grid grid-cols-4 gap-6 pt-4 pb-20">
-      {
-        list.map((item, i) => (
-          <Card
-            key={i}
-            thumbUrl={item.thumbUrl}
-            name={item.name}
-            createdAt={item.createdAt}
-            filmTitle={item.film.title}
-            view={100}
-            hostName={item.host.fullName}
-            roomId={item.roomId}
-            isLive={item.isLive}
-          />
-        ))
-      }
-
-      <div ref={loadMoreRef} className=""></div>
-      {loading && (
-        <div>Đang tải</div>
+    <div>
+      {list.length === 0 && (
+        <div className="flex items-center justify-center text-amber-400 font-semibold text-lg">Không có phòng live nào!</div>
       )}
+
+      <div className="grid grid-cols-4 gap-6 pt-4 pb-20">
+        {
+          list.map((item, i) => (
+            <Card
+              key={i}
+              thumbUrl={item.thumbUrl}
+              name={item.name}
+              createdAt={item.createdAt}
+              filmTitle={item.film.title}
+              view={100}
+              hostName={item.host.fullName}
+              roomId={item.roomId}
+              isLive={item.isLive}
+            />
+          ))
+        }
+
+        <div ref={loadMoreRef} className=""></div>
+        {loading && (
+          <div>Đang tải</div>
+        )}
+      </div>
     </div>
   )
 }

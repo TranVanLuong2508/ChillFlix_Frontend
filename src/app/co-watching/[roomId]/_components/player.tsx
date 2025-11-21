@@ -21,6 +21,7 @@ import roomServices from "@/services/co-watching/roomService";
 import { toast } from "sonner";
 import { vi } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
+import { useAuthStore } from "@/stores/authStore";
 
 const ArtPlayerClient = dynamic(
   () => import("./ArtPlayerClient"),
@@ -83,6 +84,7 @@ const Player = ({
 
   const { partData } = useFilmStore();
   const { part, episode, handleUpdateEpisode } = useCoWatchingStore();
+  const { authUser } = useAuthStore();
 
   useEffect(() => {
     setCurrentPart(part);
@@ -106,6 +108,11 @@ const Player = ({
 
 
   const handleChangeEpisode = (part: number, episode: number) => {
+    if (authUser.userId !== dataRoom.room.hostId) {
+      toast.error("Chỉ chủ phòng mới có thể thay đổi tập phim");
+      return;
+    }
+
     setCurrentPart(part);
     setCurrentEpisode(episode);
 
@@ -116,7 +123,6 @@ const Player = ({
   const handleEnd = async () => {
     const result = await roomServices.updateRoom(dataRoom.room.roomId, { isLive: false });
     if (result && result.EC === 0) {
-      toast.success(result.EM)
       handleEndLive();
       handleBackHome();
     }
@@ -186,8 +192,13 @@ const Player = ({
                   <Eye className="size-4" />
                   <span className="text-sm">10</span>
                 </Button>
-                <CopyButton />
-                <EndLiveButton handleEnd={handleEnd} />
+
+                {!dataRoom.room.isPrivate && (
+                  <CopyButton />
+                )}
+                {authUser.userId === dataRoom.room.hostId && (
+                  <EndLiveButton handleEnd={handleEnd} />
+                )}
               </div>
             </div>
           </div>
