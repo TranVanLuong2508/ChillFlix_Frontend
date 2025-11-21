@@ -33,7 +33,6 @@ export const List = ({ query }: ListProps) => {
 
       const metaData = res.data.meta;
       if (metaData.current === metaData.pages || newList.length === 0) {
-        toast.warning("Đã tải hết tất cả phòng live");
         setHasMore(false);
       }
 

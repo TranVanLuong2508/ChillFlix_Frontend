@@ -3,12 +3,16 @@
 import { useRouter } from "next/navigation";
 import { CircleChevronLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCoWatchingStore } from "@/stores/co-watchingStore";
 
-export function ExitButton() {
+export function ExitButton({ onClick }: { onClick: () => void }) {
   const router = useRouter();
+  const { resetDataRoom } = useCoWatchingStore();
 
   const handleExit = () => {
+    onClick();
     router.push("/co-watching");
+    resetDataRoom();
   };
 
   return (

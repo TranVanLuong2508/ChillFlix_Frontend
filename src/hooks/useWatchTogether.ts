@@ -4,14 +4,6 @@ import { useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type { SyncEvent } from '@/types/co_watching.type';
 
-// export type SyncEvent =
-//   | { type: 'play' }
-//   | { type: 'pause' }
-//   | { type: 'seek'; currentTime: number }
-//   | { type: 'requestSync' }
-//   | { type: 'syncResponse'; currentTime: number; isPlaying: boolean };
-
-
 export const useWatchTogether = (
   roomId: string,
   onEvent: (e: SyncEvent) => void,
@@ -107,10 +99,20 @@ export const useWatchTogether = (
 
   }, [roomId])
 
+  const leaveRoom = useCallback(() => {
+    const socket = socketRef.current;
+    if (socket) {
+      socket.emit('leave_room', { roomId });
+      socket.disconnect();
+      socketRef.current = null;
+    }
+  }, [roomId]);
+
   return {
     emitSync,
+    leaveRoom,
     isConnected: socketRef.current?.connected ?? false,
     isReady: isReadyRef.current,
-    socketId: socketRef.current?.id
+    socketId: socketRef.current?.id,
   };
 }
