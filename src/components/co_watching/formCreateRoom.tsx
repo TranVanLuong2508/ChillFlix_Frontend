@@ -56,9 +56,7 @@ export const FormCreateRoom = ({
   }, [filmData, authUser]);
 
 
-  const createRoom = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const createRoom = async () => {
     if (!authUser.userId) {
       toast.error("Vui lòng đăng nhập lại để tạo phòng!");
       return;
@@ -100,7 +98,7 @@ export const FormCreateRoom = ({
 
   return (
     <>
-      <form onSubmit={createRoom}>
+      <div>
         <div className="space-y-4">
           <div className="p-6 pt-5 text-white bg-[#282b3a] rounded-3xl">
             <Label
@@ -173,7 +171,7 @@ export const FormCreateRoom = ({
             <div className="col-span-7">
               <button
                 className="w-full bg-amber-300 py-3 rounded-2xl cursor-pointer text-lg font-semibold hover:shadow-[0px_0px_10px_0px_#ffd230] transition-all ease duration-200"
-                type="submit"
+                onClick={createRoom}
               >
                 Tạo phòng
               </button>
@@ -181,7 +179,6 @@ export const FormCreateRoom = ({
             <div className="col-span-3">
               <button
                 className="w-full bg-zinc-300 py-3 rounded-2xl cursor-pointer text-lg font-semibold hover:shadow-[0px_0px_10px_0px_#d4d4d8] transition-all ease duration-200"
-                type="button"
                 onClick={handleCancel}
               >
                 Hủy bỏ
@@ -189,7 +186,7 @@ export const FormCreateRoom = ({
             </div>
           </div>
         </div>
-      </form>
+      </div>
       <PartEpisodeDialog
         partData={partData}
         open={open}
