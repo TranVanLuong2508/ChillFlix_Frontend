@@ -1,14 +1,37 @@
-import { List } from "@/components/co_watching/list"
+"use client";
+
+import { List, ListProps } from "@/components/co_watching/list"
+import { useAuthStore } from "@/stores/authStore"
 import { ListVideo } from "lucide-react"
 
 const Co_WatchingPage = () => {
-  const query = {}
+  const { authUser, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return (
+      <div className="pt-40 px-[20px] text-white">
+        <div className="flex items-center gap-2">
+          <ListVideo className="size-8" />
+          <h2 className="text-xl font-semibold">Danh sách xem chung</h2>
+        </div>
+        <div className="flex items-center justify-center h-[calc(50vh-100px)]">
+          <div className="text-amber-400">Đang tải lên tất cả phòng live...</div>
+        </div>
+      </div>
+    )
+  }
+
+  const query: ListProps['query'] = {
+    isLive: true,
+    hostId: authUser.userId ?? undefined,
+    isMain: true,
+  }
 
   return (
     <div className="pt-40 px-[20px] text-white">
       <div className="flex items-center gap-2">
-        <ListVideo className="size-8" />
-        <h2 className="text-xl font-semibold">Danh sách xem chung</h2>
+        <ListVideo className="size-6" />
+        <h2 className="text-lg font-semibold">Danh sách xem chung</h2>
       </div>
       <List query={query} />
     </div>

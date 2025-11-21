@@ -1,3 +1,4 @@
+import { ListProps } from "@/components/co_watching/list";
 import privateAxios from "@/lib/privateAxios";
 import publicAxios from "@/lib/publicAxios";
 import { IBackendRes } from "@/types/backend.type";
@@ -10,16 +11,15 @@ const roomServices = {
   getAllStream: (
     current: number,
     pageSize: number,
-    query: {
-      isLive?: boolean;
-      hostId?: number;
-    }): Promise<IBackendRes<getAllStreamRes>> => {
+    query: ListProps['query'],
+  ): Promise<IBackendRes<getAllStreamRes>> => {
     return publicAxios.get(`/co-watching`, {
       params: {
         current,
         pageSize,
         ...(query.isLive !== undefined && { isLive: query.isLive }),
         ...(query.hostId !== undefined && { hostId: query.hostId }),
+        ...(query.isMain !== undefined && { isMain: query.isMain }),
       }
     });
   },

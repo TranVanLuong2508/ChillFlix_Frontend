@@ -6,10 +6,11 @@ import roomServices from "@/services/co-watching/roomService";
 import { toast } from "sonner";
 import { roomPaginate } from "@/types/co_watching.type";
 
-interface ListProps {
+export interface ListProps {
   query: {
     isLive?: boolean;
     hostId?: number;
+    isMain?: boolean;
   };
 }
 
@@ -26,17 +27,17 @@ export const List = ({ query }: ListProps) => {
 
     setLoading(true);
     const res = await roomServices.getAllStream(page, 8, query);
-    if (res.EC === 0 && res.data && res.data.list.length > 0) {
+    if (res.EC === 0 && res.data) {
       const newList = res.data.list
       setList((prev) => [...prev, ...newList]);
 
       const metaData = res.data.meta;
-      if (metaData.current === metaData.pages) {
+      if (metaData.current === metaData.pages || newList.length === 0) {
+        toast.warning("Đã tải hết tất cả phòng live");
         setHasMore(false);
       }
 
     } else {
-      toast.error("Had error when get list stream");
       console.log(">>> Error get list stream: ", res.EM);
     }
     setLoading(false);
