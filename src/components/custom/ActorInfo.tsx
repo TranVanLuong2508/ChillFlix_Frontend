@@ -26,7 +26,7 @@ export default function ActorInfo() {
             <h3 className="text-xl font-semibold text-white text-center mb-4">
                 {actor?.actorName || "Chưa rõ tên"}
             </h3>
-            <div className="flex items-center justify-center gap-3 mb-6">
+            {/* <div className="flex items-center justify-center gap-3 mb-6">
                 <button
                     onClick={() => {
                         setLiked(!liked);
@@ -75,7 +75,7 @@ export default function ActorInfo() {
                         </div>
                     </PopoverContent>
                 </Popover>
-            </div>
+            </div> */}
 
 
             <div className="w-full flex flex-col gap-3">

@@ -27,7 +27,7 @@ export default function DirectorInfo() {
                 {director?.directorName || "Chưa rõ tên"}
             </h3>
 
-            <div className="flex items-center justify-center gap-3 mb-6">
+            {/* <div className="flex items-center justify-center gap-3 mb-6">
                 <button
                     onClick={() => {
                         setLiked(!liked);
@@ -79,7 +79,7 @@ export default function DirectorInfo() {
                         </div>
                     </PopoverContent>
                 </Popover>
-            </div>
+            </div> */}
 
             <div className="w-full flex flex-col gap-3">
                 <div className="text-left">
