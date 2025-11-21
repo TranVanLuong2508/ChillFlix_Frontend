@@ -9,7 +9,7 @@ const homeCo_WatchingLayout = ({ children }: homeCo_WatchingLayoutProps) => {
   return (
     <div className="relative w-full min-h-[calc(100vh-400px)]">
       <Background />
-      <div className="relative z-10 pt-[250px]">
+      <div className="relative z-10 pt-[230px]">
         <Action />
         {children}
       </div>
