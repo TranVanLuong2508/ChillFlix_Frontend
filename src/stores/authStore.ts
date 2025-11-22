@@ -11,6 +11,7 @@ export interface IAuthUser {
   genderCode: string;
   isVip: boolean | null;
   statusCode: string;
+  avatarUrl: string;
   permissions?: {
     name: string;
     apiPath: string;
@@ -47,6 +48,7 @@ const initialAuthState: IAuthState = {
     genderCode: "",
     isVip: null,
     statusCode: "",
+    avatarUrl: "",
     permissions: [],
   },
 };
@@ -62,6 +64,7 @@ type authAction = {
   setTokenToTestApi: () => void;
   fetchAccountAction: (user: IUser) => void;
   resetAuthAction: () => void;
+  setAuthUser: (user: IAuthUser) => void;
 };
 
 export const useAuthStore = create<IAuthState & authAction>()(
@@ -99,6 +102,7 @@ export const useAuthStore = create<IAuthState & authAction>()(
             genderCode: "",
             isVip: null,
             statusCode: "",
+            avatarUrl: "",
             permissions: [],
           },
         });
@@ -130,6 +134,7 @@ export const useAuthStore = create<IAuthState & authAction>()(
             genderCode: user.genderCode,
             isVip: user.isVip,
             statusCode: user.statusCode,
+            avatarUrl: user.avatarUrl,
             permissions: user.permissions || [],
           },
         });
@@ -141,6 +146,17 @@ export const useAuthStore = create<IAuthState & authAction>()(
           authUser: initialAuthState.authUser,
           isLoading: false,
         });
+      },
+
+      setAuthUser: (user) => {
+        set((state) => ({
+          authUser: {
+            ...state.authUser,
+            genderCode: user.genderCode,
+            fullName: user.fullName,
+            avatarUrl: user.avatarUrl,
+          },
+        }));
       },
 
       setIsLoggingIn: (value) => set({ isLoggingIn: value }),

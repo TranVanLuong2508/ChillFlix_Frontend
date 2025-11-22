@@ -9,6 +9,8 @@ export const AuthenticationsMessage = {
   registerExistEmail:
     "Email này đã tồn tại trong hệ thống, vui lòng sử dụng Email khác",
   logoutSucess: "Đăng xuất thành công",
+  updateSucess: "Chỉnh sửa thông tin thành công",
+  updateError: "Chỉnh sửa thất bại, vui lòng thử lại",
 } as const;
 
 export const UpgradeVipMessage = {

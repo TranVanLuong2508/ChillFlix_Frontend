@@ -841,7 +841,12 @@ export default function Header() {
                             </span>
                             <span>Xem tiếp</span>
                           </button>
-                          <button className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm">
+                          <button
+                            onClick={() => {
+                              goProfile();
+                            }}
+                            className="w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:text-yellow-400 hover:bg-[#2a3040]/50 transition text-sm"
+                          >
                             <span className="text-lg">
                               <CircleUserRound />
                             </span>
