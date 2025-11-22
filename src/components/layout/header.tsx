@@ -38,7 +38,7 @@ export default function Header() {
   const [activeTab, setActiveTab] = useState("film");
   const { openLoginModal } = useAuthModalStore();
 
-  const { goHome, goProfile, goUpgradeVip } = useAppRouter();
+  const { goHome, goProfile, goUpgradeVip, goSingleFilms, goSeriesFilms, goGenre, goCountry } = useAppRouter();
   const { openDrawer } = useChatDrawerStore();
   const {
     logOutAction,
@@ -185,10 +185,16 @@ export default function Header() {
 
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center gap-0">
-            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md"
+              onClick={() => {
+                goSingleFilms();
+              }}>
               Phim Lẻ
             </button>
-            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md"
+              onClick={() => {
+                goSeriesFilms();
+              }}>
               Phim Bộ
             </button>
             <DropdownMenu>
@@ -213,6 +219,9 @@ export default function Header() {
                       key={`${index}-${genre.id}`}
                       className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                        w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                      onClick={() => {
+                        goGenre(genre.valueEn as string);
+                      }}
                     >
                       {genre.valueVi}
                     </button>
@@ -241,6 +250,9 @@ export default function Header() {
                       key={`${index}-${country.id}`}
                       className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                        w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                      onClick={() => {
+                        goCountry(country.valueEn as string)
+                      }}
                     >
                       {country.valueVi}
                     </button>
@@ -328,11 +340,10 @@ export default function Header() {
                           value={tab}
                           className={`relative flex-1 py-2 transition-all duration-300 rounded-none cursor-pointer data-[state=active]:bg-transparent data-[state=active]:text-yellow-400
 
-                    ${
-                      activeTab === tab
-                        ? "text-yellow-400 font-semibold scale-[1.03]"
-                        : "text-gray-400 hover:text-yellow-300"
-                    }`}
+                    ${activeTab === tab
+                              ? "text-yellow-400 font-semibold scale-[1.03]"
+                              : "text-gray-400 hover:text-yellow-300"
+                            }`}
                         >
                           {tab === "film" && "Phim"}
                           {tab === "community" && "Cộng đồng"}
@@ -340,11 +351,10 @@ export default function Header() {
 
                           {/* Underline animation */}
                           <span
-                            className={`absolute left-0 bottom-0 h-[2px] bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full transition-all duration-300 ${
-                              activeTab === tab
-                                ? "w-full opacity-100"
-                                : "w-0 opacity-0"
-                            }`}
+                            className={`absolute left-0 bottom-0 h-[2px] bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full transition-all duration-300 ${activeTab === tab
+                              ? "w-full opacity-100"
+                              : "w-0 opacity-0"
+                              }`}
                           />
                         </TabsTrigger>
                       ))}

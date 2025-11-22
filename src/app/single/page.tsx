@@ -3,17 +3,8 @@
 import { useEffect, useState } from "react"
 import MovieCardVertical from "@/components/homepage/movie-card-vertical"
 import filmServices from "@/services/filmService"
-import { allCodeServie } from "@/services"
 import type { FilmDetailRes } from "@/types/filmType"
-import type { AllCodeRow } from "@/types/allcode.type"
 import FilterPanel from "@/components/search/filter-panel"
-
-interface GenrePageProps {
-    params: Promise<{
-        genreSlug: string
-    }>
-}
-
 const getPosterUrl = (film: any): string => {
     if (film.posterUrl) return film.posterUrl
     if (film.filmImages && Array.isArray(film.filmImages)) {
@@ -24,10 +15,7 @@ const getPosterUrl = (film: any): string => {
     return "/placeholder.svg"
 }
 
-export default function GenrePage({ params }: GenrePageProps) {
-    const [genreName, setGenreName] = useState<string>("")
-    const [genreDisplayName, setGenreDisplayName] = useState<string>("")
-    const [apiGenreKey, setApiGenreKey] = useState<string>("")
+export default function SinglePage() {
     const [films, setFilms] = useState<FilmDetailRes[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -35,52 +23,10 @@ export default function GenrePage({ params }: GenrePageProps) {
     const [totalPages, setTotalPages] = useState(1)
 
     useEffect(() => {
-        const unwrapParams = async () => {
-            const resolvedParams = await params
-            const genre = resolvedParams.genreSlug
-            setGenreName(genre)
-        }
-        unwrapParams()
-    }, [params])
-
-    useEffect(() => {
-        const fetchGenreName = async () => {
-            try {
-                const res = await allCodeServie.getGenresList()
-                if (res && res.EC === 1) {
-                    const genres = res.data?.GENRE || []
-
-                    const genre = genres.find(
-                        (g: AllCodeRow) =>
-                            g.valueEn?.toUpperCase() === genreName.toUpperCase() ||
-                            g.keyMap?.toUpperCase() === genreName.toUpperCase()
-                    )
-                    if (genre) {
-                        setGenreDisplayName(genre.valueVi)
-                        setApiGenreKey(genre.valueEn || genre.keyMap)
-                    } else {
-                        setGenreDisplayName(genreName)
-                        const capitalizedGenre = genreName.charAt(0).toUpperCase() + genreName.slice(1)
-                        setApiGenreKey(capitalizedGenre)
-                    }
-                }
-            } catch (err) {
-                const capitalizedGenre = genreName.charAt(0).toUpperCase() + genreName.slice(1)
-                setGenreDisplayName(capitalizedGenre)
-                setApiGenreKey(capitalizedGenre)
-            }
-        }
-
-        if (genreName) {
-            fetchGenreName()
-        }
-    }, [genreName])
-
-    useEffect(() => {
-        const fetchFilmsByGenre = async () => {
+        const fetchSingleFilms = async () => {
             try {
                 setLoading(true)
-                const response = await filmServices.getByGenre(apiGenreKey, page)
+                const response = await filmServices.getByType("Single", page)
 
                 const filmList = response.data?.result || []
                 const meta = response.data?.meta
@@ -105,7 +51,7 @@ export default function GenrePage({ params }: GenrePageProps) {
                                     .filter(Boolean) || [],
                             badges: [
                                 { text: "PD", color: "bg-blue-600" },
-                                { text: film.type?.valueVi || "Film", color: "bg-green-600" },
+                                { text: film.type?.valueVi || "Single", color: "bg-green-600" },
                             ],
                             episodes: "Phần 1",
                         }) as FilmDetailRes
@@ -113,20 +59,19 @@ export default function GenrePage({ params }: GenrePageProps) {
 
                 setFilms(transformedFilms)
                 if (meta) {
-                    setTotalPages(meta.totalPages || 1)
+                    setTotalPages(meta.pages || 1)
                 }
                 setError(null)
             } catch (err) {
+                console.error("[v0] Error fetching single films:", err)
                 setError("Không thể tải dữ liệu phim")
             } finally {
                 setLoading(false)
             }
         }
 
-        if (apiGenreKey) {
-            fetchFilmsByGenre()
-        }
-    }, [apiGenreKey, page])
+        fetchSingleFilms()
+    }, [page])
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
@@ -134,18 +79,16 @@ export default function GenrePage({ params }: GenrePageProps) {
                 {/* Header Section */}
                 <div className="px-4 py-8 ">
                     <div className="max-w-7xl mx-auto">
-                        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Phim {genreDisplayName}</h1>
+                        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Phim Lẻ</h1>
                         <p className="text-gray-400">
                             {films.length} phim | Cập nhật mới nhất
                         </p>
                     </div>
                 </div>
-
-                {/* Filter Section */}
                 <div className="max-w-7xl mx-auto">
                     <FilterPanel></FilterPanel>
                 </div>
-
+                {/* Filter Section */}
                 {/* Content Section */}
                 <div className="px-4 py-8">
                     {loading ? (
