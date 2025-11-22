@@ -53,6 +53,7 @@ export default function CommentSection() {
 
   const [commentText, setCommentText] = useState("");
   const [replyText, setReplyText] = useState("");
+  const [visibleReplies, setVisibleReplies] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (filmId) {
@@ -84,7 +85,7 @@ export default function CommentSection() {
     setReplyText("");
     setReplyingTo(null);
   };
-  
+
   const handleReact = (commentId: string, type: "LIKE" | "DISLIKE") => {
     reactComment(commentId, type);
   };
@@ -92,6 +93,17 @@ export default function CommentSection() {
   const handleDeleteComment = async (commentId: string) => {
     await deleteComment(commentId);
     countComments(filmId);
+  };
+
+  const loadMoreReplies = (commentId: string) => {
+    setVisibleReplies((prev) => ({
+      ...prev,
+      [commentId]: (prev[commentId] || 1) + 3,
+    }));
+  };
+
+  const getVisibleCount = (commentId: string) => {
+    return visibleReplies[commentId] || 1;
   };
 
   const countReplies = (replies: any[]): number => {
@@ -112,7 +124,13 @@ export default function CommentSection() {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-    
+
+    // Tạo unique key cho parent để track visible count
+    const parentKey = `${parent.id}-level${level}`;
+    const visibleCount = getVisibleCount(parentKey);
+    const hasMore = sortedReplies.length > visibleCount;
+    const visibleReplies = sortedReplies.slice(0, visibleCount);
+
     if (level >= maxLevel) {
       const flattenedReplies: any[] = [];
       const flatten = (reps: any[]) => {
@@ -129,26 +147,19 @@ export default function CommentSection() {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
+      const flatVisibleCount = getVisibleCount(parentKey);
+      const flatHasMore = allSorted.length > flatVisibleCount;
+      const flatVisible = allSorted.slice(0, flatVisibleCount);
+
       return (
         <div className="mt-3 space-y-3" style={{ marginLeft: 48 }}>
-          {allSorted.map((rep, index) => {
-            const isLast = index === allSorted.length - 1;
+          {flatVisible.map((rep, index) => {
             return (
               <div
                 key={`${rep.id}-${index}`}
                 id={`comment-${rep.id}`}
                 className="flex flex-col relative"
               >
-                {/* Đường dọc - dừng ở comment cuối */}
-                <div 
-                  className="absolute left-[-36px] top-0 w-[2px] bg-gray-700/50"
-                  style={{
-                    height: isLast ? '20px' : '100%'
-                  }}
-                />
-                {/* Đường ngang nối vào avatar */}
-                <div className="absolute left-[-36px] top-[20px] w-[24px] h-[2px] bg-gray-700/50" />
-
                 <div className="flex items-start gap-3">
                   <div className="relative w-10 h-10 z-10">
                     <img
@@ -169,10 +180,7 @@ export default function CommentSection() {
                       </div>
 
                       <p className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(rep.createdAt), {
-                          addSuffix: true,
-                          locale: vi,
-                        })}
+                        {formatTimeFromNowVN(rep.createdAt)}
                       </p>
                     </div>
 
@@ -187,10 +195,10 @@ export default function CommentSection() {
                             replyingTo?.replyId === rep.id
                               ? null
                               : {
-                                  parentId: rep.id,
-                                  replyId: rep.id,
-                                  replyToName: rep.user.name,
-                                }
+                                parentId: rep.id,
+                                replyId: rep.id,
+                                replyToName: rep.user.name,
+                              }
                           )
                         }
                         className="flex items-center gap-2 hover:text-yellow-400 transition"
@@ -305,6 +313,15 @@ export default function CommentSection() {
               </div>
             );
           })}
+
+          {flatHasMore && (
+            <button
+              onClick={() => loadMoreReplies(parentKey)}
+              className="ml-12 mt-2 text-sm text-yellow-400 hover:text-yellow-300 transition font-medium"
+            >
+              Xem thêm {Math.min(3, allSorted.length - flatVisibleCount)} phản hồi...
+            </button>
+          )}
         </div>
       );
     }
@@ -312,27 +329,27 @@ export default function CommentSection() {
     // Level 1: render normally with nested structure
     return (
       <div className="mt-3 space-y-4" style={{ marginLeft: 48 }}>
-        {sortedReplies.map((rep, index) => {
+        {visibleReplies.map((rep, index) => {
           const isLast = index === sortedReplies.length - 1;
           const hasNestedReplies = rep.replies && rep.replies.length > 0;
-          
+
           return (
             <div
               key={`${rep.id}-${index}`}
               id={`comment-${rep.id}`}
               className="flex flex-col relative"
             >
-              {/* Đường dọc cho level 1 */}
-              <div 
-                className="absolute left-[-36px] top-0 w-[2px] bg-gray-700/50"
+              {/* Đường dọc cho level 1 - căn giữa avatar */}
+              <div
+                // Bỏ dây nối
                 style={{
                   // Nếu là comment cuối và không có reply con thì dừng ở avatar
                   // Nếu có reply con thì kéo dài để nối với reply con
                   height: (isLast && !hasNestedReplies) ? '20px' : '100%'
                 }}
               />
-              {/* Đường ngang nối vào avatar */}
-              <div className="absolute left-[-36px] top-[20px] w-[24px] h-[2px] bg-gray-700/50" />
+              {/* Đường ngang nối vào avatar - căn giữa */}
+              {/* Bỏ dây nối ngang */}
 
               <div className="flex items-start gap-3">
                 <div className="relative w-10 h-10 z-10">
@@ -369,10 +386,10 @@ export default function CommentSection() {
                           replyingTo?.replyId === rep.id
                             ? null
                             : {
-                                parentId: rep.id,
-                                replyId: rep.id,
-                                replyToName: rep.user.name,
-                              }
+                              parentId: rep.id,
+                              replyId: rep.id,
+                              replyToName: rep.user.name,
+                            }
                         )
                       }
                       className="flex items-center gap-2 hover:text-yellow-400 transition"
@@ -490,6 +507,15 @@ export default function CommentSection() {
             </div>
           );
         })}
+
+        {hasMore && (
+          <button
+            onClick={() => loadMoreReplies(parentKey)}
+            className="text-sm text-yellow-400 hover:text-yellow-300 transition font-medium"
+          >
+            Xem thêm {Math.min(3, sortedReplies.length - visibleCount)} phản hồi...
+          </button>
+        )}
       </div>
     );
   };
@@ -615,9 +641,9 @@ export default function CommentSection() {
                                 !replyingTo?.replyId
                                 ? null
                                 : {
-                                    parentId: cmt.id,
-                                    replyToName: cmt.user.name,
-                                  }
+                                  parentId: cmt.id,
+                                  replyToName: cmt.user.name,
+                                }
                             )
                           }
                           className="flex items-center gap-2 hover:text-yellow-400 transition"

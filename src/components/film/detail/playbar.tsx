@@ -8,8 +8,16 @@ import {
   MessageSquare,
   Star,
   LucideIcon,
+  Copy,
 } from "lucide-react";
 import { useRatingStore } from "@/stores/ratingStore";
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  TelegramShareButton,
+  WhatsappShareButton,
+  WeiboShareButton,
+} from "react-share";
 
 import {
   DropdownMenu,
@@ -31,10 +39,14 @@ import { eventBus } from "@/lib/eventBus";
 import { userFavoriteStore } from "@/stores/favoriteStore";
 import { userServices } from "@/services";
 import { useFilmStore } from "@/stores/filmStore";
+import { usePlayerStore } from "@/stores/playerStore";
 import { userPlaylistStore } from "@/stores/playlistStore";
 import { toast } from "sonner";
 import { PlayListMessage } from "@/constants/messages/user.message";
 import CreatePlaylistModal from "@/components/users/playlists/CreatePlaylistModal";
+import { filmPath } from "@/constants/path";
+import { useRouter } from "next/navigation";
+
 
 interface PlayBarProps {
   activeTab: "comments" | "ratings";
@@ -176,6 +188,7 @@ const ModalAdd = ({ action }: { action: actionType }) => {
 
 //end luong add
 
+
 const ModalShare = ({
   open,
   onOpenChange,
@@ -183,33 +196,92 @@ const ModalShare = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
+  const { filmData } = useFilmStore();
+  const filmTitle = filmData?.film?.title || "";
+  const filmDescription = filmData?.film?.description || "";
+  let filmImage = "";
+  if (filmData?.filmImages?.poster) {
+    filmImage = filmData.filmImages.poster;
+  }
+  else if (filmData?.film?.filmImages && Array.isArray(filmData.film.filmImages)) {
+    const posterObj = filmData.film.filmImages.find((img) => img.type === "poster");
+    filmImage = posterObj?.url || "";
+  }
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(currentUrl);
+    toast.success("Đã sao chép link!", {
+      description: "Bạn có thể gửi cho bạn bè.",
+      duration: 2500,
+      position: "top-center",
+      // className: "bg-zinc-900/90 text-yellow-400 border border-yellow-500/30 rounded-xl px-5 py-4 shadow-[0_0_25px_rgba(250,204,21,0.25)]",
+    });
+  };
   const socialItems = [
     {
       icon: <i className="fa-brands fa-facebook-f text-white text-lg"></i>,
       color: "bg-blue-600 hover:bg-blue-600/80",
       name: "Facebook",
+      ButtonComponent: FacebookShareButton,
+      props: {
+        url: currentUrl,
+        hashtag: "#ChillFlix",
+        quote: filmDescription,
+
+      },
     },
     {
       icon: <i className="fa-brands fa-x-twitter text-white text-lg"></i>,
       color: "bg-black hover:bg-zinc-950",
       name: "Twitter",
+      ButtonComponent: TwitterShareButton,
+      props: {
+        url: currentUrl,
+        title: filmTitle,
+
+      },
     },
     {
       icon: <i className="fa-brands fa-telegram text-white text-lg"></i>,
       color: "bg-sky-500 hover:bg-sky-500/80",
       name: "Telegram",
+      ButtonComponent: TelegramShareButton,
+      props: {
+        url: currentUrl,
+        title: filmTitle,
+
+      },
     },
     {
-      icon: <i className="fa-brands fa-reddit-alien text-white text-lg"></i>,
-      color: "bg-orange-600 hover:bg-orange-600/80",
-      name: "Reddit",
+      icon: <i className="fa-brands fa-whatsapp text-white text-lg"></i>,
+      color: "bg-green-600 hover:bg-green-600/80",
+      name: "WhatsApp",
+      ButtonComponent: WhatsappShareButton,
+      props: {
+        url: currentUrl,
+        title: filmTitle,
+
+      },
     },
     {
-      icon: <i className="fa-solid fa-share-nodes text-white text-lg"></i>,
-      color: "bg-neutral-800 hover:bg-neutral-800/80",
-      name: "More...",
+      icon: <i className="fa-brands fa-weibo text-white text-lg"></i>,
+      color: "bg-red-600 hover:bg-red-600/80",
+      name: "Weibo",
+      ButtonComponent: WeiboShareButton,
+      props: {
+        url: currentUrl,
+        title: filmTitle,
+        image: filmImage,
+      },
+    },
+    {
+      icon: <Copy size={18} className="text-white" />,
+      color: "bg-gray-700 hover:bg-gray-600",
+      name: "Copy",
+      isCopy: true,
     },
   ];
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -222,18 +294,37 @@ const ModalShare = ({
         </DialogHeader>
         <div className="flex items-center justify-center gap-2 pt-2">
           {socialItems.map((item, index) => {
-            return (
-              <Button
-                key={index}
-                variant={"ghost"}
-                className={cn(
-                  item.color,
-                  "cursor-pointer transition-transform duration-240 ease-in hover:-translate-y-1.5"
-                )}
-              >
-                {item.icon}
-              </Button>
-            );
+            if (item.isCopy) {
+              return (
+                <Button
+                  key={index}
+                  onClick={handleCopy}
+                  variant="ghost"
+                  className={cn(
+                    item.color,
+                    "cursor-pointer transition-transform duration-240 ease-in hover:-translate-y-1.5"
+                  )}
+                >
+                  {item.icon}
+                </Button>
+              );
+            } else if (item.ButtonComponent) {
+              const ShareBtn = item.ButtonComponent;
+              return (
+                <ShareBtn key={index} {...item.props}>
+                  <button
+                    className={cn(
+                      item.color,
+                      "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer hover:-translate-y-1.5 duration-240 ease-in h-9 px-3"
+                    )}
+                  >
+                    {item.icon}
+                  </button>
+                </ShareBtn>
+              );
+            } else {
+              return null;
+            }
           })}
         </div>
       </DialogContent>
@@ -245,7 +336,7 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   const [liked, setLiked] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const { averageRating, totalRatings } = useRatingStore();
-
+  const router = useRouter();
   //luong add
   const { favoriteList, fetchFavoriteList } = userFavoriteStore();
   const { filmData } = useFilmStore();
@@ -303,12 +394,21 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
       },
     },
   ];
+
+  const { part, episode } = usePlayerStore();
+  const p = part || "1";
+  const ep = episode || "1";
+  const handleFilmClick = () => {
+    if (filmData?.film.slug) {
+      router.push(filmPath.PLAYER_DETAIL(filmData.film.slug, p, ep));
+    }
+  }
   return (
     <>
       <div className="flex items-center justify-between w-full mt-4 md:px-6">
         <div className="flex items-center justify-center">
           <button
-            onClick={() => {}}
+            onClick={handleFilmClick}
             className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 ease-in-out cursor-pointer"
           >
             <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent"></span>
