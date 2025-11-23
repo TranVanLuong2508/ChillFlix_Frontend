@@ -95,9 +95,7 @@ export default function Header() {
   useEffect(() => {
     const fetchData = async () => {
       if (authUser?.userId) {
-        // slight delay để đảm bảo store đã sync
         await new Promise((resolve) => setTimeout(resolve, 100));
-
         await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
       } else {
         resetNotifications();
@@ -433,11 +431,10 @@ export default function Header() {
 
                             {/* Underline animation */}
                             <span
-                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${
-                                isActive
-                                  ? "w-full opacity-100"
-                                  : "w-0 opacity-0"
-                              }`}
+                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${isActive
+                                ? "w-full opacity-100"
+                                : "w-0 opacity-0"
+                                }`}
                             />
                             {tab === "community" && unreadCount > 0 && (
                               <span className="absolute top-3 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
@@ -459,7 +456,7 @@ export default function Header() {
                   {/* TAB: community (chưa đọc) */}
                   <TabsContent
                     value="community"
-                    className={`p-4 text-left text-sm text-gray-300 ${showAllNotifications ? "max-h-[500px] overflow-y-auto" : "" }`}
+                    className={`p-4 text-left text-sm text-gray-300 ${showAllNotifications ? "max-h-[500px] overflow-y-auto" : ""}`}
                   >
                     {notifications.filter((n) => !n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
@@ -485,7 +482,8 @@ export default function Header() {
                                       n.result.commentId || n.result.parentId;
                                     const currentPath =
                                       window.location.pathname;
-                                    const isOnSameFilm = n.result?.slug && currentPath.includes(`/film-detail/${n.result.slug}`);
+                                    const isOnSameFilm = n.result?.slug &&
+                                      (currentPath.includes(`/film-detail/${n.result.slug}`) || currentPath.includes(`/play/${n.result.slug}`));
                                     if (isOnSameFilm) {
                                       const { eventBus } = await import("@/lib/eventBus");
                                       eventBus.emit("switchTab", "comments");
@@ -495,7 +493,7 @@ export default function Header() {
                                           const elementPosition =
                                             commentElement.getBoundingClientRect().top + window.pageYOffset;
                                           const offsetPosition = elementPosition - 100;
-                                          window.scrollTo({top: offsetPosition, behavior: "smooth"});
+                                          window.scrollTo({ top: offsetPosition, behavior: "smooth" });
                                           setTimeout(() => {
                                             const contentDiv = commentElement.querySelector(":scope > .flex.items-start") as HTMLElement | null;
                                             const target = contentDiv || commentElement;
@@ -518,7 +516,7 @@ export default function Header() {
                                         if (filmData?.EC === 1 && slug) {
                                           router.push(`/film-detail/${slug}?commentId=${commentId}`);
                                         } else {
-                                          toast.error( "Không tìm thấy thông tin phim. Vui lòng thử lại sau.");
+                                          toast.error("Không tìm thấy thông tin phim. Vui lòng thử lại sau.");
                                         }
                                       } catch {
                                         toast.error("Không thể tải thông tin phim. Vui lòng thử lại sau.");
@@ -545,7 +543,7 @@ export default function Header() {
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (n.notificationId > 0) {
-                                        deleteNotification(n.notificationId).catch(() => {toast.error("Không thể xóa thông báo. Vui lòng thử lại.");});
+                                        deleteNotification(n.notificationId).catch(() => { toast.error("Không thể xóa thông báo. Vui lòng thử lại."); });
                                       }
                                     }}
                                     className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-red-400"
@@ -592,12 +590,14 @@ export default function Header() {
                                   if (!n.result?.filmId) return;
                                   const commentId = n.result.commentId || n.result.parentId;
                                   const currentPath = window.location.pathname;
-                                  const isOnSameFilm = n.result?.slug && currentPath.includes(`/film-detail/${n.result.slug}`);
+                                  const isOnSameFilm = n.result?.slug &&
+                                    (currentPath.includes(`/film-detail/${n.result.slug}`) ||
+                                      currentPath.includes(`/play/${n.result.slug}`));
                                   if (isOnSameFilm) {
                                     const { eventBus } = await import("@/lib/eventBus");
                                     eventBus.emit("switchTab", "comments");
                                     setTimeout(() => {
-                                      const commentElement =document.getElementById(`comment-${commentId}`);
+                                      const commentElement = document.getElementById(`comment-${commentId}`);
                                       if (commentElement) {
                                         const elementPosition = commentElement.getBoundingClientRect().top + window.pageYOffset;
                                         const offsetPosition = elementPosition - 100;
@@ -609,7 +609,7 @@ export default function Header() {
                                           const contentDiv =
                                             commentElement.querySelector(":scope > .flex.items-start") as HTMLElement | null;
                                           const target = contentDiv || commentElement;
-                                          target.classList.add( "highlight-comment");
+                                          target.classList.add("highlight-comment");
                                           setTimeout(() => {
                                             target.classList.remove("highlight-comment");
                                           }, 2800);

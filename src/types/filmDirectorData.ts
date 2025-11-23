@@ -7,3 +7,29 @@ export interface FilmDirectorRes {
   director: Director;
   result: FilmData[];
 }
+
+
+
+export interface FilmDirectorItem {
+  filmId: string;
+  originalTitle: string;
+  title: string;
+  description: string;
+  releaseDate: string;
+  year: string;
+  thumbUrl: string;
+  slug: string;
+  duration: number;
+  age: string;
+  type: string;
+  country: string;
+  language: string;
+  publicStatus: string;
+}
+
+
+export interface FilmDirectorGroup {
+  director: string;               
+  filmList: FilmDirectorItem[];  
+}
+
