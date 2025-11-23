@@ -49,6 +49,13 @@ interface CommentStoreActions {
     comment: BackendComment;
   }) => void;
   countCommentsRealtime: (filmId: string, total?: number) => void;
+  reactCommentRealtime: (reaction: {
+    commentId: string;
+    userId: number | string;
+    totalLike: number;
+    totalDislike: number;
+    userReaction?: CommentReactionType;
+  }) => void;
 }
 
 const mapBackendToItem = (c: BackendComment): CommentItem => ({
@@ -64,8 +71,60 @@ const mapBackendToItem = (c: BackendComment): CommentItem => ({
     name: c.user.fullName,
     avatar: c.user.avatarUrl,
   },
-  replies: [],
+  parent: c.parent
+    ? {
+        id: c.parent.commentId,
+        user: {
+          id: c.parent.user.userId,
+          name: c.parent.user.fullName,
+          avatar: c.parent.user.avatarUrl,
+        },
+      }
+    : null,
+  replies: (c.children || []).map(mapBackendToItem),
 });
+
+const existsInTree = (list: CommentItem[], id: string): boolean => {
+  for (const c of list) {
+    if (c.id === id) return true;
+    if (c.replies && c.replies.length && existsInTree(c.replies, id))
+      return true;
+  }
+  return false;
+};
+
+const countSubtree = (node: CommentItem): number => {
+  if (!node) return 0;
+  return 1 + (node.replies || []).reduce((s, r) => s + countSubtree(r), 0);
+};
+
+const removeNodeRecursive = (
+  list: CommentItem[],
+  id: string
+): { list: CommentItem[]; removed: number } => {
+  let removed = 0;
+  const newList: CommentItem[] = [];
+
+  for (const c of list) {
+    if (c.id === id) {
+      removed += countSubtree(c);
+      continue;
+    }
+
+    if (c.replies && c.replies.length) {
+      const res = removeNodeRecursive(c.replies, id);
+      if (res.removed > 0) {
+        removed += res.removed;
+        newList.push({ ...c, replies: res.list });
+        continue;
+      }
+    }
+
+    newList.push(c);
+  }
+
+  return { list: newList, removed };
+};
 
 export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
   (set, get) => ({
@@ -95,7 +154,10 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
         const data: CommentListData = res.data;
         set({
-          comments: data.comments || [],
+          comments: (data.comments || []).sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          ),
           meta: data.meta,
           isLoading: false,
         });
@@ -124,16 +186,25 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
         const newItem = mapBackendToItem(fullComment);
 
         if (payload.parentId) {
-          set((state) => ({
-            comments: state.comments.map((c) =>
-              c.id === payload.parentId
-                ? { ...c, replies: [...c.replies, newItem] }
-                : c
-            ),
-          }));
+          const addReplyRecursive = (comments: CommentItem[]): CommentItem[] =>
+            comments.map((c) => {
+              if (c.id === payload.parentId) {
+                return { ...c, replies: [...(c.replies || []), newItem] };
+              }
+              return { ...c, replies: addReplyRecursive(c.replies || []) };
+            });
+
+          set((state) => {
+            const updatedComments = addReplyRecursive(state.comments);
+            return {
+              comments: updatedComments,
+              totalComments: (state.totalComments || 0) + 1,
+            };
+          });
         } else {
           set((state) => ({
             comments: [newItem, ...state.comments],
+            totalComments: (state.totalComments || 0) + 1,
           }));
         }
       } catch (error: any) {
@@ -144,7 +215,7 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
       }
     },
 
-    deleteComment: async (commentId: string) => {
+    deleteComment: async (commentId: string, filmId?: string) => {
       set({ isLoading: true, error: null });
       try {
         const res = await CommentServices.deleteComment(commentId);
@@ -156,15 +227,12 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
           return;
         }
         set((state) => {
-          const newComments = state.comments
-            .filter((c) => c.id !== commentId)
-            .map((c) => ({
-              ...c,
-              replies: c.replies.filter((r) => r.id !== commentId),
-            }));
-
-          return { ...state, comments: newComments, isLoading: false };
+          const res = removeNodeRecursive(state.comments, commentId);
+          return { ...state, comments: res.list, isLoading: false };
         });
+        if (filmId) {
+          await get().countComments(filmId);
+        }
       } catch (error: any) {
         console.error("deleteComment error", error);
         set({
@@ -177,7 +245,6 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
     reactComment: async (commentId, type) => {
       try {
         const res = await CommentServices.reactToComment(commentId, type);
-        console.log("REACT API RESPONSE:", res);
         if (res.EC !== 1 || !res.data) {
           set({ error: res.EM || "Error reacting to comment" });
           return;
@@ -231,62 +298,112 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     removeCommentRealtime: (commentId: string) =>
       set((state) => {
-        const updated = state.comments
-          .filter((c) => c.id !== commentId)
-          .map((c) => ({
-            ...c,
-            replies: c.replies?.filter((r) => r.id !== commentId) || [],
-          }));
-
-        return { ...state, comments: updated };
+        const res = removeNodeRecursive(state.comments, commentId);
+        const newTotal = Math.max((state.totalComments || 0) - res.removed, 0);
+        return { ...state, comments: res.list, totalComments: newTotal };
       }),
 
     createCommentRealtime: (newComment: BackendComment) =>
       set((state) => {
         const mappedComment = mapBackendToItem(newComment);
-        const exists = state.comments.some(
-          (c) =>
-            c.id === mappedComment.id ||
-            c.replies.some((r) => r.id === mappedComment.id)
-        );
-        if (exists) return state;
+        const exists = existsInTree(state.comments, mappedComment.id);
+        if (exists) {
+          console.log("[COMMENT SOCKET] Comment already exists, skipping");
+          return state;
+        }
 
         if (newComment.parent) {
-          const updatedComments = state.comments.map((c) =>
-            c.id === newComment.parent?.commentId
-              ? { ...c, replies: [...(c.replies || []), mappedComment] }
-              : c
-          );
-          return { ...state, comments: updatedComments };
+          const addReplyRecursive = (
+            comments: CommentItem[]
+          ): CommentItem[] => {
+            return comments.map((c) => {
+              if (c.id === newComment.parent?.commentId) {
+                return { ...c, replies: [...(c.replies || []), mappedComment] };
+              }
+              return {
+                ...c,
+                replies: addReplyRecursive(c.replies || []),
+              };
+            });
+          };
+          return {
+            ...state,
+            comments: addReplyRecursive(state.comments),
+            totalComments: (state.totalComments || 0) + 1,
+          };
         } else {
-          return { ...state, comments: [mappedComment, ...state.comments] };
+          return {
+            ...state,
+            comments: [mappedComment, ...state.comments],
+            totalComments: (state.totalComments || 0) + 1,
+          };
         }
       }),
 
     replyCommentRealtime: (data) =>
       set((state) => {
         const mappedComment = mapBackendToItem(data.comment);
-        const exists = state.comments.some(
-          (c) =>
-            c.id === mappedComment.id ||
-            c.replies.some((r) => r.id === mappedComment.id)
-        );
-        if (exists) return state;
+        const exists = existsInTree(state.comments, mappedComment.id);
+        if (exists) {
+          return state;
+        }
 
-        const updatedComments = state.comments.map((c) =>
-          c.id === data.parentId
-            ? { ...c, replies: [...(c.replies || []), mappedComment] }
-            : c
-        );
-        return { ...state, comments: updatedComments };
+        const addReplyRecursive = (comments: CommentItem[]): CommentItem[] => {
+          return comments.map((c) => {
+            if (c.id === data.parentId) {
+              return { ...c, replies: [...(c.replies || []), mappedComment] };
+            }
+            return {
+              ...c,
+              replies: addReplyRecursive(c.replies || []),
+            };
+          });
+        };
+        return {
+          ...state,
+          comments: addReplyRecursive(state.comments),
+          totalComments: (state.totalComments || 0) + 1,
+        };
       }),
 
     countCommentsRealtime: (filmId: string, total?: number) => {
       if (!filmId) return;
+      set(() => ({
+        totalComments: typeof total === "number" ? total : 0,
+      }));
+    },
+
+    reactCommentRealtime: (reaction) => {
+      const { commentId, totalLike, totalDislike, userReaction, userId } =
+        reaction;
+      const currentUser = useAuthStore.getState().authUser;
+
+      const updateTree = (list: CommentItem[]): CommentItem[] =>
+        list.map((c) => {
+          const replies = c.replies || [];
+
+          if (c.id === commentId) {
+            return {
+              ...c,
+              totalLike,
+              totalDislike,
+              currentUserReaction:
+                currentUser?.userId === userId
+                  ? userReaction || undefined
+                  : c.currentUserReaction,
+              replies: updateTree(replies),
+            };
+          }
+
+          return {
+            ...c,
+            replies: updateTree(replies),
+          };
+        });
+
       set((state) => ({
         ...state,
-        totalComments:
-          typeof total === "number" ? total : state.totalComments + 1,
+        comments: updateTree(state.comments),
       }));
     },
 

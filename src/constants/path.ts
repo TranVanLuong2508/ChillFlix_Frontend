@@ -12,9 +12,13 @@ export const filmPath = {
   DIRECTOR_DETAIL: (id: number | string) => `/director-detail/${id}`,
   FILM_DETAIL: (slug: string) => `/film-detail/${slug}`,
   PLAYER_DETAIL: (filmSlug: string, part: string, episode: string) => `/play/${filmSlug}?p=${part}&ep=${episode}`
-
 };
 
 export const playPath = {
   WATCHNOW: (id: string) => `/play/${id}`,
 };
+
+export const co_watchingPath = {
+  CREATE: () => `/co-watching/create`,
+  PLAY: (id: string) => `/co-watching/${id}`
+}

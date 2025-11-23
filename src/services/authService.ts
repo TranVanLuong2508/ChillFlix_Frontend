@@ -8,18 +8,17 @@ import {
 } from "@/types/authen.type";
 import { IBackendRes } from "@/types/backend.type";
 
-const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL;
 export const authService = {
   callLogin: (credentials: LoginInput): Promise<IBackendRes<IAccount>> => {
-    return publicAxios.post(`${baseURL}/auth/login`, credentials);
+    return publicAxios.post(`/auth/login`, credentials);
   },
 
   callLogout: (): Promise<IBackendRes<IAccount>> => {
-    return privateAxios.post(`${baseURL}/auth/logout`);
+    return privateAxios.post(`auth/logout`);
   },
 
   CallRefreshToken: (): Promise<IBackendRes<IAccount>> => {
-    return privateAxios.get(`${baseURL}/auth/refreshToken`);
+    return privateAxios.get(`/auth/refreshToken`);
   },
 
   callFetchAccount: (): Promise<IBackendRes<IGetAccount>> => {
@@ -27,6 +26,6 @@ export const authService = {
   },
 
   callRegister: (data: RegisterInput): Promise<IBackendRes<IGetAccount>> => {
-    return publicAxios.post(`${baseURL}/auth/register`, data);
+    return publicAxios.post(`/auth/register`, data);
   },
 };

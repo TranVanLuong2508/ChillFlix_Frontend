@@ -38,17 +38,19 @@ export default function ProducerDetail() {
     return (
         <main className="flex flex-col min-h-screen bg-[#191B24] text-white overflow-x-hidden">
             <section className="relative flex-1 w-full">
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                    <div className="grid grid-cols-1 lg:grid-cols-16 gap-8 lg:gap-12 items-start justify-center">
-                        <div className="lg:col-span-4 flex justify-center border-b lg:border-b-0 lg:border-r border-zinc-800 pb-6 lg:pb-0 lg:pr-6">
+                <div className="max-w-[1400px] mx-auto px-2 sm:px-4 lg:px-6">
+                    <div className="flex flex-col gap-10">
+                        <div className="border-b border-zinc-800 pb-6">
                             <ProducerInfo />
                         </div>
-                        <div className="lg:col-span-12 flex flex-col gap-8 mt-8 lg:mt-0">
+                        <div className="pt-6">
                             <FilmProducer />
                         </div>
+
                     </div>
                 </div>
             </section>
         </main>
+
     )
 }

@@ -1,7 +1,6 @@
 import { AllCodeValue } from "./allcode.type";
 import { Actor } from "./actor.type";
 import { Director } from "./director.type";
-import { RatingData } from "./backend.type";
 
 export interface FilmImageRes {
   url: string;
@@ -41,5 +40,10 @@ export interface FilmDetailRes {
 }
 
 export interface FilmDetail extends FilmDetailRes {
+  filmImages: FilmImages;
+}
+
+export interface FilmDataStream {
+  film: Film;
   filmImages: FilmImages;
 }

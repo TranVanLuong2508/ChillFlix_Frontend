@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-import { Heart, Plus, Send, MessageSquare, Star, LucideIcon } from "lucide-react";
+import {
+  Heart,
+  Plus,
+  Send,
+  MessageSquare,
+  Star,
+  LucideIcon,
+} from "lucide-react";
+import { useRatingStore } from "@/stores/ratingStore";
 
 import {
   DropdownMenu,
@@ -13,15 +21,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { eventBus } from "@/lib/eventBus";
+import { userFavoriteStore } from "@/stores/favoriteStore";
+import { userServices } from "@/services";
+import { useFilmStore } from "@/stores/filmStore";
+import { userPlaylistStore } from "@/stores/playlistStore";
+import { toast } from "sonner";
+import { PlayListMessage } from "@/constants/messages/user.message";
+import CreatePlaylistModal from "@/components/users/playlists/CreatePlaylistModal";
 
 interface PlayBarProps {
   activeTab: "comments" | "ratings";
@@ -29,79 +42,174 @@ interface PlayBarProps {
 }
 
 type actionType = {
-  id: string,
-  label: string,
-  icon: LucideIcon,
-  onClick?: () => void,
-}
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  onClick?: () => void;
+};
+
+//luong add
 
 const ModalAdd = ({ action }: { action: actionType }) => {
   const Icon = action.icon;
 
+  const { filmData } = useFilmStore();
+  const { userPlaylists, fetchPlaylists } = userPlaylistStore();
+
+  const [openCreate, setOpenCreate] = useState(false);
+
+  useEffect(() => {
+    fetchPlaylists();
+  }, []);
+
+  const handleToggleFilm = async (
+    playlistId: string,
+    filmId: string,
+    isCheck: boolean
+  ) => {
+    if (!filmId || !playlistId) return;
+    try {
+      if (isCheck) {
+        const res = await userServices.CallRemoveFilmFromPlaylist(
+          playlistId,
+          filmId
+        );
+        if (res && res?.EC === 1) {
+          toast.success(PlayListMessage.deleteSucess);
+        }
+      } else {
+        const res = await userServices.CallAddFilmToPlaylist(
+          playlistId,
+          filmId
+        );
+        if (res && res?.EC === 1) {
+          toast.success(PlayListMessage.addSucess);
+        }
+      }
+      fetchPlaylists();
+    } catch (err) {
+      console.log("Error toggle playlist:", err);
+      toast.error("Lỗi thao tác");
+    }
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl text-white transition-all duration-300 ease-in-out cursor-pointer hover:text-yellow-400 hover:text-shadow-[0_0_25px_rgba(250,204,21,0.4)] focus:outline-none focus:ring-0">
-          <Icon size={18} strokeWidth={2} />
-          <span className="text-xs mt-1">{action.label}</span>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        side="bottom"
-        align="center"
-        sideOffset={0}
-        className="w-52 bg-zinc-600/10 backdrop-blur-md border border-white/25 text-gray-200 rounded-2xl fade-in slide-in-from-bottom-2 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 duration-160 ease-in-out p-3"
-      >
-        <DropdownMenuLabel className="flex justify-between text-xs uppercase tracking-wide text-gray-400 px-1">
-          <span>Danh sách</span>
-          <span className="text-gray-500 font-normal">0/5</span>
-        </DropdownMenuLabel>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl text-white transition-all duration-300 ease-in-out cursor-pointer hover:text-yellow-400 hover:text-shadow-[0_0_25px_rgba(250,204,21,0.4)] focus:outline-none focus:ring-0">
+            <Icon size={18} strokeWidth={2} />
+            <span className="text-xs mt-1">{action.label}</span>
+          </button>
+        </DropdownMenuTrigger>
 
-        <DropdownMenuSeparator className="my-1 bg-zinc-500 mb-3" />
+        <DropdownMenuContent
+          side="bottom"
+          align="center"
+          sideOffset={0}
+          className="w-60 bg-zinc-700/30 backdrop-blur-md border border-white/20 text-gray-200 rounded-2xl p-3 shadow-xl"
+        >
+          <DropdownMenuLabel className="flex justify-between text-xs uppercase tracking-wide text-gray-400 px-1">
+            <span>Danh sách</span>
+            <span className="text-gray-500 font-normal">
+              {userPlaylists.length}/5
+            </span>
+          </DropdownMenuLabel>
 
-        <DropdownMenuItem className="flex justify-center p-2 font-medium rounded-md cursor-pointer text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_12px_rgba(250,204,21,0.45)] focus:bg-yellow-400 focus:text-black transition-all duration-200 ease-in-out">
-          + Thêm mới
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuSeparator className="my-2 bg-zinc-500" />
+
+          <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
+            {userPlaylists &&
+              userPlaylists.map((pl) => {
+                const isCheck =
+                  pl.films.findIndex(
+                    (item) => item === filmData?.film.filmId
+                  ) !== -1
+                    ? true
+                    : false;
+                return (
+                  <div
+                    key={pl.playlistId}
+                    className="flex items-center gap-2 cursor-pointer group"
+                    onClick={() => {
+                      if (filmData?.film.filmId) {
+                        handleToggleFilm(
+                          pl.playlistId,
+                          filmData?.film.filmId,
+                          isCheck
+                        );
+                      }
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isCheck}
+                      readOnly
+                      className="w-4 h-4 accent-yellow-400 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-200 group-hover:text-yellow-300 transition">
+                      {pl.playlistName}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+
+          <DropdownMenuSeparator className="my-3 bg-zinc-600" />
+
+          <DropdownMenuItem
+            onClick={() => setOpenCreate(true)}
+            className="flex justify-center p-2 font-medium rounded-md cursor-pointer text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_12px_rgba(250,204,21,0.45)] focus:bg-yellow-400 focus:text-black transition-all duration-200 ease-in-out"
+          >
+            + Thêm mới
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <CreatePlaylistModal
+        open={openCreate}
+        onClose={() => setOpenCreate(false)}
+      />
+    </>
   );
-}
+};
 
-const ModalShare = (
-  {
-    open,
-    onOpenChange
-  }: {
-    open: boolean,
-    onOpenChange: (open: boolean) => void
-  }) => {
+//end luong add
+
+const ModalShare = ({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
   const socialItems = [
     {
       icon: <i className="fa-brands fa-facebook-f text-white text-lg"></i>,
       color: "bg-blue-600 hover:bg-blue-600/80",
-      name: "Facebook"
+      name: "Facebook",
     },
     {
       icon: <i className="fa-brands fa-x-twitter text-white text-lg"></i>,
       color: "bg-black hover:bg-zinc-950",
-      name: "Twitter"
+      name: "Twitter",
     },
     {
       icon: <i className="fa-brands fa-telegram text-white text-lg"></i>,
       color: "bg-sky-500 hover:bg-sky-500/80",
-      name: "Telegram"
+      name: "Telegram",
     },
     {
       icon: <i className="fa-brands fa-reddit-alien text-white text-lg"></i>,
       color: "bg-orange-600 hover:bg-orange-600/80",
-      name: "Reddit"
+      name: "Reddit",
     },
     {
       icon: <i className="fa-solid fa-share-nodes text-white text-lg"></i>,
       color: "bg-neutral-800 hover:bg-neutral-800/80",
-      name: "More..."
+      name: "More...",
     },
-  ]
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -115,27 +223,62 @@ const ModalShare = (
         <div className="flex items-center justify-center gap-2 pt-2">
           {socialItems.map((item, index) => {
             return (
-              <Button key={index} variant={"ghost"} className={cn(item.color, "cursor-pointer transition-transform duration-240 ease-in hover:-translate-y-1.5")}>
+              <Button
+                key={index}
+                variant={"ghost"}
+                className={cn(
+                  item.color,
+                  "cursor-pointer transition-transform duration-240 ease-in hover:-translate-y-1.5"
+                )}
+              >
                 {item.icon}
               </Button>
-            )
+            );
           })}
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
 export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   const [liked, setLiked] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const { averageRating, totalRatings } = useRatingStore();
 
+  //luong add
+  const { favoriteList, fetchFavoriteList } = userFavoriteStore();
+  const { filmData } = useFilmStore();
+
+  useEffect(() => {
+    fetchFavoriteList();
+  }, []);
+
+  useEffect(() => {
+    let likeStatus = false;
+    likeStatus =
+      favoriteList.findIndex((f) => f.filmId === filmData?.film.filmId) !== -1
+        ? true
+        : false;
+
+    setLiked(likeStatus);
+  }, [favoriteList]);
+
+  const hanhleToggleFavorite = async (filmId: string) => {
+    await userServices.toggleFavoriteFilm(filmId);
+    fetchFavoriteList();
+  };
+  //end luong add
   const actions: actionType[] = [
     {
       id: "like",
       label: "Yêu thích",
       icon: Heart,
-      onClick: () => setLiked(!liked),
+      onClick: () => {
+        if (filmData?.film.filmId) {
+          hanhleToggleFavorite(filmData.film.filmId); //luong addd
+        }
+      },
     },
     {
       id: "add",
@@ -154,21 +297,21 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
       icon: MessageSquare,
       onClick: () => {
         eventBus.emit("switchTab", "comments");
-        document.getElementById("comment-section")?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("comment-section")
+          ?.scrollIntoView({ behavior: "smooth" });
       },
     },
   ];
-
   return (
     <>
       <div className="flex items-center justify-between w-full mt-4 md:px-6">
         <div className="flex items-center justify-center">
           <button
-            onClick={() => { }}
+            onClick={() => {}}
             className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 ease-in-out cursor-pointer"
           >
-            <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent">
-            </span>
+            <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent"></span>
             Xem Ngay
           </button>
 
@@ -177,8 +320,8 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
               const Icon = action.icon;
               const isLiked = action.id === "like" && liked;
 
-              if (action.id === 'add') {
-                return <ModalAdd key={action.id} action={action} />
+              if (action.id === "add") {
+                return <ModalAdd key={action.id} action={action} />;
               }
 
               return (
@@ -209,14 +352,18 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
           className="px-3 py-4 bg-indigo-800 hover:bg-indigo-800/90 rounded-full group"
           onClick={() => {
             eventBus.emit("switchTab", "ratings");
-            document.getElementById("rating-section")?.scrollIntoView({ behavior: "smooth" });
+            document
+              .getElementById("rating-section")
+              ?.scrollIntoView({ behavior: "smooth" });
           }}
         >
           <p className="flex items-center justify-center gap-1">
             <Star className="text-yellow-500" />
-            4.0
+            {averageRating > 0 ? averageRating.toFixed(1) : "0.0"}
           </p>
-          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">Đánh giá</p>
+          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
+            Đánh giá {totalRatings > 0 && `(${totalRatings})`}
+          </p>
         </Button>
       </div>
 

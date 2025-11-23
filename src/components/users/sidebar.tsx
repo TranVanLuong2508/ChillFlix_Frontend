@@ -19,7 +19,7 @@ export default function PlaylistSidebar({
         { id: "favorites", label: "Yêu thích", icon: Heart, href: "/user/favorites" },
         { id: "playlists", label: "Danh sách", icon: List, href: "/user/playlists" },
         { id: "continue-watching", label: "Xem tiếp", icon: Clock, href: "/user/continue-watching" },
-        { id: "notifications", label: "Thông báo", icon: Bell, href: "/user/thong-bao" },
+        { id: "notifications", label: "Thông báo", icon: Bell, href: "/user/notifications" },
         { id: "account", label: "Tài khoản", icon: User, href: "/user/profile" },
     ]
 

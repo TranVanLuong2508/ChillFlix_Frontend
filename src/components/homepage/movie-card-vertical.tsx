@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Play, Heart, Info } from 'lucide-react'
 import type { FilmDetailRes } from "@/types/filmType"
 import Link from "next/link"
+import { useFilmRouter } from "@/hooks/filmRouter"
 
 interface MovieCardVerticalProps {
     item: FilmDetailRes
@@ -13,7 +14,7 @@ interface MovieCardVerticalProps {
 export default function MovieCardVertical({ item }: MovieCardVerticalProps) {
     const [isHovered, setIsHovered] = useState(false)
     const [isFavorite, setIsFavorite] = useState(false)
-
+    const { goFilmDetail } = useFilmRouter();
     const getGenreText = (genre: any): string => {
         if (typeof genre === "string") return genre
         return genre?.valueVi || genre?.valueEn || ""
@@ -88,7 +89,7 @@ export default function MovieCardVertical({ item }: MovieCardVerticalProps) {
 
                             {/* Action Buttons */}
                             <div className="flex gap-2">
-                                <Link className="flex-1 rounded-lg flex" href={`http://localhost:3000/film-detail/${item.slug}`}>
+                                <div className="flex-1 rounded-lg flex" onClick={() => { goFilmDetail(item.filmId) }}>
                                     <button className="flex-1 bg-gradient-to-r from-yellow-300 to-yellow-500
                             hover:from-yellow-400 hover:to-yellow-200 
                             hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]
@@ -96,7 +97,7 @@ export default function MovieCardVertical({ item }: MovieCardVerticalProps) {
                                         <Play className="w-4 h-4 fill-current" />
                                         Xem ngay
                                     </button>
-                                </Link>
+                                </div>
                                 <button
                                     onClick={() => setIsFavorite(!isFavorite)}
                                     className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"

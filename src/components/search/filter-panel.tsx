@@ -151,13 +151,13 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
     )
 
     return (
-        <div className="w-full bg-[#191B24] rounded-lg p-6 border border-slate-800">
+        <div className="w-full bg-[#191B24] rounded-lg p-6 border border-slate-800 ">
             {/* Header with collapse button */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between mb-6 hover:opacity-80 transition-opacity"
+                className="cursor-pointer w-full flex items-center justify-between mb-6 hover:opacity-80 transition-opacity"
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 ">
                     <div className="w-8 h-8 rounded flex items-center justify-center">
                         <Funnel className="w-4 h-4 text-[#FFD875]" />
                     </div>
@@ -189,7 +189,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                         <button
                                             key={country.keyMap}
                                             onClick={() => handleMultiSelectChange("country", country.valueEn)}
-                                            className={`px-3 py-1.5 rounded text-sm font-medium transition-all opacity-80 border border-transparent ${filters.country?.includes(country.valueEn)
+                                            className={`cursor-pointer px-3 py-1.5 rounded text-sm font-sm transition-all opacity-80 border border-transparent ${filters.country?.includes(country.valueEn)
                                                 ? "!border-[#FFD875] text-[#FFD875] opacity-100 !border"
                                                 : "bg-[#191B24] text-white hover:text-[#FFD875] "
                                                 }`}
@@ -210,7 +210,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                         <button
                                             key={type.keyMap}
                                             onClick={() => handleSingleSelectChange("type", type.valueEn)}
-                                            className={`px-3 py-1.5 rounded text-sm font-medium transition-all opacity-80 border border-transparent ${filters.type === type.valueEn
+                                            className={`cursor-pointer  px-3 py-1.5 rounded text-sm font-sm transition-all opacity-80 border border-transparent ${filters.type === type.valueEn
                                                 ? "!border-[#FFD875] text-[#FFD875] opacity-100 !border"
                                                 : "bg-[#191B24] text-white hover:text-[#FFD875]"
                                                 }`}
@@ -231,7 +231,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                         <button
                                             key={rating.keyMap}
                                             onClick={() => handleMultiSelectChange("rating", rating.valueEn)}
-                                            className={`px-3 py-1.5 rounded text-sm font-medium transition-all opacity-80 border border-transparent ${filters.rating?.includes(rating.valueEn)
+                                            className={`cursor-pointer px-3 py-1.5 rounded text-sm font-sm transition-all opacity-80 border border-transparent ${filters.rating?.includes(rating.valueEn)
                                                 ? "!border-[#FFD875] text-[#FFD875] opacity-100 !border"
                                                 : "bg-[#191B24] text-white hover:btext-[#FFD875]"
                                                 }`}
@@ -252,7 +252,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                         <button
                                             key={genre.keyMap}
                                             onClick={() => handleMultiSelectChange("genre", genre.valueEn)}
-                                            className={`px-3 py-1.5 rounded text-sm font-medium transition-all opacity-80 border border-transparent ${filters.genre?.includes(genre.valueEn)
+                                            className={`cursor-pointer px-3 py-1.5 rounded text-sm font-sm transition-all opacity-80 border border-transparent ${filters.genre?.includes(genre.valueEn)
                                                 ? "!border-[#FFD875] text-[#FFD875] opacity-100 !border"
                                                 : "bg-[#191B24] text-white hover:text-[#FFD875]"
                                                 }`}
@@ -273,7 +273,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                         <button
                                             key={version.keyMap}
                                             onClick={() => handleMultiSelectChange("version", version.valueEn)}
-                                            className={`px-3 py-1.5 rounded text-sm font-medium transition-all opacity-80 border border-transparent ${filters.version?.includes(version.valueEn)
+                                            className={`cursor-pointer px-3 py-1.5 rounded text-sm font-sm transition-all opacity-80 border border-transparent ${filters.version?.includes(version.valueEn)
                                                 ? "!border-[#FFD875] text-[#FFD875] opacity-100 !border"
                                                 : "bg-[#191B24] text-white hover:text-[#FFD875]"
                                                 }`}
@@ -294,7 +294,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                         <button
                                             key={year.keyMap}
                                             onClick={() => handleMultiSelectChange("year", year.valueEn)}
-                                            className={`px-3 py-1.5 rounded text-sm font-medium transition-all opacity-80 border border-transparent ${filters.year?.includes(year.valueEn)
+                                            className={`cursor-pointer px-3 py-1.5 rounded text-sm font-sm transition-all opacity-80 border border-transparent ${filters.year?.includes(year.valueEn)
                                                 ? "!border-[#FFD875] text-[#FFD875] opacity-100 !border"
                                                 : "bg-[#191B24] text-white hover:text-[#FFD875]"
                                                 }`}
@@ -325,7 +325,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                             <button
                                                 key={sort.keyMap}
                                                 onClick={() => handleSingleSelectChange("sort", sort.valueEn)}
-                                                className={`px-3 py-1.5 rounded text-sm font-medium transition-all opacity-80 border border-transparent ${filters.sort === sort.valueEn
+                                                className={`cursor-pointer px-3 py-1.5 rounded text-sm font-medium transition-all opacity-80 border border-transparent ${filters.sort === sort.valueEn
                                                     ? "!border-[#FFD875] text-[#FFD875] opacity-100 !border"
                                                     : "bg-[#191B24] text-white hover:text-[#FFD875]"
                                                     }`}
@@ -341,14 +341,14 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                             <div className="flex gap-3 mt-6 pt-4 border-t border-slate-800">
                                 <button
                                     onClick={applyFilters}
-                                    className="px-8 py-2.5 rounded-full bg-[#FFD875] text-slate-950 font-bold hover:opacity-90 transition-colors flex items-center gap-2"
+                                    className="cursor-pointer px-8 py-2.5 rounded-full bg-[#FFD875] text-slate-950 font-bold hover:opacity-90 transition-colors flex items-center gap-2"
                                 >
                                     Lọc kết quả →
                                 </button>
                                 <button
                                     // onClick={clearAllFilters}
                                     onClick={() => setIsExpanded(!isExpanded)}
-                                    className="px-8 py-2.5 rounded-full border-2 border-slate-600 text-white font-semibold hover:bg-slate-800 transition-colors"
+                                    className="cursor-pointer px-8 py-2.5 rounded-full border-2 border-slate-600 text-white font-semibold hover:bg-slate-800 transition-colors"
                                 >
                                     Đóng
                                 </button>

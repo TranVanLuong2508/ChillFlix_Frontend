@@ -36,7 +36,7 @@ export default function FilmProducer() {
     return (
         <Tabs defaultValue="all" className="w-full !overflow-visible">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-white">Các Phim Tham Gia</h3>
+                <h3 className="text-xl font-semibold text-white">Các Phim Sản Xuất</h3>
                 <TabsList className="bg-zinc-800 rounded-md">
                     <TabsTrigger
                         value="all"
