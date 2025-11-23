@@ -5,6 +5,8 @@ import { useEffect, useState } from "react"
 import filmServices from "@/services/filmService"
 import MovieCardVertical from "@/components/homepage/movie-card-vertical"
 import FilterPanel from "@/components/search/filter-panel"
+import { userFavoriteStore } from "@/stores/favoriteStore"
+import { userServices } from "@/services"
 
 interface SearchResult {
     result: any[]
@@ -35,6 +37,12 @@ export default function SearchPage() {
     const [totalPages, setTotalPages] = useState(0)
     const [meta, setMeta] = useState<any>(null)
     const [hasSearched, setHasSearched] = useState(false)
+    const { favoriteList, fetchFavoriteList } = userFavoriteStore()
+
+    const handleToggleFavorite = async (filmId: string) => {
+        await userServices.toggleFavoriteFilm(filmId)
+        fetchFavoriteList()
+    }
 
     const fetchSearchResults = async (page = 1) => {
         setLoading(true)
@@ -75,9 +83,20 @@ export default function SearchPage() {
         }
     }
 
+
+
+
+
     useEffect(() => {
         fetchSearchResults(1)
     }, [searchParams])
+    useEffect(() => {
+        fetchFavoriteList()
+    }, [])
+
+    // const isFavorite = (filmId: string) => {
+    //     return favoriteList.some((fav: any) => fav.filmId === filmId)
+    // }
 
     return (
         <div className="w-full bg-[#191B24] p-6 min-h-screen">
@@ -101,9 +120,23 @@ export default function SearchPage() {
                             </h3>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                                {results.map((film) => (
-                                    <MovieCardVertical key={film.filmId || film.id} item={film} />
-                                ))}
+                                {results.map((film) => {
+                                    let isFavorite = false
+                                    const index = favoriteList.findIndex((f) => f.filmId === film.filmId)
+                                    if (index !== -1) {
+                                        isFavorite = true
+                                    }
+
+                                    return (
+                                        <div key={film.filmId}>
+                                            <MovieCardVertical
+                                                item={film}
+                                                isFavorite={isFavorite}
+                                                handleToggleFavorite={handleToggleFavorite}
+                                            />
+                                        </div>
+                                    )
+                                })}
                             </div>
 
                             {/* Pagination */}

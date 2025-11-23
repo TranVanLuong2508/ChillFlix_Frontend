@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import MovieCard from "./movie-card";
 import { filmInUserPage } from "@/types/user.type";
+import { useAppRouter } from "@/hooks/useAppRouter";
 
 interface ContentCarouselProps {
   title: string;
@@ -28,6 +29,7 @@ export default function ContentCarousel({
   userFavoriteList,
   hanhleToggleFavorite,
 }: ContentCarouselProps) {
+  const { goCountry } = useAppRouter();
   const [api, setApi] = React.useState<CarouselApi>();
 
   console.log("chekc fav", userFavoriteList);
@@ -37,11 +39,10 @@ export default function ContentCarousel({
         <div>
           <div className="flex items-center justify-between ">
             <h4
-              className={`text-2xl md:text-3xl font-bold  leading-snug text-transparent bg-clip-text ${
-                title === "Phim Hàn Quốc mới"
-                  ? "bg-[linear-gradient(235deg,_#c2a3e3,_#ffffff,_#c2a3e3)] "
-                  : "bg-clip-text bg-[linear-gradient(90deg,_#f5b75c,_#ffffff)]"
-              } }`}
+              className={`text-2xl md:text-3xl font-bold  leading-snug text-transparent bg-clip-text ${title === "Phim Hàn Quốc mới"
+                ? "bg-[linear-gradient(235deg,_#c2a3e3,_#ffffff,_#c2a3e3)] "
+                : "bg-clip-text bg-[linear-gradient(90deg,_#f5b75c,_#ffffff)]"
+                } }`}
             >
               {title}
             </h4>

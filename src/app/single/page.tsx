@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react"
 import MovieCardVertical from "@/components/homepage/movie-card-vertical"
 import filmServices from "@/services/filmService"
+import { userServices } from "@/services"
 import type { FilmDetailRes } from "@/types/filmType"
 import FilterPanel from "@/components/search/filter-panel"
+import { userFavoriteStore } from "@/stores/favoriteStore"
+
 const getPosterUrl = (film: any): string => {
     if (film.posterUrl) return film.posterUrl
     if (film.filmImages && Array.isArray(film.filmImages)) {
@@ -21,6 +24,13 @@ export default function SinglePage() {
     const [error, setError] = useState<string | null>(null)
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
+    const { fetchFavoriteList, favoriteList } = userFavoriteStore()
+
+    const hanhleToggleFavorite = async (filmId: string) => {
+        await userServices.toggleFavoriteFilm(filmId)
+        fetchFavoriteList()
+    }
+    // end favorite
 
     useEffect(() => {
         const fetchSingleFilms = async () => {
@@ -46,7 +56,7 @@ export default function SinglePage() {
                             genres:
                                 film.genres
                                     ?.map((genre: any) =>
-                                        typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || ""
+                                        typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || "",
                                     )
                                     .filter(Boolean) || [],
                             badges: [
@@ -54,7 +64,7 @@ export default function SinglePage() {
                                 { text: film.type?.valueVi || "Single", color: "bg-green-600" },
                             ],
                             episodes: "Phần 1",
-                        }) as FilmDetailRes
+                        }) as FilmDetailRes,
                 )
 
                 setFilms(transformedFilms)
@@ -63,7 +73,7 @@ export default function SinglePage() {
                 }
                 setError(null)
             } catch (err) {
-                console.error("[v0] Error fetching single films:", err)
+                console.error("Error fetching single films:", err)
                 setError("Không thể tải dữ liệu phim")
             } finally {
                 setLoading(false)
@@ -73,6 +83,10 @@ export default function SinglePage() {
         fetchSingleFilms()
     }, [page])
 
+    useEffect(() => {
+        fetchFavoriteList()
+    }, [])
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
             <main className="pb-12 bg-[#191B24]">
@@ -80,9 +94,7 @@ export default function SinglePage() {
                 <div className="px-4 py-8 ">
                     <div className="max-w-7xl mx-auto">
                         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Phim Lẻ</h1>
-                        <p className="text-gray-400">
-                            {films.length} phim | Cập nhật mới nhất
-                        </p>
+                        <p className="text-gray-400">{films.length} phim | Cập nhật mới nhất</p>
                     </div>
                 </div>
                 <div className="max-w-7xl mx-auto">
@@ -108,11 +120,23 @@ export default function SinglePage() {
                             {/* Movie Grid */}
                             <div className="max-w-7xl mx-auto">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                    {films.map((film) => (
-                                        <div key={film.filmId}>
-                                            <MovieCardVertical item={film} />
-                                        </div>
-                                    ))}
+                                    {films.map((film) => {
+                                        let isFavorite = false
+                                        const index = favoriteList.findIndex((f) => f.filmId === film.filmId)
+                                        if (index !== -1) {
+                                            isFavorite = true
+                                        }
+
+                                        return (
+                                            <div key={film.filmId}>
+                                                <MovieCardVertical
+                                                    item={film}
+                                                    isFavorite={isFavorite}
+                                                    handleToggleFavorite={hanhleToggleFavorite}
+                                                />
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
 
@@ -144,7 +168,6 @@ export default function SinglePage() {
                     )}
                 </div>
             </main>
-
         </div>
     )
 }

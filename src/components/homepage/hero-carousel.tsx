@@ -4,8 +4,13 @@ import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Play, Heart, Info, ChevronLeft, ChevronRight } from "lucide-react"
 import filmService from "@/services/filmService"
+import { userServices } from "@/services"
 import type { FilmDetailRes } from "@/types/filmType"
 import Link from "next/link"
+import { userFavoriteStore } from "@/stores/favoriteStore"
+import { useAppRouter } from "@/hooks/useAppRouter"
+import { useFilmRouter } from "@/hooks/filmRouter"
+
 const getPosterUrl = (film: any): string => {
     if (film.posterUrl) return film.posterUrl // fallback for old format
     if (film.filmImages && Array.isArray(film.filmImages)) {
@@ -24,7 +29,13 @@ export default function HeroCarousel() {
     const [dragStart, setDragStart] = useState(0)
     const [films, setFilms] = useState<FilmDetailRes[]>([])
     const [loading, setLoading] = useState(true)
+    const [favoriteStates, setFavoriteStates] = useState<{ [key: string]: boolean }>({})
+    const { fetchFavoriteList, favoriteList } = userFavoriteStore()
+    const { goGenre } = useAppRouter();
+    const { goFilmDetail } = useFilmRouter()
+
     const containerRef = useRef<HTMLDivElement>(null)
+
     useEffect(() => {
         const fetchFilms = async () => {
             try {
@@ -37,12 +48,12 @@ export default function HeroCarousel() {
                             title: film.title,
                             originalTitle: film.originalTitle,
                             description: film.description,
-                            posterUrl: getPosterUrl(film), // Use helper function to extract posterUrl
+                            posterUrl: getPosterUrl(film),
                             year: film.year,
                             age: film.age,
                             genres: film.genres,
                             slug: film.slug,
-                            duration: film.duration
+                            duration: film.duration,
                         }) as FilmDetailRes,
                 )
                 setFilms(heroFilms)
@@ -53,7 +64,21 @@ export default function HeroCarousel() {
             }
         }
         fetchFilms()
+        fetchFavoriteList()
     }, [])
+
+    useEffect(() => {
+        const states: { [key: string]: boolean } = {}
+        favoriteList.forEach((fav) => {
+            states[fav.filmId] = true
+        })
+        setFavoriteStates(states)
+    }, [favoriteList])
+
+    const handleToggleFavorite = async (filmId: string) => {
+        await userServices.toggleFavoriteFilm(filmId)
+        fetchFavoriteList()
+    }
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % films.length)
@@ -81,6 +106,7 @@ export default function HeroCarousel() {
     }
 
     const slide = films[currentSlide]
+    const isCurrentSlideFavorite = favoriteStates[slide.filmId] || false
 
     return (
         <section
@@ -171,7 +197,10 @@ export default function HeroCarousel() {
                             )}
                             {slide.duration && (
                                 <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white text-xs">
-                                    <span > {Math.floor(slide.duration / 60)}h {slide.duration % 60}m</span>
+                                    <span>
+                                        {" "}
+                                        {Math.floor(slide.duration / 60)}h {slide.duration % 60}m
+                                    </span>
                                 </div>
                             )}
                         </div>
@@ -181,7 +210,8 @@ export default function HeroCarousel() {
                                 {slide.genres.map((genre, idx) => (
                                     <span
                                         key={idx}
-                                        className="px-2 py-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm text-white text-xs font-medium rounded border border-slate-700 hover:border-slate-600 transition-colors"
+                                        className="px-2 py-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm text-white cursor-pointer text-xs font-medium rounded border border-slate-700 hover:border-slate-600 transition-colors"
+                                        onClick={() => { goGenre(genre.valueEn) }}
                                     >
                                         {getGenreText(genre)}
                                     </span>
@@ -197,7 +227,7 @@ export default function HeroCarousel() {
                         )}
 
                         <div className="flex items-center gap-2 pt-3">
-                            <Link href={`http://localhost:3000/film-detail/${slide.slug}`}>
+                            <div onClick={() => { goFilmDetail(slide.slug) }}>
                                 <button
                                     className="flex items-center justify-center w-17 h-17 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-500
                             hover:from-yellow-400 hover:to-yellow-200 
@@ -206,11 +236,14 @@ export default function HeroCarousel() {
                                 >
                                     <Play className="w-8 h-8 fill-current" />
                                 </button>
-                            </Link>
-                            <button className="flex items-center justify-center w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all duration-300 backdrop-blur-sm">
-                                <Heart className="w-4 h-4" />
+                            </div>
+                            <button
+                                onClick={() => handleToggleFavorite(slide.filmId)}
+                                className="flex items-center justify-center w-10 cursor-pointer h-10 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all duration-300 backdrop-blur-sm"
+                            >
+                                <Heart className="w-4 h-4" fill={isCurrentSlideFavorite ? "currentColor" : "none"} />
                             </button>
-                            <button className="flex items-center justify-center w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all duration-300 backdrop-blur-sm">
+                            <button onClick={() => { goFilmDetail(slide.slug) }} className="flex items-center justify-center cursor-pointer w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/30 transition-all duration-300 backdrop-blur-sm">
                                 <Info className="w-4 h-4" />
                             </button>
                         </div>

@@ -1,15 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Header from "@/components/layout/header"
-import Footer from "@/components/layout/footer"
-import MovieCard from "@/components/homepage/movie-card"
 import filmServices from "@/services/filmService"
-import { allCodeServie } from "@/services"
+import { allCodeServie, userServices } from "@/services"
 import type { FilmDetailRes } from "@/types/filmType"
 import type { AllCodeRow } from "@/types/allcode.type"
 import MovieCardVertical from "@/components/homepage/movie-card-vertical"
 import FilterPanel from "@/components/search/filter-panel"
+import { userFavoriteStore } from "@/stores/favoriteStore"
+
 interface CountryPageProps {
     params: Promise<{
         coutrySlug: string
@@ -35,6 +34,12 @@ export default function CountryPage({ params }: CountryPageProps) {
     const [error, setError] = useState<string | null>(null)
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
+    const { fetchFavoriteList, favoriteList } = userFavoriteStore()
+
+    const handleToggleFavorite = async (filmId: string) => {
+        await userServices.toggleFavoriteFilm(filmId)
+        fetchFavoriteList()
+    }
 
     useEffect(() => {
         const unwrapParams = async () => {
@@ -55,9 +60,8 @@ export default function CountryPage({ params }: CountryPageProps) {
                     const country = countries.find(
                         (c: AllCodeRow) =>
                             c.valueEn?.toUpperCase() === countryName.toUpperCase() ||
-                            c.keyMap?.toUpperCase() === countryName.toUpperCase()
+                            c.keyMap?.toUpperCase() === countryName.toUpperCase(),
                     )
-
 
                     if (country) {
                         setCountryDisplayName(country.valueVi)
@@ -103,7 +107,7 @@ export default function CountryPage({ params }: CountryPageProps) {
                             genres:
                                 film.genres
                                     ?.map((genre: any) =>
-                                        typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || ""
+                                        typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || "",
                                     )
                                     .filter(Boolean) || [],
                             badges: [
@@ -111,7 +115,7 @@ export default function CountryPage({ params }: CountryPageProps) {
                                 { text: film.type?.valueVi || "Film", color: "bg-green-600" },
                             ],
                             episodes: "Phần 1",
-                        }) as FilmDetailRes
+                        }) as FilmDetailRes,
                 )
 
                 setFilms(transformedFilms)
@@ -132,17 +136,18 @@ export default function CountryPage({ params }: CountryPageProps) {
         }
     }, [apiCountryKey, page])
 
+    useEffect(() => {
+        fetchFavoriteList()
+    }, [])
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-
             <main className="pb-12 bg-[#191B24]">
                 {/* Header Section */}
                 <div className="px-4 py-8 ">
                     <div className="max-w-7xl mx-auto">
                         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Phim {countryDisplayName}</h1>
-                        <p className="text-gray-400">
-                            {films.length} phim | Cập nhật mới nhất
-                        </p>
+                        <p className="text-gray-400">{films.length} phim | Cập nhật mới nhất</p>
                     </div>
                 </div>
 
@@ -169,11 +174,23 @@ export default function CountryPage({ params }: CountryPageProps) {
                             {/* Movie Grid */}
                             <div className="max-w-7xl mx-auto">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                                    {films.map((film) => (
-                                        <div key={film.filmId} className="flex flex-col">
-                                            <MovieCardVertical item={film} />
-                                        </div>
-                                    ))}
+                                    {films.map((film) => {
+                                        let isFavorite = false
+                                        const index = favoriteList.findIndex((f) => f.filmId === film.filmId)
+                                        if (index !== -1) {
+                                            isFavorite = true
+                                        }
+
+                                        return (
+                                            <div key={film.filmId} className="flex flex-col">
+                                                <MovieCardVertical
+                                                    item={film}
+                                                    isFavorite={isFavorite}
+                                                    handleToggleFavorite={handleToggleFavorite}
+                                                />
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
 
@@ -205,7 +222,6 @@ export default function CountryPage({ params }: CountryPageProps) {
                     )}
                 </div>
             </main>
-
         </div>
     )
 }

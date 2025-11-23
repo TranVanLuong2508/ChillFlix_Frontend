@@ -52,12 +52,8 @@ export default function Header() {
   const [showAllReadNotifications, setShowAllReadNotifications] =
     useState(false);
 
-<<<<<<< HEAD
-  const { goHome, goProfile, goUpgradeVip, goSingleFilms, goSeriesFilms, goGenre, goCountry } = useAppRouter();
-=======
-  const { goHome, goProfile, goUpgradeVip } = useAppRouter();
+  const { goHome, goProfile, goUpgradeVip, goSingleFilms, goSeriesFilms, goGenre, goCountry, goMostViewed, goLatestUpdate } = useAppRouter();
   const router = useRouter();
->>>>>>> 284d700dae196f23ff21a3deef3728a13bb51518
   const { openDrawer } = useChatDrawerStore();
   const { logOutAction, isAuthenticated, isLoading, authUser } = useAuthStore();
   const {
@@ -333,12 +329,18 @@ export default function Header() {
                   <button
                     className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                        w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                    onClick={() => {
+                      goLatestUpdate();
+                    }}
                   >
                     Mới cập nhật
                   </button>
                   <button
                     className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                        w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                    onClick={() => {
+                      goMostViewed();
+                    }}
                   >
                     Phổ biến
                   </button>
@@ -440,11 +442,10 @@ export default function Header() {
 
                   <TabsContent
                     value="community"
-                    className={`p-4 text-sm text-gray-300 text-left ${
-                      showAllNotifications
-                        ? "max-h-[500px] overflow-y-auto"
-                        : ""
-                    }`}
+                    className={`p-4 text-sm text-gray-300 text-left ${showAllNotifications
+                      ? "max-h-[500px] overflow-y-auto"
+                      : ""
+                      }`}
                   >
                     {notifications.filter((n) => !n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
@@ -608,9 +609,8 @@ export default function Header() {
                           >
                             {showAllNotifications
                               ? "Thu gọn"
-                              : `Xem tất cả (${
-                                  notifications.filter((n) => !n.isRead).length
-                                } thông báo)`}
+                              : `Xem tất cả (${notifications.filter((n) => !n.isRead).length
+                              } thông báo)`}
                           </button>
                         )}
                       </>
@@ -619,11 +619,10 @@ export default function Header() {
 
                   <TabsContent
                     value="read"
-                    className={`p-4 text-sm text-gray-300 text-left ${
-                      showAllReadNotifications
-                        ? "max-h-[500px] overflow-y-auto"
-                        : ""
-                    }`}
+                    className={`p-4 text-sm text-gray-300 text-left ${showAllReadNotifications
+                      ? "max-h-[500px] overflow-y-auto"
+                      : ""
+                      }`}
                   >
                     {notifications.filter((n) => n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
@@ -744,9 +743,8 @@ export default function Header() {
                           >
                             {showAllReadNotifications
                               ? "Thu gọn"
-                              : `Xem tất cả (${
-                                  notifications.filter((n) => n.isRead).length
-                                } thông báo)`}
+                              : `Xem tất cả (${notifications.filter((n) => n.isRead).length
+                              } thông báo)`}
                           </button>
                         )}
                       </>

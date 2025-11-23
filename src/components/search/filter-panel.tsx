@@ -87,18 +87,46 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
     }, [])
 
     const handleMultiSelectChange = (filterType: "country" | "rating" | "genre" | "version" | "year", value: string) => {
-        const currentValues = filters[filterType] || []
-        const newValues = currentValues.includes(value)
-            ? currentValues.filter((v) => v !== value)
-            : [...currentValues, value]
+        if (value === "All") {
+            const currentValues = filters[filterType] || []
+            if (currentValues.includes("All")) {
+                // If "All" is already selected, deselect it
+                const newValues = currentValues.filter((v) => v !== "All")
+                const newFilters = {
+                    ...filters,
+                    [filterType]: newValues.length === 0 ? undefined : newValues,
+                }
+                setFilters(newFilters)
+                if (onFiltersChange) {
+                    onFiltersChange(newFilters)
+                }
+            } else {
+                // Select only "All" and clear other selections
+                const newFilters = {
+                    ...filters,
+                    [filterType]: ["All"],
+                }
+                setFilters(newFilters)
+                if (onFiltersChange) {
+                    onFiltersChange(newFilters)
+                }
+            }
+        } else {
+            // Regular multi-select logic
+            const currentValues = filters[filterType] || []
+            // Remove "All" if it was previously selected
+            let newValues = currentValues.filter((v) => v !== "All")
 
-        const newFilters = {
-            ...filters,
-            [filterType]: newValues.length === 0 ? undefined : newValues,
-        }
-        setFilters(newFilters)
-        if (onFiltersChange) {
-            onFiltersChange(newFilters)
+            newValues = newValues.includes(value) ? newValues.filter((v) => v !== value) : [...newValues, value]
+
+            const newFilters = {
+                ...filters,
+                [filterType]: newValues.length === 0 ? undefined : newValues,
+            }
+            setFilters(newFilters)
+            if (onFiltersChange) {
+                onFiltersChange(newFilters)
+            }
         }
     }
 
@@ -346,11 +374,10 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                     Lọc kết quả →
                                 </button>
                                 <button
-                                    // onClick={clearAllFilters}
-                                    onClick={() => setIsExpanded(!isExpanded)}
+                                    onClick={clearAllFilters}
                                     className="cursor-pointer px-8 py-2.5 rounded-full border-2 border-slate-600 text-white font-semibold hover:bg-slate-800 transition-colors"
                                 >
-                                    Đóng
+                                    Xóa tất cả
                                 </button>
                             </div>
                         </>

@@ -28,5 +28,7 @@ export const useAppRouter = () => {
     goSeriesFilms: () => router.push("/series"),
     goGenre: (genreSlug: string) => router.push(`/genre/${genreSlug}`),
     goCountry: (countrySlug: string) => router.push(`/country/${countrySlug}`),
+    goLatestUpdate: () => router.push("/search?sort=Latest Update"),
+    goMostViewed: () => router.push("/search?sort=Views"),
   };
 };
