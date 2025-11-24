@@ -37,10 +37,8 @@ export default function FilmInfo() {
         />
       </div>
 
-      <h1 className="text-2xl font-bold text-white">{film.title}</h1>
-      {film.originalTitle && (
-        <h2 className="text-sm text-gray-400 italic">{film.originalTitle}</h2>
-      )}
+      <h1 className="text-2xl font-bold text-white">{film.title || 'Đang cập nhật'}</h1>
+      <h2 className="text-sm text-gray-400 italic">{film.originalTitle || (!film.title ? 'Đang cập nhật' : '')}</h2>
 
       <div className="flex items-center gap-2 text-sm text-gray-300">
         <span className="inline-flex items-center bg-[#facc15] text-black px-2 py-0.5 rounded font-semibold">
@@ -48,75 +46,93 @@ export default function FilmInfo() {
           <Star size={14} className="ml-1" />
         </span>
 
-        {film.age && (
-          <span className="bg-[#FF3300] text-gray-100 px-2 py-0.5 rounded font-semibold">
-            {film.age.valueVi}
-          </span>
-        )}
-        {film.year && (
-          <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded border">
-            {film.year}
-          </span>
-        )}
+        <span className="bg-[#FF3300] text-gray-100 px-2 py-0.5 rounded font-semibold">
+          {film.age?.valueVi || 'Đang cập nhật'}
+        </span>
+        <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded border">
+          {film.year || 'Đang cập nhật'}
+        </span>
       </div>
 
-      {!!film.genres?.length && (
-        <div className="flex flex-wrap gap-2 text-sm text-gray-300 mt-2 ">
-          {film.genres.map((g: AllCodeValue) => (
+      <div className="flex flex-wrap gap-2 text-sm text-gray-300 mt-2 ">
+        {Array.isArray(film.genres) && film.genres.length > 0 ? (
+          film.genres.map((g: AllCodeValue) => (
             <button
               key={g.keyMap}
               className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 py-0.5 rounded cursor-pointer"
             >
               {g.valueVi}
             </button>
-          ))}
-        </div>
-      )}
+          ))
+        ) : (
+          <span className="italic text-gray-400">Đang cập nhật</span>
+        )}
+      </div>
 
       <div className="mt-4">
         <h3 className="text-base font-semibold text-white mb-1">Giới thiệu:</h3>
         <p className="text-sm text-gray-400 leading-relaxed text-justify">
-          {film.description}
+          {film.description || 'Đang cập nhật'}
         </p>
       </div>
 
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Thời lượng: </h3>
         <span className="text-gray-300">
-          {" "}
-          {Math.floor(film.duration / 60)}h {film.duration % 60}m
+          {film.duration ? `${Math.floor(film.duration / 60)}h ${film.duration % 60}m` : 'Đang cập nhật'}
         </span>
       </div>
 
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Quốc gia: </h3>
-        <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
-          {film.country?.valueVi}
-        </button>
+        {film.country?.valueVi ? (
+          <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
+            {film.country.valueVi}
+          </button>
+        ) : (
+          <span className="italic text-gray-400">Đang cập nhật</span>
+        )}
       </div>
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Sản xuất:</h3>
         {Array.isArray(producers) && producers.length > 0 ? (
-          <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
-            {" "}
-            {producers.map((p) => p.producerName).join(", ")}
-          </button>
+          <div className="flex flex-wrap gap-1">
+            {producers.map((p, idx) => (
+              <span key={p.producerId || p.slug || idx} className="flex items-center">
+                <button
+                  className="text-gray-300 cursor-pointer hover:text-yellow-400"
+                  // onClick={() => goProducerDetail(p.slug)}
+                  type="button"
+                  disabled
+                >
+                  {p.producerName}
+                </button>
+                {idx < producers.length - 1 && <span className="text-gray-400">,</span>}
+              </span>
+            ))}
+          </div>
         ) : (
-          <p className="text-gray-400 italic">Chưa cập nhật nhà sản xuất</p>
+          <span className="text-gray-400 italic">Đang cập nhật</span>
         )}
       </div>
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Đạo diễn:</h3>
         {Array.isArray(directors) && directors.length > 0 ? (
-          <button 
-          className="text-gray-300 cursor-pointer hover:text-yellow-400"
-          onClick={() => goDirectorDetail(directors[0]?.slug)}
-          >
-            {" "}
-            {directors.map((d) => d.directorName).join(", ")}
-          </button>
+          <div className="flex flex-wrap gap-1">
+            {directors.map((d, idx) => (
+              <span key={d.directorId || d.slug || idx} className="flex items-center">
+                <button
+                  className="text-gray-300 cursor-pointer hover:text-yellow-400"
+                  onClick={() => goDirectorDetail(d.slug)}
+                >
+                  {d.directorName}
+                </button>
+                {idx < directors.length - 1 && <span className="text-gray-400">,</span>}
+              </span>
+            ))}
+          </div>
         ) : (
-          <p className="text-gray-400 italic">Chưa cập nhật đạo diễn</p>
+          <span className="text-gray-400 italic">Đang cập nhật</span>
         )}
       </div>
 
