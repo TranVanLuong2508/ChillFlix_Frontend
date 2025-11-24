@@ -9,6 +9,7 @@ import { useAuthModalStore } from "@/stores/authModalStore";
 import { useRatingStore } from "@/stores/ratingStore";
 import { socket } from "@/lib/socket";
 import { toast } from "sonner";
+import { formatTimeFromNowVN } from "@/lib/dateFomat";
 
 export default function Ratings() {
     const { filmData } = useFilmStore();
@@ -101,7 +102,7 @@ export default function Ratings() {
                 {totalRatings > 0 && (
                     <div className="flex items-center justify-center gap-2 text-yellow-400">
                         <Star size={20} className="fill-yellow-400" />
-                        <span className="text-lg font-bold">{averageRating}</span>
+                        <span className="text-lg font-bold">{averageRating.toFixed(1)}</span>
                         <span className="text-sm text-gray-400">({totalRatings} đánh giá)</span>
                     </div>
                 )}
@@ -180,10 +181,7 @@ export default function Ratings() {
                                                     {rev.user?.name || 'Anonymous'}
                                                 </p>
                                                 <p className="text-xs text-gray-500">
-                                                    {formatDistanceToNow(new Date(rev.createdAt), {
-                                                        addSuffix: true,
-                                                        locale: vi
-                                                    })}
+                                                    {formatTimeFromNowVN(rev.createdAt)}
                                                 </p>
                                             </div>
                                             {authUser?.userId === rev.user?.id && (

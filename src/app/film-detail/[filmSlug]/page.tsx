@@ -87,13 +87,21 @@ export default function FilmDetailPage() {
       </Head>
       <main className="bg-[#191B24] min-h-screen">
         <Background />
-        <div className="relative z-20 mx-auto mt-[-200px] px-5 max-w-[1400px]">
+        <div className="relative z-20 mx-auto mt-[-100px] px-2 sm:px-4 md:px-6 lg:px-8 max-w-full md:max-w-[95vw] lg:max-w-[1990px]">
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
-            <div className="lg:col-span-3 rounded-3xl p-0 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px] mb-4 lg:mb-0" style={{ marginLeft: -64, marginRight: 80, minWidth: 487 }}>
-              <FilmInfo />
+            <div className="col-span-1 lg:col-span-3">
+              <div className="flex justify-center lg:block">
+                <div
+                  className="rounded-3xl p-0 bg-[rgba(25,27,36,0.3)] backdrop-blur-[15px] mb-4 lg:mb-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-none"
+                >
+                  <FilmInfo />
+                </div>
+              </div>
             </div>
 
-            <div className="lg:col-span-7 flex flex-col gap-6 sm:gap-7 md:gap-8 rounded-3xl p-3 sm:p-4 md:p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px]" style={{ marginLeft: 10, marginRight: 80, minWidth: 1000 }}>
+            <div
+              className="lg:col-span-7 flex flex-col gap-6 sm:gap-7 md:gap-8 rounded-3xl p-2 sm:p-4 md:p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[15px]"
+            >
               <PlayBar activeTab={activeTab} setActiveTab={setActiveTab} />
               <TabsSection />
               <CommentRatingTabs />

@@ -42,7 +42,7 @@ export default function FilmInfo() {
 
       <div className="flex flex-nowrap items-center gap-1 text-sm text-gray-300 w-full min-w-0 overflow-x-auto scrollbar-hide">
         <span className="inline-flex items-center bg-[#facc15] text-black px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
-          {averageRating > 0 ? `${averageRating}` : "Chưa có đánh giá"}
+          {averageRating > 0 ? `${averageRating.toFixed(1)}` : "Chưa có đánh giá"}
           <Star size={14} className="ml-1" />
         </span>
         <span className="bg-[#FF3300] text-gray-100 px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
@@ -138,7 +138,7 @@ export default function FilmInfo() {
       <div className="mt-2">
         <h3 className="text-2xl font-semibold text-white">Diễn viên</h3>
         {Array.isArray(actors) && actors.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mr-10 -ml-2">
             {actors.map((a, index) => (
               <div
                 key={`${a.actorId}-${index}`}
