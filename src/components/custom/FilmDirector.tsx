@@ -66,7 +66,7 @@ export default function FilmDirector() {
             <TabsContent value="all" className="mt-2">
                 <div className="px-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
                     {films.map((f, i) => {
-                        const thumb = f.thumbUrl || f.filmImages?.[0]?.url || "/images/small.jpg";
+                        const thumb = f.thumbUrl || f.filmImages?.find(img => img.type === "poster")?.url || "/images/small.jpg";
                         return (
                             <motion.div
                                 key={i}
@@ -122,16 +122,16 @@ export default function FilmDirector() {
                     <div className="absolute top-[30px] left-0 right-0 h-[2px] bg-yellow-400 rounded-full z-0" />
                     <button
                         onClick={() => swiperRef.current?.slidePrev()}
-                        className="absolute left-4 top-1/4 -translate-y-1/2 bg-zinc-900/80 hover:bg-zinc-800 text-yellow-400 p-3 rounded-full z-20 transition"
-                    >
-                        <ChevronLeft size={20} />
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full z-20 bg-white/5 backdrop-blur-md border border-white/10 text-yellow-400 transition-all duration-300 hover:bg-white/10 hover:scale-110 active:scale-95">
+                        <ChevronLeft size={22} />
                     </button>
+
                     <button
                         onClick={() => swiperRef.current?.slideNext()}
-                        className="absolute right-4 top-1/4 -translate-y-1/2 bg-zinc-900/80 hover:bg-zinc-800 text-yellow-400 p-3 rounded-full z-20 transition"
-                    >
-                        <ChevronRight size={20} />
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full z-20 bg-white/5 backdrop-blur-md border border-white/10 text-yellow-400 transition-all duration-300 hover:bg-white/10 hover:scale-110 active:scale-95">
+                        <ChevronRight size={22} />
                     </button>
+
 
                     <Swiper
                         modules={[FreeMode]}
@@ -154,7 +154,7 @@ export default function FilmDirector() {
 
                                 <div className="flex flex-col items-center gap-4 min-h-[340px] mt-2">
                                     {group.items.map((f, i) => {
-                                        const thumb = f.thumbUrl || f.filmImages?.[0]?.url || "/images/small.jpg";
+                                        const thumb = f.thumbUrl || f.filmImages?.find(img => img.type === "poster")?.url || "/images/small.jpg";
                                         return (
                                             <div
                                                 key={f.filmId || i}

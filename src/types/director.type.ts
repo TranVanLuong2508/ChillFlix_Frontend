@@ -17,3 +17,7 @@ export interface Director {
 export interface FilmDirector {
   director: Director;
 }
+
+export interface DirectorRes {
+ directors: Director[];
+}

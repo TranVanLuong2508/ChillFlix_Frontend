@@ -16,7 +16,9 @@ interface ActorStoreState {
 
 type ActorDataAction = {
   fetchActorDetail: (actorId: string) => Promise<void>;
+  fetchActorDetailBySlug: (actorSlug: string) => Promise<void>;
   fetchFilmActor: (actorId: string) => Promise<void>;
+  fetchFilmsByActorSlug: (actorSlug: string) => Promise<void>;
   clearActor: () => void;
 };
 
@@ -40,6 +42,18 @@ export const useActorStore = create<ActorStoreState & ActorDataAction>()(
         set({ isLoadingActor: false });
       }
     },
+    fetchActorDetailBySlug: async (actorSlug: string) => {
+      set({ isLoadingActor: true, error: null });
+      try {
+        const res = await actorServices.getActorBySlug(actorSlug);
+        set({ actor: res.data || null });
+      }
+      catch (error: any) {
+        set({ error: error.message || "Error fetching actor details" });
+      } finally {
+        set({ isLoadingActor: false });
+      }
+    },
 
     fetchFilmActor: async (actorId: string) => {
       set({ isLoadingFilmActor: true, error: null });
@@ -58,7 +72,22 @@ export const useActorStore = create<ActorStoreState & ActorDataAction>()(
         set({ isLoadingFilmActor: false });
       }
     },
-
+    fetchFilmsByActorSlug: async (actorSlug: string) => {
+      set({ isLoadingFilmActor: true, error: null });
+      try {
+        const res = await filmActorServices.getFilmsByActorSlug(actorSlug);
+        const data = res.data || null;
+        const films = data?.result ?? [];
+        set({
+          filmActorData: data,
+          films,
+        });
+      } catch (error: any) {
+        set({ error: error.message || "Error fetching film actor data" });
+      } finally {
+        set({ isLoadingFilmActor: false });
+      }
+    },
     clearActor: () =>
       set({
         actor: null,

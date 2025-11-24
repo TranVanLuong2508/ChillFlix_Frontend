@@ -17,6 +17,8 @@ interface DirectorStoreState {
 type DirectorAction = {
   fetchDirectorDetail: (directorId: string) => Promise<void>;
   fetchFilmDirector: (directorId: string) => Promise<void>;
+  fetchFilmDirectorBySlug: (directorSlug: string) => Promise<void>;
+  fetchDirectorBySlug: (directorSlug: string) => Promise<void>;
   clearDirector: () => void;
 };
 
@@ -40,6 +42,37 @@ export const useDirectorStore = create<DirectorStoreState & DirectorAction>()(
         set({ isLoadingDirector: false });
       }
     },
+
+    fetchDirectorBySlug: async (directorSlug: string) => {
+      set({ isLoadingDirector: true, error: null });
+      try {
+        const res = await directorServices.getDirectorBySlug(directorSlug);
+        set({ director: res.data || null });
+      } catch (error: any) {
+        set({ error: error.message || "Error fetching director details" });
+      } finally {
+        set({ isLoadingDirector: false });
+      }
+    },
+
+    fetchFilmDirectorBySlug: async (directorSlug: string) => {
+      set({ isLoadingFilmDirector: true, error: null });
+      try {
+        const res = await filmDirectorServices.getFilmsByDirectorSlug(directorSlug);
+        const data = res.data || null;
+        const films = data?.result ?? [];
+        set({
+          filmDirectorData: data,
+          films,
+        });
+      } catch (error: any) {
+        set({ error: error.message || "Error fetching film director data" });
+      } finally {
+        set({ isLoadingFilmDirector: false });
+      }
+    },
+
+
     fetchFilmDirector: async (directorId: string) => {
       set({ isLoadingFilmDirector: true, error: null });
       try {

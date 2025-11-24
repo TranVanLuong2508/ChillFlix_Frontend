@@ -15,3 +15,7 @@ export interface Actor {
 export interface FilmActor {
   actor: Actor;
 }
+
+export interface ActorDetailRes {
+  actors: Actor[];
+}

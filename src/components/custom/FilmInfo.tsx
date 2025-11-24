@@ -10,7 +10,7 @@ import { useEffect } from "react";
 export default function FilmInfo() {
   const { loading, error, filmData } = useFilmStore();
   const { averageRating, fetchRatings } = useRatingStore();
-  const { goActorDetail } = useFilmRouter();
+  const { goActorDetail, goDirectorDetail } = useFilmRouter();
 
   useEffect(() => {
     if (filmData?.film?.filmId) {
@@ -108,7 +108,10 @@ export default function FilmInfo() {
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Đạo diễn:</h3>
         {Array.isArray(directors) && directors.length > 0 ? (
-          <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
+          <button 
+          className="text-gray-300 cursor-pointer hover:text-yellow-400"
+          onClick={() => goDirectorDetail(directors[0]?.slug)}
+          >
             {" "}
             {directors.map((d) => d.directorName).join(", ")}
           </button>
@@ -124,7 +127,7 @@ export default function FilmInfo() {
             {actors.map((a, index) => (
               <div
                 key={`${a.actorId}-${index}`}
-                onClick={() => goActorDetail(a.actorId)}
+                onClick={() => goActorDetail(a.slug)}
                 className="flex flex-col items-center text-center cursor-pointer group hover:scale-105 transition-transform duration-300 min-w-0"
               >
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg mt-4">

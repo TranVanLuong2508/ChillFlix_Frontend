@@ -7,22 +7,22 @@ import ActorInfo from "@/components/custom/ActorInfo";
 import FilmActor from "@/components/custom/FilmActor";
 
 export default function ActorDetail() {
-    const actorId = useParams().actorId as string;
+    const actorSlug = useParams().actorSlug as string;
     const {
         isLoadingActor,
         isLoadingFilmActor,
-        fetchActorDetail,
-        fetchFilmActor,
+        fetchActorDetailBySlug,
+        fetchFilmsByActorSlug,
         actor,
         filmActorData,
         error,
     } = useActorStore();
 
     useEffect(() => {
-        if (!actorId) return;
-        fetchActorDetail(actorId);
-        fetchFilmActor(actorId);
-    }, [actorId]);
+        if (!actorSlug) return;
+        fetchActorDetailBySlug(actorSlug);
+        fetchFilmsByActorSlug(actorSlug);
+    }, [actorSlug]);
 
     if (isLoadingActor || isLoadingFilmActor)
         return <div className="text-center py-20">Đang tải thông tin diễn viên...</div>;

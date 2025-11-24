@@ -95,17 +95,15 @@ export default function TabsSection() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`relative pb-2 font-semibold cursor-pointer transition-all duration-500 ease-in-out ${
-              activeTab === tab.id
+            className={`relative pb-2 font-semibold cursor-pointer transition-all duration-500 ease-in-out ${activeTab === tab.id
                 ? "text-yellow-400"
                 : "text-white hover:text-yellow-400"
-            }`}
+              }`}
           >
             {tab.label}
             <span
-              className={`absolute left-0 bottom-0 h-[2px] bg-yellow-400 transition-all duration-500 ease-in-out ${
-                activeTab === tab.id ? "w-full" : "w-0"
-              }`}
+              className={`absolute left-0 bottom-0 h-[2px] bg-yellow-400 transition-all duration-500 ease-in-out ${activeTab === tab.id ? "w-full" : "w-0"
+                }`}
             />
           </button>
         ))}
@@ -140,7 +138,7 @@ export default function TabsSection() {
                       onClick={() =>
                         handleWatchVideo(
                           selectedPart?.episodes?.[0]?.episodeNumber?.toString() ??
-                            "1"
+                          "1"
                         )
                       }
                       className="absolute bottom-3 right-4 text-xs font-semibold 
@@ -187,11 +185,10 @@ export default function TabsSection() {
                           key={`part-item-${index}`}
                           value={p.partNumber.toString()}
                           className={`flex items-center justify-between w-full my-1 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer select-none transition-all duration-200 ease-in-out
-                        ${
-                          selectedPart?.id === p.id
-                            ? "bg-yellow-400 text-black shadow-[0_0_12px_rgba(250,204,21,0.45)]"
-                            : "text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_14px_rgba(250,204,21,0.4)]"
-                        }`}
+                        ${selectedPart?.id === p.id
+                              ? "bg-yellow-400 text-black shadow-[0_0_12px_rgba(250,204,21,0.45)]"
+                              : "text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_14px_rgba(250,204,21,0.4)]"
+                            }`}
                         >
                           {p.title || `Phần ${p.partNumber}`}
                         </SelectItem>
@@ -223,8 +220,8 @@ export default function TabsSection() {
                         className={cn(
                           "p-2 text-center text-white font-semibold",
                           ep.episodeNumber === +episode &&
-                            selectedPart.partNumber === +part &&
-                            "bg-yellow-400  font-semibold text-zinc-800"
+                          selectedPart.partNumber === +part &&
+                          "bg-yellow-400  font-semibold text-zinc-800"
                         )}
                       >
                         <span
@@ -303,7 +300,7 @@ export default function TabsSection() {
                 <div
                   key={`${a.actorId}-${index}`}
                   className="cursor-pointer relative size-full group"
-                  onClick={() => goActorDetail(a.actorId)}
+                  onClick={() => goActorDetail(a.slug)}
                 >
                   <div className="size-full overflow-hidden rounded-xl">
                     <img
