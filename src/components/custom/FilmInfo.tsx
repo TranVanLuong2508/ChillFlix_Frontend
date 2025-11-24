@@ -28,7 +28,7 @@ export default function FilmInfo() {
 
   const { film, filmImages, actors, directors, producers } = filmData;
   return (
-    <div className="flex flex-col gap-4 px-6 py-6 rounded-lg">
+    <div className="flex flex-col gap-4 p-5 rounded-lg" style={{ padding: 20 }}>
       <div className="flex items-center mb-6">
         <img
           src={filmImages.poster}
@@ -40,26 +40,25 @@ export default function FilmInfo() {
       <h1 className="text-2xl font-bold text-white">{film.title || 'Đang cập nhật'}</h1>
       <h2 className="text-sm text-gray-400 italic">{film.originalTitle || (!film.title ? 'Đang cập nhật' : '')}</h2>
 
-      <div className="flex items-center gap-2 text-sm text-gray-300">
-        <span className="inline-flex items-center bg-[#facc15] text-black px-2 py-0.5 rounded font-semibold">
+      <div className="flex flex-nowrap items-center gap-1 text-sm text-gray-300 w-full min-w-0 overflow-x-auto scrollbar-hide">
+        <span className="inline-flex items-center bg-[#facc15] text-black px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
           {averageRating > 0 ? `${averageRating}` : "Chưa có đánh giá"}
           <Star size={14} className="ml-1" />
         </span>
-
-        <span className="bg-[#FF3300] text-gray-100 px-2 py-0.5 rounded font-semibold">
+        <span className="bg-[#FF3300] text-gray-100 px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
           {film.age?.valueVi || 'Đang cập nhật'}
         </span>
-        <span className="bg-[#27272a] text-gray-200 px-2 py-0.5 rounded border">
+        <span className="bg-[#27272a] text-gray-200 px-1.5 py-0.5 rounded border whitespace-nowrap">
           {film.year || 'Đang cập nhật'}
         </span>
       </div>
 
-      <div className="flex flex-wrap gap-2 text-sm text-gray-300 mt-2 ">
+      <div className="flex flex-nowrap gap-1 text-sm text-gray-300 mt-2 overflow-x-auto scrollbar-hide">
         {Array.isArray(film.genres) && film.genres.length > 0 ? (
           film.genres.map((g: AllCodeValue) => (
             <button
               key={g.keyMap}
-              className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 py-0.5 rounded cursor-pointer"
+              className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-1.5 py-0.5 rounded cursor-pointer whitespace-nowrap"
             >
               {g.valueVi}
             </button>

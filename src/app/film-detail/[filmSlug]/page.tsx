@@ -85,15 +85,15 @@ export default function FilmDetailPage() {
         <meta property="og:url" content={currentUrl} />
         <meta property="og:type" content="website" />
       </Head>
-      <main className="bg-[#191B24]">
+      <main className="bg-[#191B24] min-h-screen">
         <Background />
-        <div className="relative z-20 mx-auto mt-[-200px] px-5 ">
-          <div className="grid grid-cols-10">
-            <div className="lg:col-span-3 rounded-4xl p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px]">
+        <div className="relative z-20 mx-auto mt-[-200px] px-5 max-w-[1400px]">
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
+            <div className="lg:col-span-3 rounded-3xl p-0 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px] mb-4 lg:mb-0" style={{ marginLeft: -64, marginRight: 80, minWidth: 487 }}>
               <FilmInfo />
             </div>
 
-            <div className="lg:col-span-7 flex flex-col gap-8 rounded-4xl p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px]">
+            <div className="lg:col-span-7 flex flex-col gap-6 sm:gap-7 md:gap-8 rounded-3xl p-3 sm:p-4 md:p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[20px]" style={{ marginLeft: 10, marginRight: 80, minWidth: 1000 }}>
               <PlayBar activeTab={activeTab} setActiveTab={setActiveTab} />
               <TabsSection />
               <CommentRatingTabs />
