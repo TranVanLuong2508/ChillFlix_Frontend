@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 interface FilterState {
     country?: string[]
     type?: string
-    rating?: string[]
+    age_code?: string[]
     genre?: string[]
     version?: string[]
     year?: string[]
@@ -51,7 +51,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
         const initialFilters: FilterState = {
             country: searchParams.get("country") ? searchParams.get("country")!.split(",") : undefined,
             type: searchParams.get("type") || undefined,
-            rating: searchParams.get("rating") ? searchParams.get("rating")!.split(",") : undefined,
+            age_code: searchParams.get("age_code") ? searchParams.get("age_code")!.split(",") : undefined,
             genre: searchParams.get("genre") ? searchParams.get("genre")!.split(",") : undefined,
             version: searchParams.get("version") ? searchParams.get("version")!.split(",") : undefined,
             year: searchParams.get("year") ? searchParams.get("year")!.split(",") : undefined,
@@ -86,7 +86,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
         loadFilterOptions()
     }, [])
 
-    const handleMultiSelectChange = (filterType: "country" | "rating" | "genre" | "version" | "year", value: string) => {
+    const handleMultiSelectChange = (filterType: "country" | "age_code" | "genre" | "version" | "year", value: string) => {
         if (value === "All") {
             const currentValues = filters[filterType] || []
             if (currentValues.includes("All")) {
@@ -128,6 +128,7 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                 onFiltersChange(newFilters)
             }
         }
+
     }
 
     // Keep single-select for type and sort
@@ -258,8 +259,9 @@ export default function FilterPanel({ onFiltersChange, showResults = true }: Fil
                                     {filterOptions.ratings.map((rating) => (
                                         <button
                                             key={rating.keyMap}
-                                            onClick={() => handleMultiSelectChange("rating", rating.valueEn)}
-                                            className={`cursor-pointer px-3 py-1.5 rounded text-sm font-sm transition-all opacity-80 border border-transparent ${filters.rating?.includes(rating.valueEn)
+                                            // send the value (e.g. "T18") rather than the full keyMap ("R_T18")
+                                            onClick={() => handleMultiSelectChange("age_code", rating.valueEn)}
+                                            className={`cursor-pointer px-3 py-1.5 rounded text-sm font-sm transition-all opacity-80 border border-transparent ${filters.age_code?.includes(rating.valueEn)
                                                 ? "!border-[#FFD875] text-[#FFD875] opacity-100 !border"
                                                 : "bg-[#191B24] text-white hover:btext-[#FFD875]"
                                                 }`}

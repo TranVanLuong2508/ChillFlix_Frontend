@@ -50,7 +50,7 @@ const filmServices = {
     filters: {
       country?: string
       type?: string
-      rating?: string
+      age_code?: string
       genre?: string
       version?: string
       year?: string
@@ -63,7 +63,8 @@ const filmServices = {
 
     if (filters.country) params.append("country", filters.country)
     if (filters.type) params.append("type", filters.type)
-    if (filters.rating) params.append("rating", filters.rating)
+    // backend expects `age_code` for age/rating filters (AllCode keyMap)
+    if (filters.age_code) params.append("age_code", filters.age_code)
     if (filters.genre) params.append("genre", filters.genre)
     if (filters.version) params.append("version", filters.version)
     if (filters.year) params.append("year", filters.year)

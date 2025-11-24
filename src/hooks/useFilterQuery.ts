@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 export interface FilterQueryParams {
     country?: string
     type?: string
-    rating?: string
+    age_code?: string
     genre?: string
     version?: string
     year?: string
@@ -29,7 +29,7 @@ export function useFilterQuery() {
 
         if (params.country) searchParams.append("country", params.country)
         if (params.type) searchParams.append("type", params.type)
-        if (params.rating) searchParams.append("rating", params.rating)
+        if (params.age_code) searchParams.append("age_code", params.age_code)
         if (params.genre) searchParams.append("genre", params.genre)
         if (params.version) searchParams.append("version", params.version)
         if (params.year) searchParams.append("year", params.year)
