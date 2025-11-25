@@ -310,14 +310,14 @@ const ModalShare = ({
               const ShareBtn = item.ButtonComponent;
               return (
                 <ShareBtn key={index} {...item.props}>
-                  <button
+                  <div
                     className={cn(
                       item.color,
                       "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer hover:-translate-y-1.5 duration-240 ease-in h-9 px-3"
                     )}
                   >
                     {item.icon}
-                  </button>
+                  </div>
                 </ShareBtn>
               );
             } else {

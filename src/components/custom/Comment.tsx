@@ -74,12 +74,12 @@ export default function CommentSection() {
   };
 
   const handleReplySend = async () => {
-    if (!filmId || !replyText.trim() || !replyingTo?.parentId) return;
+    if (!filmId || !replyText.trim() || !replyingTo?.rootParentId) return;
 
     await createComment({
       content: replyText,
       filmId,
-      parentId: replyingTo.parentId,
+      parentId: replyingTo.rootParentId,
     });
     countComments(filmId);
     setReplyText("");
@@ -117,240 +117,38 @@ export default function CommentSection() {
     return count;
   };
 
-  const renderReplies = (replies: any[], parent: any, level: number = 1) => {
+  const renderReplies = (replies: any[], parent: any, rootParent: any) => {
     if (!replies || replies.length === 0) return null;
-    const maxLevel = 2;
-    const sortedReplies = [...replies].sort(
+    const flattenedReplies: any[] = [];
+    const flatten = (reps: any[]) => {
+      reps.forEach((r) => {
+        flattenedReplies.push(r);
+        if (r.replies && r.replies.length > 0) {
+          flatten(r.replies);
+        }
+      });
+    };
+    flatten(replies);
+
+    const sortedReplies = flattenedReplies.sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-    // Tạo unique key cho parent để track visible count
-    const parentKey = `${parent.id}-level${level}`;
+    const parentKey = `${rootParent.id}-replies`;
     const visibleCount = getVisibleCount(parentKey);
     const hasMore = sortedReplies.length > visibleCount;
     const visibleReplies = sortedReplies.slice(0, visibleCount);
 
-    if (level >= maxLevel) {
-      const flattenedReplies: any[] = [];
-      const flatten = (reps: any[]) => {
-        reps.forEach((r) => {
-          flattenedReplies.push(r);
-          if (r.replies && r.replies.length > 0) {
-            flatten(r.replies);
-          }
-        });
-      };
-      flatten(sortedReplies);
-      const allSorted = flattenedReplies.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-
-      const flatVisibleCount = getVisibleCount(parentKey);
-      const flatHasMore = allSorted.length > flatVisibleCount;
-      const flatVisible = allSorted.slice(0, flatVisibleCount);
-
-      return (
-        <div className="mt-3 space-y-3" style={{ marginLeft: 48 }}>
-          {flatVisible.map((rep, index) => {
-            return (
-              <div
-                key={`${rep.id}-${index}`}
-                id={`comment-${rep.id}`}
-                className="flex flex-col relative"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="relative w-10 h-10 z-10">
-                    <img
-                      src={rep.user.avatar || "/images/monkey.jpg"}
-                      alt="avatar"
-                      className="w-full h-full rounded-full object-cover border-2 border-[#0a0b0e]"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0 overflow-hidden">
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-sm font-semibold text-white">
-                        {rep.user.name}
-                      </p>
-
-                      <div className="flex items-baseline text-sm text-gray-400 gap-1">
-                        <ChevronRight size={13} className="relative top-[2px]" />
-                        <span>{rep.parent?.user?.name || parent.user.name}</span>
-                      </div>
-
-                      <p className="text-xs text-gray-500">
-                        {formatTimeFromNowVN(rep.createdAt)}
-                      </p>
-                    </div>
-
-                    <p className="text-gray-300 text-sm mt-1 leading-relaxed break-words overflow-wrap-anywhere">
-                      {rep.content}
-                    </p>
-
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
-                      <button
-                        onClick={() =>
-                          setReplyingTo(
-                            replyingTo?.replyId === rep.id
-                              ? null
-                              : {
-                                parentId: rep.id,
-                                replyId: rep.id,
-                                replyToName: rep.user.name,
-                              }
-                          )
-                        }
-                        className="flex items-center gap-2 hover:text-yellow-400 transition"
-                      >
-                        <Reply size={16} /> Trả lời
-                      </button>
-
-                      <button
-                        onClick={() => handleReact(rep.id, "LIKE")}
-                        className="flex items-center gap-1 hover:text-yellow-400 transition"
-                      >
-                        <ThumbsUp
-                          size={16}
-                          className={
-                            rep.currentUserReaction === "LIKE"
-                              ? "text-yellow-400 fill-yellow-400"
-                              : ""
-                          }
-                        />
-                        <span>{rep.totalLike}</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleReact(rep.id, "DISLIKE")}
-                        className="flex items-center gap-1 hover:text-red-400 transition"
-                      >
-                        <ThumbsDown
-                          size={16}
-                          className={
-                            rep.currentUserReaction === "DISLIKE"
-                              ? "text-red-400 fill-red-500"
-                              : ""
-                          }
-                        />
-                        <span>{rep.totalDislike}</span>
-                      </button>
-
-                      {authUser?.userId === rep.user.id && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <button
-                              className="flex items-center gap-2 hover:text-red-400 transition"
-                              type="button"
-                            >
-                              <Trash2 size={16} /> Xóa
-                            </button>
-                          </AlertDialogTrigger>
-
-                          <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="flex items-center gap-2">
-                                <AlertTriangle
-                                  size={20}
-                                  className="text-yellow-400"
-                                />
-                                Xác nhận xóa bình luận?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription className="text-gray-400">
-                                Hành động này không thể hoàn tác.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
-                                Hủy
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteComment(rep.id)}
-                                className="bg-red-600 hover:bg-red-500 text-white"
-                              >
-                                Xóa
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
-                    </div>
-
-                    {replyingTo?.parentId === rep.id && (
-                      <div className="ml-10 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
-                        <p className="text-xs text-gray-400 mb-1">
-                          Đang trả lời{" "}
-                          <span className="text-yellow-400">
-                            {replyingTo?.replyToName}
-                          </span>
-                        </p>
-                        <textarea
-                          value={replyText}
-                          onChange={(e) => setReplyText(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                              e.preventDefault();
-                              handleReplySend();
-                            }
-                          }}
-                          rows={2}
-                          placeholder="Viết phản hồi..."
-                          className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
-                        />
-                        <div className="flex items-center justify-between mt-2">
-                          <button
-                            onClick={handleReplySend}
-                            className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
-                          >
-                            Gửi <Send size={14} className="text-yellow-400" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          {flatHasMore && (
-            <button
-              onClick={() => loadMoreReplies(parentKey)}
-              className="ml-12 mt-2 text-sm text-yellow-400 hover:text-yellow-300 transition font-medium"
-            >
-              Xem thêm {Math.min(3, allSorted.length - flatVisibleCount)} phản hồi...
-            </button>
-          )}
-        </div>
-      );
-    }
-
-    // Level 1: render normally with nested structure
     return (
-      <div className="mt-3 space-y-4" style={{ marginLeft: 48 }}>
+      <div className="mt-3 space-y-3" style={{ marginLeft: 48 }}>
         {visibleReplies.map((rep, index) => {
-          const isLast = index === sortedReplies.length - 1;
-          const hasNestedReplies = rep.replies && rep.replies.length > 0;
-
           return (
             <div
               key={`${rep.id}-${index}`}
               id={`comment-${rep.id}`}
               className="flex flex-col relative"
             >
-              {/* Đường dọc cho level 1 - căn giữa avatar */}
-              <div
-                // Bỏ dây nối
-                style={{
-                  // Nếu là comment cuối và không có reply con thì dừng ở avatar
-                  // Nếu có reply con thì kéo dài để nối với reply con
-                  height: (isLast && !hasNestedReplies) ? '20px' : '100%'
-                }}
-              />
-              {/* Đường ngang nối vào avatar - căn giữa */}
-              {/* Bỏ dây nối ngang */}
-
               <div className="flex items-start gap-3">
                 <div className="relative w-10 h-10 z-10">
                   <img
@@ -367,7 +165,7 @@ export default function CommentSection() {
 
                     <div className="flex items-baseline text-sm text-gray-400 gap-1">
                       <ChevronRight size={13} className="relative top-[2px]" />
-                      <span>{rep.parent?.user?.name || parent.user.name}</span>
+                      <span>{rep.parent?.user?.name || rootParent.user.name}</span>
                     </div>
 
                     <p className="text-xs text-gray-500">
@@ -386,7 +184,7 @@ export default function CommentSection() {
                           replyingTo?.replyId === rep.id
                             ? null
                             : {
-                              parentId: rep.id,
+                              rootParentId: rootParent.id,
                               replyId: rep.id,
                               replyToName: rep.user.name,
                             }
@@ -468,7 +266,7 @@ export default function CommentSection() {
                     )}
                   </div>
 
-                  {replyingTo?.parentId === rep.id && (
+                  {replyingTo?.replyId === rep.id && (
                     <div className="ml-10 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
                       <p className="text-xs text-gray-400 mb-1">
                         Đang trả lời{" "}
@@ -501,9 +299,6 @@ export default function CommentSection() {
                   )}
                 </div>
               </div>
-
-              {/* Render nested replies of this reply */}
-              {hasNestedReplies && renderReplies(rep.replies, rep, level + 1)}
             </div>
           );
         })}
@@ -511,13 +306,14 @@ export default function CommentSection() {
         {hasMore && (
           <button
             onClick={() => loadMoreReplies(parentKey)}
-            className="text-sm text-yellow-400 hover:text-yellow-300 transition font-medium"
+            className="ml-12 mt-2 text-sm text-yellow-400 hover:text-yellow-300 transition font-medium"
           >
             Xem thêm {Math.min(3, sortedReplies.length - visibleCount)} phản hồi...
           </button>
         )}
       </div>
     );
+
   };
 
   return (
@@ -637,11 +433,11 @@ export default function CommentSection() {
                         <button
                           onClick={() =>
                             setReplyingTo(
-                              replyingTo?.parentId === cmt.id &&
+                              replyingTo?.rootParentId === cmt.id &&
                                 !replyingTo?.replyId
                                 ? null
                                 : {
-                                  parentId: cmt.id,
+                                  rootParentId: cmt.id,
                                   replyToName: cmt.user.name,
                                 }
                             )
@@ -732,7 +528,7 @@ export default function CommentSection() {
                   </div>
 
                   {/* ô nhập reply cho comment gốc */}
-                  {replyingTo?.parentId === cmt.id && !replyingTo.replyId && (
+                  {replyingTo?.rootParentId === cmt.id && !replyingTo.replyId && (
                     <div className="ml-12 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
                       <p className="text-xs text-gray-400 mb-1">
                         Đang trả lời{" "}
@@ -763,7 +559,7 @@ export default function CommentSection() {
                       </div>
                     </div>
                   )}
-                  {renderReplies(cmt.replies, cmt, 1)}
+                  {renderReplies(cmt.replies, cmt, cmt)}
                 </div>
               ))}
           </div>
