@@ -6,4 +6,7 @@ export const actorServices = {
   getActorById: (actorId: string): Promise<IBackendRes<Actor>> => {
     return publicAxios.get(`/actor/get-actor-by-id/${actorId}`);
   },
+  getActorBySlug: (actorSlug: string): Promise<IBackendRes<Actor>> => {
+    return publicAxios.get(`/actor/get-actor-by-slug/${actorSlug}`);
+  }
 };

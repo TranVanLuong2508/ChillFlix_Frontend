@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { allCodeServie, authService } from "@/services";
 import type { AllCodeRow } from "@/types/allcode.type";
+import { IBackendRes } from "@/types/backend.type";
+import { FilmDetailRes } from "@/types/film.type";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +28,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useAppRouter } from "@/hooks/useAppRouter";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
 import { AuthenticationsMessage } from "@/constants/messages/user.message";
@@ -34,28 +36,36 @@ import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 import { socket } from "@/lib/socket";
 import { useCommentStore } from "@/stores/comentStore";
 import SearchDropdown from "./header/search-dropdown";
-import { usePathname } from "next/navigation";
 import { useNotificationStore } from "@/stores/notificationStore";
+import {
+  NewCommentData,
+  ReplyCommentData,
+  ReplyNotificationData,
+  ReactionNotificationData,
+  DeleteCommentData,
+  CountCommentsData,
+} from "@/types/socket.type";
 
 export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
-  const { openLoginModal } = useAuthModalStore();
-  const { goFavorite, goPlaylist } = useAppRouter();
 
-  //close/open dropdown when change page
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { openLoginModal } = useAuthModalStore();
+  const { goFavorite, goPlaylist, goHome, goUpgradeVip, goProfile } =
+    useAppRouter();
+  const router = useRouter();
   const pathname = usePathname();
-  //
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showAllNotifications, setShowAllNotifications] = useState(false);
   const [showAllReadNotifications, setShowAllReadNotifications] =
     useState(false);
 
-  const { goHome, goProfile, goUpgradeVip } = useAppRouter();
-  const router = useRouter();
   const { openDrawer } = useChatDrawerStore();
+
   const { logOutAction, isAuthenticated, isLoading, authUser } = useAuthStore();
+
   const {
     removeCommentRealtime,
     createCommentRealtime,
@@ -71,7 +81,6 @@ export default function Header() {
     fetchUnreadCount,
     markAsRead,
     deleteNotification,
-    addNotification,
     reset: resetNotifications,
   } = useNotificationStore();
 
@@ -88,7 +97,6 @@ export default function Header() {
     const fetchData = async () => {
       if (authUser?.userId) {
         await new Promise((resolve) => setTimeout(resolve, 100));
-
         await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
       } else {
         resetNotifications();
@@ -96,7 +104,13 @@ export default function Header() {
     };
 
     fetchData();
-  }, [authUser?.userId, isAuthenticated]);
+  }, [
+    authUser?.userId,
+    isAuthenticated,
+    fetchNotifications,
+    fetchUnreadCount,
+    resetNotifications,
+  ]);
 
   useEffect(() => {
     const userId = authUser?.userId;
@@ -108,15 +122,19 @@ export default function Header() {
   const fetchGenresList = async () => {
     const res = await allCodeServie.getGenresList();
     if (res && res.EC === 1) {
-      setGenresList(res?.data?.GENRE || []);
-    } else setGenresList([]);
+      setGenresList(res.data?.GENRE || []);
+    } else {
+      setGenresList([]);
+    }
   };
 
   const fetchCountriesList = async () => {
     const res = await allCodeServie.getCountriesList();
     if (res && res.EC === 1) {
       setCountriesList(res.data?.COUNTRY || []);
-    } else setCountriesList([]);
+    } else {
+      setCountriesList([]);
+    }
   };
 
   const haneleLogOut = async () => {
@@ -128,7 +146,7 @@ export default function Header() {
         toast.success(AuthenticationsMessage.logoutSucess);
         logOutAction();
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Đăng xuất thất bại. Vui lòng thử lại.");
     }
   };
@@ -140,12 +158,12 @@ export default function Header() {
       }
     };
 
-    const handleNewComment = (data: any) => {
+    const handleNewComment = (data: NewCommentData) => {
       if (data.user?.userId === authUser?.userId || data?.parent) return;
       createCommentRealtime(data);
     };
 
-    const handleReplyComment = (data: any) => {
+    const handleReplyComment = (data: ReplyCommentData) => {
       if (data.replyComment?.user?.userId === authUser?.userId) return;
       replyCommentRealtime({
         parentId: data.parentId,
@@ -153,33 +171,38 @@ export default function Header() {
       });
     };
 
-    const handleReplyNotification = async (data: any) => {
-      if (!authUser || String(data.targetUserId) !== String(authUser.userId))
+    const handleReplyNotification = async (data: ReplyNotificationData) => {
+      if (!authUser || String(data.targetUserId) !== String(authUser.userId)) {
         return;
+      }
+
       const message = `${data.replyComment.user.fullName} đã trả lời bình luận của bạn: "${data.replyComment.content}"`;
 
       await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
-
       toast.success(message);
     };
 
-    const handleReactionNotification = async (data: any) => {
-      if (!authUser || String(data.targetUserId) !== String(authUser.userId))
+    const handleReactionNotification = async (
+      data: ReactionNotificationData
+    ) => {
+      if (!authUser || String(data.targetUserId) !== String(authUser.userId)) {
         return;
+      }
+
       const reactionText =
         data.reactionType === "LIKE" ? "thích" : "không thích";
       const message = `${data.reactionUser.fullName} đã ${reactionText} bình luận của bạn`;
-      await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
 
+      await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
       toast.success(message);
     };
 
-    const handleDeleteComment = ({ commentId }: any) => {
+    const handleDeleteComment = ({ commentId }: DeleteCommentData) => {
       removeCommentRealtime(commentId);
       toast.warning("Bạn đã xóa một bình luận");
     };
 
-    const handleCountComments = ({ filmId, total }: any) => {
+    const handleCountComments = ({ filmId, total }: CountCommentsData) => {
       countCommentsRealtime(filmId, total);
     };
 
@@ -202,20 +225,27 @@ export default function Header() {
       socket.off("countComments", handleCountComments);
       socket.off("reactComment", reactCommentRealtime);
     };
-  }, [authUser?.userId]);
+  }, [
+    authUser?.userId,
+    createCommentRealtime,
+    replyCommentRealtime,
+    removeCommentRealtime,
+    countCommentsRealtime,
+    reactCommentRealtime,
+    fetchNotifications,
+    fetchUnreadCount,
+  ]);
 
   return (
     <header className="sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
-      <div className=" mx-auto px-4 py-4">
+      <div className="mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
           <div className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
             <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#f5d547] rounded-full flex items-center justify-center">
               <div className="w-8 h-8 bg-[#0f1419] rounded-full flex items-center justify-center">
                 <span
-                  onClick={() => {
-                    goHome();
-                  }}
+                  onClick={goHome}
                   className="text-[#d4af37] font-bold text-lg"
                 >
                   ▶
@@ -238,6 +268,8 @@ export default function Header() {
             <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim Bộ
             </button>
+
+            {/* Thể loại */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
@@ -247,19 +279,18 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                // className="bg-[#1a1f2e] border-[#2a3040] w-max p-4 rounded-xl shadow-lg"
                 className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
-                            w-max p-4 rounded-xl shadow-lg 
-                            transition-all duration-300 ease-out 
-                            transform origin-top scale-95 opacity-0 
-                            data-[state=open]:scale-100 data-[state=open]:opacity-100"
+                  w-max p-4 rounded-xl shadow-lg 
+                  transition-all duration-300 ease-out 
+                  transform origin-top scale-95 opacity-0 
+                  data-[state=open]:scale-100 data-[state=open]:opacity-100"
               >
-                <div className="flex  flex-col flex-wrap gap-x-0  max-h-[592px] overflow-hidden">
+                <div className="flex flex-col flex-wrap gap-x-0 max-h-[592px] overflow-hidden">
                   {genresList.map((genre, index) => (
                     <button
                       key={`${index}-${genre.id}`}
                       className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
-                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                        w-[140px] h-[40px] px-3 py-[3px] rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
                     >
                       {genre.valueVi}
                     </button>
@@ -267,6 +298,8 @@ export default function Header() {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Quốc gia */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
@@ -277,17 +310,17 @@ export default function Header() {
               <DropdownMenuContent
                 align="start"
                 className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
-                            w-max p-4 rounded-xl shadow-lg 
-                            transition-all duration-300 ease-out 
-                            transform origin-top scale-95 opacity-0 
-                            data-[state=open]:scale-100 data-[state=open]:opacity-100"
+                  w-max p-4 rounded-xl shadow-lg 
+                  transition-all duration-300 ease-out 
+                  transform origin-top scale-95 opacity-0 
+                  data-[state=open]:scale-100 data-[state=open]:opacity-100"
               >
-                <div className="flex  flex-col flex-wrap gap-x-0  max-h-[592px] overflow-hidden">
+                <div className="flex flex-col flex-wrap gap-x-0 max-h-[592px] overflow-hidden">
                   {countriesList.map((country, index) => (
                     <button
                       key={`${index}-${country.id}`}
                       className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
-                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                        w-[140px] h-[40px] px-3 py-[3px] rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
                     >
                       {country.valueVi}
                     </button>
@@ -295,9 +328,12 @@ export default function Header() {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
+
             <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Xem Chung
             </button>
+
+            {/* Thêm */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
@@ -308,27 +344,22 @@ export default function Header() {
               <DropdownMenuContent
                 align="start"
                 className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
-                          w-max p-4 rounded-xl shadow-lg 
-                          transition-all duration-300 ease-out 
-                          transform origin-top scale-95 opacity-0 
-                          data-[state=open]:scale-100 data-[state=open]:opacity-100"
+                  w-max p-4 rounded-xl shadow-lg 
+                  transition-all duration-300 ease-out 
+                  transform origin-top scale-95 opacity-0 
+                  data-[state=open]:scale-100 data-[state=open]:opacity-100"
               >
-                <div className="flex  flex-col flex-wrap gap-x-0  max-h-[592px] overflow-hidden">
-                  <button
-                    className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
-                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
-                  >
+                <div className="flex flex-col flex-wrap gap-x-0 max-h-[592px] overflow-hidden">
+                  <button className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left w-[140px] h-[40px] px-3 py-[3px] rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden">
                     Mới cập nhật
                   </button>
-                  <button
-                    className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
-                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
-                  >
+                  <button className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left w-[140px] h-[40px] px-3 py-[3px] rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden">
                     Phổ biến
                   </button>
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
+
             <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
               Phim VIP
             </button>
@@ -343,11 +374,12 @@ export default function Header() {
               <span>Chat với FlixAI</span>
             </button>
 
+            {/* Bell + Notifications */}
             <DropdownMenu
               onOpenChange={(open) => {
                 if (!open) {
-                  setShowAllNotifications(false); // Reset when closing dropdown
-                  setShowAllReadNotifications(false); // Reset read tab
+                  setShowAllNotifications(false);
+                  setShowAllReadNotifications(false);
                 }
               }}
             >
@@ -368,65 +400,69 @@ export default function Header() {
 
               <DropdownMenuContent
                 align="end"
-                className="
-                    bg-[#1a1f2e]/70 backdrop-blur-md text-gray-300 border border-[#2a3040]/60 
-                    rounded-2xl w-80 p-0 shadow-xl overflow-hidden mt-2
-                    transition-all duration-300 ease-out
-                    transform origin-top-right scale-95 opacity-0 
-                    data-[state=open]:scale-100 data-[state=open]:opacity-100
-                  "
+                className="bg-[#1a1f2e]/70 backdrop-blur-md text-gray-300 border border-[#2a3040]/60 
+                  rounded-2xl w-80 p-0 shadow-xl overflow-hidden mt-2
+                  transition-all duration-300 ease-out
+                  transform origin-top-right scale-95 opacity-0 
+                  data-[state=open]:scale-100 data-[state=open]:opacity-100"
               >
                 <Tabs
                   value={activeTab}
                   onValueChange={(value) => {
                     setActiveTab(value);
-                    setShowAllNotifications(false); // Reset when changing tab
-                    setShowAllReadNotifications(false); // Reset read tab
+                    setShowAllNotifications(false);
+                    setShowAllReadNotifications(false);
                   }}
                 >
                   {/* Header Tabs */}
-                  <div className="border-b border-[#2a3040] relative overflow-hidden">
-                    <TabsList className="bg-transparent flex text-sm font-medium w-full justify-start relative">
-                      {["film", "community", "read"].map((tab) => (
-                        <TabsTrigger
-                          key={tab}
-                          value={tab}
-                          className={`relative flex-1 py-2 transition-all duration-300 rounded-none cursor-pointer data-[state=active]:bg-transparent data-[state=active]:text-yellow-400
+                  <div className="relative overflow-hidden border-b border-[#2a3040]">
+                    <TabsList className="relative flex w-full justify-start bg-transparent text-sm font-medium">
+                      {["film", "community", "read"].map((tab) => {
+                        const isActive = activeTab === tab;
+                        return (
+                          <TabsTrigger
+                            key={tab}
+                            value={tab}
+                            className={`relative flex-1 cursor-pointer rounded-none py-2 transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:text-yellow-400 
+                              ${
+                                isActive
+                                  ? "text-yellow-400 font-semibold scale-[1.03]"
+                                  : "text-gray-400 hover:text-yellow-300"
+                              }`}
+                          >
+                            {tab === "film" && "Phim"}
+                            {tab === "community" && "Cộng đồng"}
+                            {tab === "read" && "Đã đọc"}
 
-                    ${
-                      activeTab === tab
-                        ? "text-yellow-400 font-semibold scale-[1.03]"
-                        : "text-gray-400 hover:text-yellow-300"
-                    }`}
-                        >
-                          {tab === "film" && "Phim"}
-                          {tab === "community" && "Cộng đồng"}
-                          {tab === "read" && "Đã đọc"}
-
-                          {/* Underline animation */}
-                          <span
-                            className={`absolute left-0 bottom-0 h-[2px] bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full transition-all duration-300 ${
-                              activeTab === tab
-                                ? "w-full opacity-100"
-                                : "w-0 opacity-0"
-                            }`}
-                          />
-                        </TabsTrigger>
-                      ))}
+                            {/* Underline animation */}
+                            <span
+                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${
+                                isActive
+                                  ? "w-full opacity-100"
+                                  : "w-0 opacity-0"
+                              }`}
+                            />
+                            {tab === "community" && unreadCount > 0 && (
+                              <span className="absolute top-3 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                            )}
+                          </TabsTrigger>
+                        );
+                      })}
                     </TabsList>
                   </div>
 
-                  {/* Nội dung từng tab */}
+                  {/* TAB: film */}
                   <TabsContent
                     value="film"
-                    className="p-4 text-sm text-center text-gray-400"
+                    className="p-4 text-center text-sm text-gray-400"
                   >
                     Không có thông báo phim nào
                   </TabsContent>
 
+                  {/* TAB: community (chưa đọc) */}
                   <TabsContent
                     value="community"
-                    className={`p-4 text-sm text-gray-300 text-left ${
+                    className={`p-4 text-left text-sm text-gray-300 ${
                       showAllNotifications
                         ? "max-h-[500px] overflow-y-auto"
                         : ""
@@ -445,118 +481,110 @@ export default function Header() {
                             .map((n) => (
                               <li
                                 key={n.notificationId}
-                                className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all cursor-pointer"
+                                className="cursor-pointer rounded-lg border border-[#2a3040]/60 bg-[#1a1f2e]/60 p-3 transition-all hover:bg-[#2a3040]/60"
                                 onClick={async () => {
-                                  if (n.notificationId > 0) {
-                                    try {
+                                  if (!n.result?.filmId) return;
+                                  try {
+                                    if (n.notificationId > 0) {
                                       await markAsRead(n.notificationId);
-
-                                      if (!n.result?.filmId) {
-                                        return;
-                                      }
-                                      const commentId =
-                                        n.result.commentId || n.result.parentId;
-                                      const currentPath =
-                                        window.location.pathname;
-                                      const isOnSameFilm =
-                                        n.result?.slug &&
+                                    }
+                                    const commentId =
+                                      n.result.commentId || n.result.parentId;
+                                    const currentPath =
+                                      window.location.pathname;
+                                    const isOnSameFilm =
+                                      n.result?.slug &&
+                                      (currentPath.includes(
+                                        `/film-detail/${n.result.slug}`
+                                      ) ||
                                         currentPath.includes(
-                                          `/film-detail/${n.result.slug}`
-                                        );
-
-                                      if (isOnSameFilm) {
-                                        const { eventBus } = await import(
-                                          "@/lib/eventBus"
-                                        );
-                                        eventBus.emit("switchTab", "comments");
-
-                                        setTimeout(() => {
-                                          const commentElement =
-                                            document.getElementById(
-                                              `comment-${commentId}`
+                                          `/play/${n.result.slug}`
+                                        ));
+                                    if (isOnSameFilm) {
+                                      const { eventBus } = await import(
+                                        "@/lib/eventBus"
+                                      );
+                                      eventBus.emit("switchTab", "comments");
+                                      setTimeout(() => {
+                                        const commentElement =
+                                          document.getElementById(
+                                            `comment-${commentId}`
+                                          );
+                                        if (commentElement) {
+                                          const elementPosition =
+                                            commentElement.getBoundingClientRect()
+                                              .top + window.pageYOffset;
+                                          const offsetPosition =
+                                            elementPosition - 100;
+                                          window.scrollTo({
+                                            top: offsetPosition,
+                                            behavior: "smooth",
+                                          });
+                                          setTimeout(() => {
+                                            const contentDiv =
+                                              commentElement.querySelector(
+                                                ":scope > .flex.items-start"
+                                              ) as HTMLElement | null;
+                                            const target =
+                                              contentDiv || commentElement;
+                                            target.classList.add(
+                                              "highlight-comment"
                                             );
-                                          if (commentElement) {
-                                            const elementPosition =
-                                              commentElement.getBoundingClientRect()
-                                                .top + window.pageYOffset;
-                                            const offsetPosition =
-                                              elementPosition - 100;
-                                            window.scrollTo({
-                                              top: offsetPosition,
-                                              behavior: "smooth",
-                                            });
                                             setTimeout(() => {
-                                              const contentDiv =
-                                                commentElement.querySelector(
-                                                  ":scope > .flex.items-start"
-                                                ) as HTMLElement;
-                                              const target =
-                                                contentDiv || commentElement;
-                                              target.classList.add(
+                                              target.classList.remove(
                                                 "highlight-comment"
                                               );
-                                              setTimeout(
-                                                () =>
-                                                  target.classList.remove(
-                                                    "highlight-comment"
-                                                  ),
-                                                2800
-                                              );
-                                            }, 800);
-                                          }
-                                        }, 100);
-                                        return;
-                                      }
-                                      if (n.result?.slug) {
-                                        router.push(
-                                          `/film-detail/${n.result.slug}?commentId=${commentId}`
-                                        );
-                                      } else {
-                                        try {
-                                          const filmServices = (
-                                            await import(
-                                              "@/services/filmService"
-                                            )
-                                          ).default;
-                                          const filmData =
-                                            (await filmServices.getFilmById(
-                                              String(n.result.filmId)
-                                            )) as any;
-                                          const slug =
-                                            filmData?.data?.film?.slug ||
-                                            filmData?.data?.slug;
-                                          if (filmData?.EC === 1 && slug) {
-                                            router.push(
-                                              `/film-detail/${slug}?commentId=${commentId}`
-                                            );
-                                          } else {
-                                            console.error(
-                                              "[NAVIGATE] No slug found in filmData"
-                                            );
-                                          }
-                                        } catch (err) {
-                                          console.error(
-                                            "[NAVIGATE] Failed to fetch film slug:",
-                                            err
+                                            }, 2800);
+                                          }, 800);
+                                        }
+                                      }, 100);
+                                      return;
+                                    }
+                                    if (n.result?.slug) {
+                                      router.push(
+                                        `/film-detail/${n.result.slug}?commentId=${commentId}`
+                                      );
+                                    } else {
+                                      try {
+                                        const filmServices = (
+                                          await import("@/services/filmService")
+                                        ).default;
+                                        const filmData =
+                                          (await filmServices.getFilmById(
+                                            String(n.result.filmId)
+                                          )) as IBackendRes<FilmDetailRes>;
+                                        const slug =
+                                          filmData?.data?.film?.slug ||
+                                          filmData?.data?.film.slug;
+                                        if (filmData?.EC === 1 && slug) {
+                                          router.push(
+                                            `/film-detail/${slug}?commentId=${commentId}`
+                                          );
+                                        } else {
+                                          toast.error(
+                                            "Không tìm thấy thông tin phim. Vui lòng thử lại sau."
                                           );
                                         }
+                                      } catch {
+                                        toast.error(
+                                          "Không thể tải thông tin phim. Vui lòng thử lại sau."
+                                        );
                                       }
-                                    } catch (error) {
-                                      console.error(
-                                        "Failed to mark notification as read:",
-                                        error
-                                      );
                                     }
+                                  } catch {
+                                    toast.error(
+                                      "Không thể xử lý thông báo. Vui lòng thử lại."
+                                    );
                                   }
                                 }}
                               >
                                 <div className="flex items-start gap-2">
-                                  <div className="w-2 h-2 bg-red-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                                  <div className="flex-1 min-w-0 overflow-hidden">
-                                    <div className="text-[13px] break-words word-break break-all line-clamp-3 overflow-hidden">
+                                  <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
+                                  <div className="min-w-0 flex-1 overflow-hidden">
+                                    <div className="line-clamp-3 overflow-hidden whitespace-normal break-words text-[13px]">
                                       {n.message}
                                     </div>
-                                    <div className="text-xs text-gray-500 mt-1">
+                                    <div className="mt-1 text-xs text-gray-500">
                                       {new Date(n.createdAt).toLocaleTimeString(
                                         "vi-VN"
                                       )}
@@ -568,15 +596,14 @@ export default function Header() {
                                       if (n.notificationId > 0) {
                                         deleteNotification(
                                           n.notificationId
-                                        ).catch((err: any) =>
-                                          console.error(
-                                            "Error deleting notification:",
-                                            err
-                                          )
-                                        );
+                                        ).catch(() => {
+                                          toast.error(
+                                            "Không thể xóa thông báo. Vui lòng thử lại."
+                                          );
+                                        });
                                       }
                                     }}
-                                    className="text-gray-400 hover:text-red-400 transition-colors p-1 flex-shrink-0"
+                                    className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-red-400"
                                   >
                                     <X size={14} />
                                   </button>
@@ -590,7 +617,7 @@ export default function Header() {
                             onClick={() =>
                               setShowAllNotifications(!showAllNotifications)
                             }
-                            className="w-full mt-3 py-2 text-center text-sm text-yellow-400 hover:text-yellow-300 transition-colors font-medium"
+                            className="mt-3 w-full py-2 text-center text-sm font-medium text-yellow-400 transition-colors hover:text-yellow-300"
                           >
                             {showAllNotifications
                               ? "Thu gọn"
@@ -603,9 +630,10 @@ export default function Header() {
                     )}
                   </TabsContent>
 
+                  {/* TAB: read (đã đọc) */}
                   <TabsContent
                     value="read"
-                    className={`p-4 text-sm text-gray-300 text-left ${
+                    className={`p-4 text-left text-sm text-gray-300 ${
                       showAllReadNotifications
                         ? "max-h-[500px] overflow-y-auto"
                         : ""
@@ -624,25 +652,25 @@ export default function Header() {
                             .map((n) => (
                               <li
                                 key={n.notificationId}
-                                className="bg-[#1a1f2e]/60 border border-[#2a3040]/60 rounded-lg p-3 hover:bg-[#2a3040]/60 transition-all cursor-pointer opacity-70"
+                                className="cursor-pointer rounded-lg border border-[#2a3040]/60 bg-[#1a1f2e]/60 p-3 opacity-70 transition-all hover:bg-[#2a3040]/60"
                                 onClick={async () => {
                                   if (!n.result?.filmId) return;
-
                                   const commentId =
                                     n.result.commentId || n.result.parentId;
                                   const currentPath = window.location.pathname;
                                   const isOnSameFilm =
                                     n.result?.slug &&
-                                    currentPath.includes(
+                                    (currentPath.includes(
                                       `/film-detail/${n.result.slug}`
-                                    );
-
+                                    ) ||
+                                      currentPath.includes(
+                                        `/play/${n.result.slug}`
+                                      ));
                                   if (isOnSameFilm) {
                                     const { eventBus } = await import(
                                       "@/lib/eventBus"
                                     );
                                     eventBus.emit("switchTab", "comments");
-
                                     setTimeout(() => {
                                       const commentElement =
                                         document.getElementById(
@@ -662,19 +690,17 @@ export default function Header() {
                                           const contentDiv =
                                             commentElement.querySelector(
                                               ":scope > .flex.items-start"
-                                            ) as HTMLElement;
+                                            ) as HTMLElement | null;
                                           const target =
                                             contentDiv || commentElement;
                                           target.classList.add(
                                             "highlight-comment"
                                           );
-                                          setTimeout(
-                                            () =>
-                                              target.classList.remove(
-                                                "highlight-comment"
-                                              ),
-                                            2800
-                                          );
+                                          setTimeout(() => {
+                                            target.classList.remove(
+                                              "highlight-comment"
+                                            );
+                                          }, 2800);
                                         }, 800);
                                       }
                                     }, 100);
@@ -686,11 +712,12 @@ export default function Header() {
                                 }}
                               >
                                 <div className="flex items-start gap-2">
-                                  <div className="flex-1 min-w-0 overflow-hidden">
-                                    <div className="text-[13px] break-words word-break break-all line-clamp-3 overflow-hidden">
+                                  <div className="mt-1.5 h-2 w-2 rounded-full" />
+                                  <div className="min-w-0 flex-1 overflow-hidden">
+                                    <div className="line-clamp-3 overflow-hidden whitespace-normal break-words text-[13px]">
                                       {n.message}
                                     </div>
-                                    <div className="text-xs text-gray-500 mt-1">
+                                    <div className="mt-1 text-xs text-gray-500">
                                       {new Date(n.createdAt).toLocaleTimeString(
                                         "vi-VN"
                                       )}
@@ -702,15 +729,14 @@ export default function Header() {
                                       if (n.notificationId > 0) {
                                         deleteNotification(
                                           n.notificationId
-                                        ).catch((err: any) =>
-                                          console.error(
-                                            "Error deleting notification:",
-                                            err
-                                          )
-                                        );
+                                        ).catch(() => {
+                                          toast.error(
+                                            "Không thể xóa thông báo. Vui lòng thử lại."
+                                          );
+                                        });
                                       }
                                     }}
-                                    className="text-gray-400 hover:text-red-400 transition-colors p-1 flex-shrink-0"
+                                    className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-red-400"
                                   >
                                     <X size={14} />
                                   </button>
@@ -726,7 +752,7 @@ export default function Header() {
                                 !showAllReadNotifications
                               )
                             }
-                            className="w-full mt-3 py-2 text-center text-sm text-yellow-400 hover:text-yellow-300 transition-colors font-medium"
+                            className="mt-3 w-full py-2 text-center text-sm font-medium text-yellow-400 transition-colors hover:text-yellow-300"
                           >
                             {showAllReadNotifications
                               ? "Thu gọn"
@@ -745,7 +771,6 @@ export default function Header() {
             </DropdownMenu>
 
             {/* User Menu Dropdown */}
-
             <div className="w-[120px] flex justify-end">
               {isLoading ? (
                 <div className="w-10 h-10 rounded-full bg-[#2a3040]/60 animate-pulse" />

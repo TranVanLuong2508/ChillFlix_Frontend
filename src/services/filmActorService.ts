@@ -1,7 +1,6 @@
 import publicAxios from "@/lib/publicAxios";
 import { IBackendRes } from "@/types/backend.type";
-import { FilmDetailRes } from "@/types/film.type";
-import { FilmActorRes } from "@/types/filmActorData";
+import { FilmActorGroup, FilmActorRes } from "@/types/filmActorData";
 
 export const filmActorServices = {
   getActorsByFilmId: (filmId: string) => {
@@ -13,4 +12,10 @@ export const filmActorServices = {
   getFilmsByActorId: (actorId: string): Promise<IBackendRes<FilmActorRes>> => {
     return publicAxios.get(`/film-actor/get-films-by-actor/${actorId}`);
   },
+  getFilmsByActorSlug: (actorSlug: string): Promise<IBackendRes<FilmActorRes>> => {
+    return publicAxios.get(`/film-actor/get-films-by-actor-slug/${actorSlug}`);
+  },
+  groupFilmsByActorLodash: (): Promise<IBackendRes<FilmActorGroup>> => {
+    return publicAxios.get(`/film-actor/group-films-by-actor-lodash`);
+  }
 };

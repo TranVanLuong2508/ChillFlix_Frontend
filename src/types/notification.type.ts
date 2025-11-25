@@ -1,3 +1,11 @@
+export interface NotificationResult {
+  commentId?: string;
+  parentId?: string;
+  filmId?: string;
+  slug?: string;
+  filmTitle?: string;
+}
+
 export interface Notification {
   notificationId: number;
   type: "reply" | "reaction" | "system";
@@ -9,7 +17,7 @@ export interface Notification {
     fullName: string;
     email?: string;
   };
-  result?: any;
+  result?: NotificationResult;
   createdAt: string;
   updatedAt: string;
 }

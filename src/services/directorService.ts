@@ -6,4 +6,7 @@ export const directorServices = {
   getDirectorById: (directorId: string): Promise<IBackendRes<Director>> => {
     return publicAxios.get(`/director/get-director-by-id/${directorId}`);
   },
+  getDirectorBySlug: (directorSlug: string): Promise<IBackendRes<Director>> => {
+    return publicAxios.get(`/director/get-director-by-slug/${directorSlug}`);
+  }
 };

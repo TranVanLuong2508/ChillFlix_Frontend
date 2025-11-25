@@ -9,22 +9,22 @@ import { useDirectorStore } from "@/stores/directorStore";
 import FilmDirector from "@/components/custom/FilmDirector";
 
 export default function DirectorDetail() {
-    const directorId = useParams().directorId as string;
+    const directorSlug = useParams().directorSlug as string;
     const {
         isLoadingDirector,
         isLoadingFilmDirector,
-        fetchDirectorDetail,
-        fetchFilmDirector,
+        fetchDirectorBySlug,
+        fetchFilmDirectorBySlug,
         director,
         filmDirectorData,
         error,
     } = useDirectorStore();
 
     useEffect(() => {
-        if (!directorId) return;
-        fetchDirectorDetail(directorId);
-        fetchFilmDirector(directorId);
-    }, [directorId]);
+        if (!directorSlug) return;
+        fetchDirectorBySlug(directorSlug);
+        fetchFilmDirectorBySlug(directorSlug);
+    }, [directorSlug]);
 
     if (isLoadingDirector || isLoadingFilmDirector)
         return <div className="text-center py-20">Đang tải thông tin đạo diễn...</div>;

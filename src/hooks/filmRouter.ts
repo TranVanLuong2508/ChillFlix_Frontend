@@ -6,11 +6,11 @@ export const useFilmRouter = () => {
   const router = useRouter();
 
   return {
-    goActorDetail: (actorId: number | string) =>
-      router.push(filmPath.ACTOR_DETAIL(actorId)),
+    goActorDetail: (actorSlug: number | string) =>
+      router.push(filmPath.ACTOR_DETAIL(actorSlug)),
 
-    goDirectorDetail: (directorId: number | string) =>
-      router.push(filmPath.DIRECTOR_DETAIL(directorId)),
+    goDirectorDetail: (directorSlug: number | string) =>
+      router.push(filmPath.DIRECTOR_DETAIL(directorSlug)),
 
     goWatchNow: (episodeId: string) =>
       router.push(playPath.WATCHNOW(episodeId)),
