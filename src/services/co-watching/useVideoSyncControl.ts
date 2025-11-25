@@ -63,6 +63,12 @@ export function useVideoSyncControls(params: LocalControlParams) {
     }
   }, [emitSync])
 
+  const handleEndLive = useCallback(() => {
+    if (!isHandlingRemoteEvent.current) {
+      emitSync({ type: 'endLive' });
+    }
+  }, [emitSync])
+
   return {
     handlePlay,
     handlePause,
@@ -70,5 +76,6 @@ export function useVideoSyncControls(params: LocalControlParams) {
     handleArtReady,
     handleManualSync,
     handleSyncEpisode,
+    handleEndLive,
   };
 }

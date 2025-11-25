@@ -26,7 +26,7 @@ export const FilmCard = ({
         )}></div>
       </div>
       <div className={cn(
-        "relative -mt-60",
+        "relative -mt-65",
         !isCreate && "opacity-0 translate-y-4 group-hover/filmCard:opacity-100 group-hover/filmCard:translate-y-0 transition-all duration-500 ease-out"
       )}>
         <div className="space-y-4 px-6 pb-4">

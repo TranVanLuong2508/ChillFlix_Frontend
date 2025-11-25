@@ -12,6 +12,7 @@ interface CardProps {
   view?: number;
   hostName: string;
   roomId: string;
+  isLive: boolean;
 }
 
 export const Card = ({
@@ -22,6 +23,7 @@ export const Card = ({
   view = 0,
   hostName,
   roomId,
+  isLive,
 }: CardProps) => {
   return (
     <Link href={`/co-watching/${roomId}`} className="pt-4 group">
@@ -34,16 +36,18 @@ export const Card = ({
               className="object-cover object-center max-h-[210px] w-auto"
             />
           </div>
-          <div className="absolute top-0 right-0 p-3">
-            <Button
-              variant={"ghost"}
-              size={"sm"}
-              className="bg-red-600/85 hover:bg-red-600/80 hover:text-white text-[10px] leading-0 h-6"
-            >
-              LIVE
-            </Button>
-          </div>
-          <div className="absolute bottom-0 right-0 p-4">
+          {isLive && (
+            <div className="absolute top-0 right-0 p-3">
+              <Button
+                variant={"ghost"}
+                size={"sm"}
+                className="bg-red-600/85 hover:bg-red-600/80 hover:text-white text-[10px] leading-0 h-6"
+              >
+                LIVE
+              </Button>
+            </div>
+          )}
+          {/* <div className="absolute bottom-0 right-0 p-4">
             <Button
               variant={"ghost"}
               size={"sm"}
@@ -52,7 +56,7 @@ export const Card = ({
               <p className="font-semibold">{view}</p>
               <EyeIcon className="size-3" />
             </Button>
-          </div>
+          </div> */}
         </div>
 
       </div>

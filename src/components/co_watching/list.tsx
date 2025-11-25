@@ -6,10 +6,11 @@ import roomServices from "@/services/co-watching/roomService";
 import { toast } from "sonner";
 import { roomPaginate } from "@/types/co_watching.type";
 
-interface ListProps {
+export interface ListProps {
   query: {
     isLive?: boolean;
     hostId?: number;
+    isMain?: boolean;
   };
 }
 
@@ -26,17 +27,16 @@ export const List = ({ query }: ListProps) => {
 
     setLoading(true);
     const res = await roomServices.getAllStream(page, 8, query);
-    if (res.EC === 0 && res.data && res.data.list.length > 0) {
+    if (res.EC === 0 && res.data) {
       const newList = res.data.list
       setList((prev) => [...prev, ...newList]);
 
       const metaData = res.data.meta;
-      if (metaData.current === metaData.pages) {
+      if (metaData.current === metaData.pages || newList.length === 0) {
         setHasMore(false);
       }
 
     } else {
-      toast.error("Had error when get list stream");
       console.log(">>> Error get list stream: ", res.EM);
     }
     setLoading(false);
@@ -69,26 +69,33 @@ export const List = ({ query }: ListProps) => {
   }, [loading, hasMore]);
 
   return (
-    <div className="grid grid-cols-4 gap-6 pt-4 pb-20">
-      {
-        list.map((item, i) => (
-          <Card
-            key={i}
-            thumbUrl={item.thumbUrl}
-            name={item.name}
-            createdAt={item.createdAt}
-            filmTitle={item.film.title}
-            view={100}
-            hostName={item.host.fullName}
-            roomId={item.roomId}
-          />
-        ))
-      }
-
-      <div ref={loadMoreRef} className=""></div>
-      {loading && (
-        <div>Đang tải</div>
+    <div>
+      {list.length === 0 && (
+        <div className="flex items-center justify-center text-amber-400 font-semibold text-lg">Không có phòng live nào!</div>
       )}
+
+      <div className="grid grid-cols-4 gap-6 pt-4 pb-20">
+        {
+          list.map((item, i) => (
+            <Card
+              key={i}
+              thumbUrl={item.thumbUrl}
+              name={item.name}
+              createdAt={item.createdAt}
+              filmTitle={item.film.title}
+              view={100}
+              hostName={item.host.fullName}
+              roomId={item.roomId}
+              isLive={item.isLive}
+            />
+          ))
+        }
+
+        <div ref={loadMoreRef} className=""></div>
+        {loading && (
+          <div>Đang tải</div>
+        )}
+      </div>
     </div>
   )
 }

@@ -9,7 +9,8 @@ interface PlayerInfoProps {
   partNumber: number;
 
   onOpenChange: (open: boolean) => void;
-  onOpenList: (open: boolean) => void
+  onOpenList: (open: boolean) => void;
+  leaveRoom: () => void;
 }
 
 const StreamInfo = ({
@@ -18,7 +19,8 @@ const StreamInfo = ({
   partNumber,
   episodeNumber,
   onOpenChange,
-  onOpenList
+  onOpenList,
+  leaveRoom,
 }: PlayerInfoProps) => {
   const title = `Phần ${partNumber} - Tập ${episodeNumber} • ${filmTitle}`;
 
@@ -27,7 +29,7 @@ const StreamInfo = ({
       <div className="flex justify-between">
         <div className="group/info_bar flex gap-3">
           <div className="">
-            <ExitButton />
+            <ExitButton onClick={leaveRoom} />
           </div>
           <div className="flex flex-col justify-center gap-2 font-semibold">
             <div className="flex items-center gap-2">

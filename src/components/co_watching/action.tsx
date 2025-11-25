@@ -18,7 +18,7 @@ export const Action = () => {
             >
               <Button
                 variant={"outline"}
-                className="rounded-full h-15 w-40 px-7 hover:opacity-90 cursor-pointer"
+                className="rounded-full h-15 w-40 px-7 cursor-pointer hover:bg-amber-400 hover:border-amber-400 transition-all ease duration-150"
               >
                 <DoorOpen className="size-5" />
                 <p className="text-lg">Xem chung</p>
@@ -30,7 +30,7 @@ export const Action = () => {
             >
               <Button
                 variant={"outline"}
-                className="rounded-full h-15 w-40 px-7 hover:opacity-90 cursor-pointer"
+                className="rounded-full h-15 w-40 px-7 cursor-pointer hover:bg-amber-400 hover:border-amber-400 transition-all ease duration-150"
               >
                 <Radio className="size-5" />
                 <p className="text-lg">Quản lý</p>
@@ -44,7 +44,7 @@ export const Action = () => {
         >
           <Button
             variant={"ghost"}
-            className="rounded-full h-15 w-40 px-7 border border-white text-white hover:opacity-90 cursor-pointer hover:bg-transparent hover:text-white"
+            className="rounded-full h-15 w-40 px-7 border border-white text-white cursor-pointer hover:bg-transparent hover:text-amber-400 hover:border-amber-400 transition-all ease duration-150"
           >
             <CirclePlus className="size-5" />
             <p className="text-lg">Tạo mới</p>

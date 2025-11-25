@@ -16,6 +16,12 @@ import { FilmDataStream } from "@/types/film.type";
 import { useFilmStore } from "@/stores/filmStore";
 import PlayListNav from "./playListNav";
 import { useCoWatchingStore } from "@/stores/co-watchingStore";
+import { EndLiveButton } from "./endLiveButton";
+import roomServices from "@/services/co-watching/roomService";
+import { toast } from "sonner";
+import { vi } from "date-fns/locale";
+import { formatDistanceToNow } from "date-fns";
+import { useAuthStore } from "@/stores/authStore";
 
 const ArtPlayerClient = dynamic(
   () => import("./ArtPlayerClient"),
@@ -52,6 +58,9 @@ interface PlayerProps {
   handleArtReady: (art: Artplayer) => void;
   handleManualSync: () => void;
   handleSyncEpisode: (part: number, episode: number) => void;
+  handleEndLive: () => void;
+  leaveRoom: () => void;
+  handleBackHome: () => void;
 }
 
 const Player = ({
@@ -62,6 +71,9 @@ const Player = ({
   handleArtReady,
   handleManualSync,
   handleSyncEpisode,
+  handleEndLive,
+  leaveRoom,
+  handleBackHome,
 }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenListPart, setIsOpenListPart] = useState(false);
@@ -72,6 +84,7 @@ const Player = ({
 
   const { partData } = useFilmStore();
   const { part, episode, handleUpdateEpisode } = useCoWatchingStore();
+  const { authUser } = useAuthStore();
 
   useEffect(() => {
     setCurrentPart(part);
@@ -95,11 +108,24 @@ const Player = ({
 
 
   const handleChangeEpisode = (part: number, episode: number) => {
+    if (authUser.userId !== dataRoom.room.hostId) {
+      toast.error("Chỉ chủ phòng mới có thể thay đổi tập phim");
+      return;
+    }
+
     setCurrentPart(part);
     setCurrentEpisode(episode);
 
     handleSyncEpisode(part, episode);
     handleUpdateEpisode(part, episode);
+  }
+
+  const handleEnd = async () => {
+    const result = await roomServices.updateRoom(dataRoom.room.roomId, { isLive: false });
+    if (result && result.EC === 0) {
+      handleEndLive();
+      handleBackHome();
+    }
   }
 
   return (
@@ -113,6 +139,7 @@ const Player = ({
             partNumber={currentPart}
             onOpenChange={setIsOpen}
             onOpenList={setIsOpenListPart}
+            leaveRoom={leaveRoom}
           />
           <DetailNav
             open={isOpen}
@@ -152,8 +179,8 @@ const Player = ({
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h1 className="font-semibold">Quân đẹp trai</h1>
-                  <p className="text-xs text-zinc-400">tạo 1 ngày trước</p>
+                  <h1 className="font-semibold">{dataRoom.room.host.fullName}</h1>
+                  <p className="text-xs text-zinc-400">{formatDistanceToNow(new Date(dataRoom.room.createdAt), { addSuffix: true, locale: vi })}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -165,7 +192,13 @@ const Player = ({
                   <Eye className="size-4" />
                   <span className="text-sm">10</span>
                 </Button>
-                <CopyButton />
+
+                {!dataRoom.room.isPrivate && (
+                  <CopyButton />
+                )}
+                {authUser.userId === dataRoom.room.hostId && (
+                  <EndLiveButton handleEnd={handleEnd} />
+                )}
               </div>
             </div>
           </div>

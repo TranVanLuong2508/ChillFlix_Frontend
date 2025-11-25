@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { PartDetail } from "@/types/part.type";
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface partEpisodeDialogProps {
+  partData: PartDetail[];
   open: boolean;
   part: string;
   episode: string;
@@ -16,6 +17,7 @@ interface partEpisodeDialogProps {
 }
 
 export const PartEpisodeDialog = ({
+  partData,
   open,
   part,
   episode,
@@ -39,15 +41,13 @@ export const PartEpisodeDialog = ({
             </SelectTrigger>
             <SelectContent className="z-10000 bg-[#282b3a]/50 backdrop-blur-sm  border-0 text-white ring-1 ring-amber-400/50">
               <SelectGroup>
-                {[...Array(2)].map((p, index) => (
+                {partData.map((p, index) => (
                   <SelectItem
                     key={index}
-                    // value={(p.partNumber).toString()}
-                    value={(index + 1).toString()}
+                    value={(p.partNumber).toString()}
                     className="focus:bg-amber-400"
                   >
-                    {/* {p.title} */}
-                    {index + 1}
+                    {p.partNumber}
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -56,9 +56,9 @@ export const PartEpisodeDialog = ({
 
 
           <div className="flex items-center flex-wrap gap-4 mt-4 pt-4 border-t border-zinc-100">
-            {[...Array(12)].map((_, i) => {
-              // const isSelected = episode.episodeNumber === +currentEpisode && isActive;
-              // console.log(">>>>> Check: ", isSelected, episode.episodeNumber === +currentEpisode, isActive)
+            {partData[+part - 1].episodes.map((ep, i) => {
+              const isSelected = ep.episodeNumber === +episode;
+              // console.log(">>>>> Check: ", isSelected, episode.episodeNumber === +episode, isActive)
               return (
                 <div
                   key={i}
@@ -66,12 +66,10 @@ export const PartEpisodeDialog = ({
                   className={cn(
                     "w-18 h-8 flex items-center justify-center rounded-md bg-zinc-500 text-white font-normal text-xs cursor-pointer",
                     "hover:bg-amber-400 hover:text-black transition-all duration-200 ease",
-                    (i + 1).toString() === episode && "bg-amber-400 text-black"
-                  )
-                  }
+                    isSelected && "bg-amber-400 text-black"
+                  )}
                 >
-                  {/* {episode.title !== "" ? episode.title : `Tập ${episode.episodeNumber}`} */}
-                  Tập {i + 1}
+                  {ep.title !== "" ? ep.title : `Tập ${ep.episodeNumber}`}
                 </div>
               )
             })}

@@ -147,9 +147,6 @@ const PlayListNav = ({
     setIsActive(selectedPart === currentPart)
   }, [selectedPart, currentPart, partData])
 
-  console.log(">>> Check data: ", partData);
-
-
   return (
     <div
       className={cn("absolute inset-0 z-1000", !open && "pointer-events-none")}

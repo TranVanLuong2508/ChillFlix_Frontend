@@ -12,6 +12,7 @@ import Player from "./player";
 import { useCoWatchingStore } from "@/stores/co-watchingStore";
 import { useFilmStore } from "@/stores/filmStore";
 import Loading from "../loading";
+import { useRouter } from "next/navigation";
 
 interface MainSectionProps {
   roomId: string;
@@ -30,11 +31,17 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
   const { partData, getPartData } = useFilmStore();
   const { handleUpdateEpisode } = useCoWatchingStore();
 
+  const route = useRouter();
+
+  const handleBackHome = () => {
+    route.push("/co-watching");
+  }
+
   useEffect(() => {
     if (!dataRoom || dataRoom.room.roomId !== roomId) {
       getRoomData(roomId);
     }
-  }, [roomId]);
+  }, [roomId, getRoomData, dataRoom]);
 
   useEffect(() => {
     const filmId = dataRoom?.filmData.film.filmId
@@ -45,18 +52,20 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
 
   const { handleRemoteEvent } = useVideoSyncHandler();
 
-  const { emitSync, isConnected, isReady, socketId } = useWatchTogether(
+  const { emitSync, isConnected, isReady, socketId, leaveRoom } = useWatchTogether(
     roomId,
     async (event: SyncEvent) => {
       await handleRemoteEvent({
         event,
         art: artInstanceRef.current,
         emitSync,
+        leaveRoom,
         syncMode,
         isHandlingRemoteEvent,
         hasInitialSynced,
         onShowInteractionPrompt: setShowInteractionPrompt,
         handleUpdateEpisode,
+        handleBackHome,
       });
     }
   );
@@ -68,6 +77,7 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
     handleArtReady,
     handleManualSync,
     handleSyncEpisode,
+    handleEndLive,
   } = useVideoSyncControls({
     emitSync,
     syncMode,
@@ -100,6 +110,8 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
     return <Loading />
   }
 
+
+
   return (
     <div className="px-10 pb-10 pt-6">
       <Player
@@ -110,6 +122,9 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
         handleSeek={handleSeek}
         handleManualSync={handleManualSync}
         handleSyncEpisode={handleSyncEpisode}
+        handleEndLive={handleEndLive}
+        leaveRoom={leaveRoom}
+        handleBackHome={handleBackHome}
       />
     </div>
   )

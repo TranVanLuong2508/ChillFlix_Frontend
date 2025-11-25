@@ -15,7 +15,8 @@ interface CoWatchingState {
 }
 
 interface CoWatchingAction {
-  create: (payload: roomPayload) => Promise<void>;
+  resetDataRoom: () => void;
+  createLiveRoom: (payload: roomPayload) => Promise<void>;
   getRoomData: (roomId: string) => Promise<void>;
   handleUpdateEpisode: (part: number, episode: number) => void;
 }
@@ -26,11 +27,15 @@ export const useCoWatchingStore = create<CoWatchingState & CoWatchingAction>((se
   part: 1,
   episode: 1,
 
+  resetDataRoom: () => {
+    set({ dataRoom: null });
+  },
+
   handleUpdateEpisode: (part, episode) => {
     set({ part: part, episode: episode });
   },
 
-  create: async (payload) => {
+  createLiveRoom: async (payload) => {
     try {
       const res = await roomServices.createRoom(payload);
       if (res.EC !== 0) {
