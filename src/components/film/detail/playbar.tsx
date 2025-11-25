@@ -35,6 +35,7 @@ import { userPlaylistStore } from "@/stores/playlistStore";
 import { toast } from "sonner";
 import { PlayListMessage } from "@/constants/messages/user.message";
 import CreatePlaylistModal from "@/components/users/playlists/CreatePlaylistModal";
+import CreatePlaylistInFilmDetail from "@/components/users/playlists/CreatePlaylistInFilmDetail";
 
 interface PlayBarProps {
   activeTab: "comments" | "ratings";
@@ -166,7 +167,7 @@ const ModalAdd = ({ action }: { action: actionType }) => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <CreatePlaylistModal
+      <CreatePlaylistInFilmDetail
         open={openCreate}
         onClose={() => setOpenCreate(false)}
       />
