@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react"
 import MovieCardVertical from "@/components/homepage/movie-card-vertical"
 import filmServices from "@/services/filmService"
-import { allCodeServie } from "@/services"
+import { allCodeServie, userServices } from "@/services"
 import type { FilmDetailRes } from "@/types/filmType"
 import type { AllCodeRow } from "@/types/allcode.type"
+import FilterPanel from "@/components/search/filter-panel"
+import { userFavoriteStore } from "@/stores/favoriteStore"
 
 interface GenrePageProps {
     params: Promise<{
@@ -32,6 +34,12 @@ export default function GenrePage({ params }: GenrePageProps) {
     const [error, setError] = useState<string | null>(null)
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
+    const { fetchFavoriteList, favoriteList } = userFavoriteStore()
+
+    const handleToggleFavorite = async (filmId: string) => {
+        await userServices.toggleFavoriteFilm(filmId)
+        fetchFavoriteList()
+    }
 
     useEffect(() => {
         const unwrapParams = async () => {
@@ -52,7 +60,7 @@ export default function GenrePage({ params }: GenrePageProps) {
                     const genre = genres.find(
                         (g: AllCodeRow) =>
                             g.valueEn?.toUpperCase() === genreName.toUpperCase() ||
-                            g.keyMap?.toUpperCase() === genreName.toUpperCase()
+                            g.keyMap?.toUpperCase() === genreName.toUpperCase(),
                     )
                     if (genre) {
                         setGenreDisplayName(genre.valueVi)
@@ -99,7 +107,7 @@ export default function GenrePage({ params }: GenrePageProps) {
                             genres:
                                 film.genres
                                     ?.map((genre: any) =>
-                                        typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || ""
+                                        typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || "",
                                     )
                                     .filter(Boolean) || [],
                             badges: [
@@ -107,7 +115,7 @@ export default function GenrePage({ params }: GenrePageProps) {
                                 { text: film.type?.valueVi || "Film", color: "bg-green-600" },
                             ],
                             episodes: "Phần 1",
-                        }) as FilmDetailRes
+                        }) as FilmDetailRes,
                 )
 
                 setFilms(transformedFilms)
@@ -127,29 +135,24 @@ export default function GenrePage({ params }: GenrePageProps) {
         }
     }, [apiGenreKey, page])
 
+    useEffect(() => {
+        fetchFavoriteList()
+    }, [])
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
             <main className="pb-12 bg-[#191B24]">
                 {/* Header Section */}
-                <div className="px-4 py-8 border-b border-[#2a3040]">
+                <div className="px-4 py-8 ">
                     <div className="max-w-7xl mx-auto">
                         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Phim {genreDisplayName}</h1>
-                        <p className="text-gray-400">
-                            {films.length} phim | Cập nhật mới nhất
-                        </p>
+                        <p className="text-gray-400">{films.length} phim | Cập nhật mới nhất</p>
                     </div>
                 </div>
 
                 {/* Filter Section */}
-                <div className="px-4 py-4 border-b border-[#2a3040]/50">
-                    <div className="max-w-7xl mx-auto flex items-center gap-4">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#2a3040] hover:bg-[#3a4050] text-white rounded-lg transition-all">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
-                            Bộ lọc
-                        </button>
-                    </div>
+                <div className="max-w-7xl mx-auto">
+                    <FilterPanel></FilterPanel>
                 </div>
 
                 {/* Content Section */}
@@ -171,11 +174,23 @@ export default function GenrePage({ params }: GenrePageProps) {
                             {/* Movie Grid */}
                             <div className="max-w-7xl mx-auto">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                    {films.map((film) => (
-                                        <div key={film.filmId}>
-                                            <MovieCardVertical item={film} />
-                                        </div>
-                                    ))}
+                                    {films.map((film) => {
+                                        let isFavorite = false
+                                        const index = favoriteList.findIndex((f) => f.filmId === film.filmId)
+                                        if (index !== -1) {
+                                            isFavorite = true
+                                        }
+
+                                        return (
+                                            <div key={film.filmId}>
+                                                <MovieCardVertical
+                                                    item={film}
+                                                    isFavorite={isFavorite}
+                                                    handleToggleFavorite={handleToggleFavorite}
+                                                />
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
 
@@ -207,7 +222,6 @@ export default function GenrePage({ params }: GenrePageProps) {
                     )}
                 </div>
             </main>
-
         </div>
     )
 }

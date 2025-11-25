@@ -1,19 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import filmServices from "@/services/filmService"
-import { allCodeServie, userServices } from "@/services"
-import type { FilmDetailRes } from "@/types/filmType"
-import type { AllCodeRow } from "@/types/allcode.type"
 import MovieCardVertical from "@/components/homepage/movie-card-vertical"
+import filmServices from "@/services/filmService"
+import { userServices } from "@/services"
+import type { FilmDetailRes } from "@/types/filmType"
 import FilterPanel from "@/components/search/filter-panel"
 import { userFavoriteStore } from "@/stores/favoriteStore"
-
-interface CountryPageProps {
-    params: Promise<{
-        coutrySlug: string
-    }>
-}
 
 const getPosterUrl = (film: any): string => {
     if (film.posterUrl) return film.posterUrl
@@ -25,10 +18,7 @@ const getPosterUrl = (film: any): string => {
     return "/placeholder.svg"
 }
 
-export default function CountryPage({ params }: CountryPageProps) {
-    const [countryName, setCountryName] = useState<string>("")
-    const [countryDisplayName, setCountryDisplayName] = useState<string>("")
-    const [apiCountryKey, setApiCountryKey] = useState<string>("")
+export default function SinglePage() {
     const [films, setFilms] = useState<FilmDetailRes[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -36,58 +26,17 @@ export default function CountryPage({ params }: CountryPageProps) {
     const [totalPages, setTotalPages] = useState(1)
     const { fetchFavoriteList, favoriteList } = userFavoriteStore()
 
-    const handleToggleFavorite = async (filmId: string) => {
+    const hanhleToggleFavorite = async (filmId: string) => {
         await userServices.toggleFavoriteFilm(filmId)
         fetchFavoriteList()
     }
+    // end favorite
 
     useEffect(() => {
-        const unwrapParams = async () => {
-            const resolvedParams = await params
-            const country = resolvedParams.coutrySlug
-            setCountryName(country)
-        }
-        unwrapParams()
-    }, [params])
-
-    useEffect(() => {
-        const fetchCountryName = async () => {
-            try {
-                const res = await allCodeServie.getCountriesList()
-                if (res && res.EC === 1) {
-                    const countries = res.data?.COUNTRY || []
-
-                    const country = countries.find(
-                        (c: AllCodeRow) =>
-                            c.valueEn?.toUpperCase() === countryName.toUpperCase() ||
-                            c.keyMap?.toUpperCase() === countryName.toUpperCase(),
-                    )
-
-                    if (country) {
-                        setCountryDisplayName(country.valueVi)
-                        setApiCountryKey(country.valueEn || country.keyMap)
-                    } else {
-                        setCountryDisplayName(countryName)
-                        setApiCountryKey(countryName)
-                    }
-                }
-            } catch (err) {
-                console.error("Error fetching country name:", err)
-                setCountryDisplayName(countryName)
-                setApiCountryKey(countryName)
-            }
-        }
-
-        if (countryName) {
-            fetchCountryName()
-        }
-    }, [countryName])
-
-    useEffect(() => {
-        const fetchFilmsByCountry = async () => {
+        const fetchSingleFilms = async () => {
             try {
                 setLoading(true)
-                const response = await filmServices.getByCountry(apiCountryKey, page)
+                const response = await filmServices.getByType("Single", page)
 
                 const filmList = response.data?.result || []
                 const meta = response.data?.meta
@@ -112,7 +61,7 @@ export default function CountryPage({ params }: CountryPageProps) {
                                     .filter(Boolean) || [],
                             badges: [
                                 { text: "PD", color: "bg-blue-600" },
-                                { text: film.type?.valueVi || "Film", color: "bg-green-600" },
+                                { text: film.type?.valueVi || "Single", color: "bg-green-600" },
                             ],
                             episodes: "Phần 1",
                         }) as FilmDetailRes,
@@ -120,21 +69,19 @@ export default function CountryPage({ params }: CountryPageProps) {
 
                 setFilms(transformedFilms)
                 if (meta) {
-                    setTotalPages(meta.totalPages || 1)
+                    setTotalPages(meta.pages || 1)
                 }
                 setError(null)
             } catch (err) {
-                console.error("Error fetching films:", err)
+                console.error("Error fetching single films:", err)
                 setError("Không thể tải dữ liệu phim")
             } finally {
                 setLoading(false)
             }
         }
 
-        if (apiCountryKey) {
-            fetchFilmsByCountry()
-        }
-    }, [apiCountryKey, page])
+        fetchSingleFilms()
+    }, [page])
 
     useEffect(() => {
         fetchFavoriteList()
@@ -146,15 +93,14 @@ export default function CountryPage({ params }: CountryPageProps) {
                 {/* Header Section */}
                 <div className="px-4 py-8 ">
                     <div className="max-w-7xl mx-auto">
-                        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Phim {countryDisplayName}</h1>
+                        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Phim Lẻ</h1>
                         <p className="text-gray-400">{films.length} phim | Cập nhật mới nhất</p>
                     </div>
                 </div>
-
-                {/* Filter Section */}
                 <div className="max-w-7xl mx-auto">
                     <FilterPanel></FilterPanel>
                 </div>
+                {/* Filter Section */}
                 {/* Content Section */}
                 <div className="px-4 py-8">
                     {loading ? (
@@ -173,7 +119,7 @@ export default function CountryPage({ params }: CountryPageProps) {
                         <>
                             {/* Movie Grid */}
                             <div className="max-w-7xl mx-auto">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                                     {films.map((film) => {
                                         let isFavorite = false
                                         const index = favoriteList.findIndex((f) => f.filmId === film.filmId)
@@ -182,11 +128,11 @@ export default function CountryPage({ params }: CountryPageProps) {
                                         }
 
                                         return (
-                                            <div key={film.filmId} className="flex flex-col">
+                                            <div key={film.filmId}>
                                                 <MovieCardVertical
                                                     item={film}
                                                     isFavorite={isFavorite}
-                                                    handleToggleFavorite={handleToggleFavorite}
+                                                    handleToggleFavorite={hanhleToggleFavorite}
                                                 />
                                             </div>
                                         )

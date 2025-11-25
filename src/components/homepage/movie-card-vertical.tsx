@@ -1,18 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { Play, Heart, Info } from 'lucide-react'
+import { Play, Heart, Info } from "lucide-react"
 import type { FilmDetailRes } from "@/types/filmType"
-import Link from "next/link"
+import { useFilmRouter } from "@/hooks/filmRouter"
 
 interface MovieCardVerticalProps {
     item: FilmDetailRes
     badgeColor?: string
+    handleToggleFavorite: (filmId: string) => void
+    isFavorite: boolean
 }
 
-export default function MovieCardVertical({ item }: MovieCardVerticalProps) {
+export default function MovieCardVertical({ item, handleToggleFavorite, isFavorite }: MovieCardVerticalProps) {
     const [isHovered, setIsHovered] = useState(false)
-    const [isFavorite, setIsFavorite] = useState(false)
+    const { goFilmDetail } = useFilmRouter()
 
     const getGenreText = (genre: any): string => {
         if (typeof genre === "string") return genre
@@ -45,19 +47,27 @@ export default function MovieCardVertical({ item }: MovieCardVerticalProps) {
 
                 {/* Hover Overlay */}
                 {isHovered && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 transition-all duration-300">
-                        <Link href={`http://localhost:3000/film-detail/${item.slug}`}>
-                            <button className="bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
+                    <div className="absolute inset-0 bg-black/60 flex items-center  justify-center gap-2 transition-all duration-300">
+                        <div
+                            onClick={() => {
+                                goFilmDetail(item.slug)
+                            }}
+                        >
+                            <button className="bg-gradient-to-r from-yellow-300 to-yellow-500 cursor-pointer hover:from-yellow-400 hover:to-yellow-200 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
                                 <Play className="w-4 h-4 fill-current" />
                             </button>
-                        </Link>
+                        </div>
                         <button
-                            onClick={() => setIsFavorite(!isFavorite)}
-                            className="bg-slate-700/80 hover:bg-slate-600 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center"
+                            onClick={() => handleToggleFavorite(item.filmId)}
+                            className="bg-slate-700/80 hover:bg-slate-600 cursor-pointer text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center"
                         >
                             <Heart className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} />
                         </button>
-                        <button className="bg-slate-700/80 hover:bg-slate-600 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center">
+                        <button
+                            onClick={() => {
+                                goFilmDetail(item.slug)
+                            }}
+                            className="bg-slate-700/80 hover:bg-slate-600 cursor-pointer text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center">
                             <Info className="w-4 h-4" />
                         </button>
                     </div>
@@ -88,17 +98,26 @@ export default function MovieCardVertical({ item }: MovieCardVerticalProps) {
 
                             {/* Action Buttons */}
                             <div className="flex gap-2">
-                                <Link className="flex-1 rounded-lg flex" href={`http://localhost:3000/film-detail/${item.slug}`}>
-                                    <button className="flex-1 bg-gradient-to-r from-yellow-300 to-yellow-500
+                                <div
+                                    className="flex-1 rounded-lg flex"
+                                    onClick={() => {
+                                        goFilmDetail(item.filmId)
+                                    }}
+                                >
+                                    <button
+                                        className="flex-1 bg-gradient-to-r from-yellow-300 to-yellow-500
                             hover:from-yellow-400 hover:to-yellow-200 
                             hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]
-                            transition-all duration-300 ease-in-out cursor-pointer text-white font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center gap-2 text-sm">
+                            transition-all duration-300 ease-in-out cursor-pointer text-white font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center gap-2 text-sm"
+                                    >
                                         <Play className="w-4 h-4 fill-current" />
                                         Xem ngay
                                     </button>
-                                </Link>
+                                </div>
                                 <button
-                                    onClick={() => setIsFavorite(!isFavorite)}
+                                    onClick={() => {
+                                        handleToggleFavorite(item.filmId)
+                                    }}
                                     className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
                                 >
                                     <Heart className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} />
@@ -150,11 +169,7 @@ export default function MovieCardVertical({ item }: MovieCardVerticalProps) {
                 {/* Metadata */}
                 <div className="flex flex-wrap gap-1 text-xs text-gray-400 pt-2">
                     {item.year && <span>{item.year}</span>}
-                    {item.imdbRating && (
-                        <span className="text-amber-400">
-                            IMDb: {item.imdbRating}
-                        </span>
-                    )}
+                    {item.imdbRating && <span className="text-amber-400">IMDb: {item.imdbRating}</span>}
                 </div>
             </div>
         </div>

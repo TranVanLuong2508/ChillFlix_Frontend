@@ -22,5 +22,13 @@ export const useAppRouter = () => {
     replaceToHome: () => router.replace(userPath.HOME),
     reload: () => router.refresh(),
     replaceToUpgradeVip: () => router.replace(userPath.UPGRADE_VIP),
+
+    // ==== Header routes ====
+    goSingleFilms: () => router.push("/single"),
+    goSeriesFilms: () => router.push("/series"),
+    goGenre: (genreSlug: string) => router.push(`/genre/${genreSlug}`),
+    goCountry: (countrySlug: string) => router.push(`/country/${countrySlug}`),
+    goLatestUpdate: () => router.push("/search?sort=Latest Update"),
+    goMostViewed: () => router.push("/search?sort=Views"),
   };
 };

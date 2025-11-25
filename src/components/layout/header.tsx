@@ -52,8 +52,7 @@ export default function Header() {
   const [activeTab, setActiveTab] = useState("film");
 
   const { openLoginModal } = useAuthModalStore();
-  const { goFavorite, goPlaylist, goHome, goUpgradeVip, goProfile } =
-    useAppRouter();
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -62,6 +61,19 @@ export default function Header() {
   const [showAllReadNotifications, setShowAllReadNotifications] =
     useState(false);
 
+  const {
+    goHome,
+    goProfile,
+    goPlaylist,
+    goFavorite,
+    goUpgradeVip,
+    goSingleFilms,
+    goSeriesFilms,
+    goGenre,
+    goCountry,
+    goMostViewed,
+    goLatestUpdate,
+  } = useAppRouter();
   const { openDrawer } = useChatDrawerStore();
 
   const { logOutAction, isAuthenticated, isLoading, authUser } = useAuthStore();
@@ -262,10 +274,20 @@ export default function Header() {
 
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center gap-0">
-            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button
+              className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md"
+              onClick={() => {
+                goSingleFilms();
+              }}
+            >
               Phim Lẻ
             </button>
-            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button
+              className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md"
+              onClick={() => {
+                goSeriesFilms();
+              }}
+            >
               Phim Bộ
             </button>
 
@@ -291,6 +313,9 @@ export default function Header() {
                       key={`${index}-${genre.id}`}
                       className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                         w-[140px] h-[40px] px-3 py-[3px] rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                      onClick={() => {
+                        goGenre(genre.valueEn as string);
+                      }}
                     >
                       {genre.valueVi}
                     </button>
@@ -321,6 +346,9 @@ export default function Header() {
                       key={`${index}-${country.id}`}
                       className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
                         w-[140px] h-[40px] px-3 py-[3px] rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                      onClick={() => {
+                        goCountry(country.valueEn as string);
+                      }}
                     >
                       {country.valueVi}
                     </button>
@@ -349,11 +377,23 @@ export default function Header() {
                   transform origin-top scale-95 opacity-0 
                   data-[state=open]:scale-100 data-[state=open]:opacity-100"
               >
-                <div className="flex flex-col flex-wrap gap-x-0 max-h-[592px] overflow-hidden">
-                  <button className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left w-[140px] h-[40px] px-3 py-[3px] rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden">
+                <div className="flex  flex-col flex-wrap gap-x-0  max-h-[592px] overflow-hidden">
+                  <button
+                    className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
+                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                    onClick={() => {
+                      goLatestUpdate();
+                    }}
+                  >
                     Mới cập nhật
                   </button>
-                  <button className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left w-[140px] h-[40px] px-3 py-[3px] rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden">
+                  <button
+                    className="text-gray-300 hover:text-yellow-400 transition text-sm whitespace-nowrap cursor-pointer text-left
+                       w-[140px] h-[40px] px-3 py-[3px]  rounded-md hover:bg-[#2a3040] text-[13px] overflow-hidden"
+                    onClick={() => {
+                      goMostViewed();
+                    }}
+                  >
                     Phổ biến
                   </button>
                 </div>

@@ -43,6 +43,36 @@ const filmServices = {
   async getByGenre(genreName: string, page: number = 1, pageSize: number = 20) {
     return publicAxios.get(`/films/by-genre/${genreName}?current=${page}&pageSize=${pageSize}`);
   },
+  async getByType(typeValue: string, page = 1, pageSize = 20) {
+    return publicAxios.get(`/films/by-type/${typeValue}?current=${page}&pageSize=${pageSize}`)
+  },
+  async searchFilms(
+    filters: {
+      country?: string
+      type?: string
+      age_code?: string
+      genre?: string
+      version?: string
+      year?: string
+    },
+    sort?: string,
+    page = 1,
+    pageSize = 20,
+  ) {
+    const params = new URLSearchParams()
+
+    if (filters.country) params.append("country", filters.country)
+    if (filters.type) params.append("type", filters.type)
+    if (filters.age_code) params.append("age_code", filters.age_code)
+    if (filters.genre) params.append("genre", filters.genre)
+    if (filters.version) params.append("version", filters.version)
+    if (filters.year) params.append("year", filters.year)
+    if (sort) params.append("sort", sort)
+    params.append("current", page.toString())
+    params.append("limit", pageSize.toString())
+
+    return publicAxios.get(`/films/filter/search?${params.toString()}`)
+  },
 };
 
 export default filmServices;

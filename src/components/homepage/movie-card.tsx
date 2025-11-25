@@ -147,8 +147,8 @@ export default function MovieCard({
                   {typeof item.age === "string"
                     ? item.age
                     : (item.age as any)?.valueVi ||
-                      (item.age as any)?.valueEn ||
-                      ""}
+                    (item.age as any)?.valueEn ||
+                    ""}
                 </span>
               )}
               {item.year && (
