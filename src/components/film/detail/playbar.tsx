@@ -284,7 +284,7 @@ const ModalShare = ({
 
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} >
       <DialogContent className="sm:max-w-md bg-zinc-600/10 backdrop-blur-md border border-white/25 text-gray-200">
         <DialogHeader>
           <DialogTitle>Chia sẻ</DialogTitle>
