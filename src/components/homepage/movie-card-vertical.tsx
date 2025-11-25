@@ -47,23 +47,27 @@ export default function MovieCardVertical({ item, handleToggleFavorite, isFavori
 
                 {/* Hover Overlay */}
                 {isHovered && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 transition-all duration-300">
+                    <div className="absolute inset-0 bg-black/60 flex items-center  justify-center gap-2 transition-all duration-300">
                         <div
                             onClick={() => {
                                 goFilmDetail(item.slug)
                             }}
                         >
-                            <button className="bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
+                            <button className="bg-gradient-to-r from-yellow-300 to-yellow-500 cursor-pointer hover:from-yellow-400 hover:to-yellow-200 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
                                 <Play className="w-4 h-4 fill-current" />
                             </button>
                         </div>
                         <button
                             onClick={() => handleToggleFavorite(item.filmId)}
-                            className="bg-slate-700/80 hover:bg-slate-600 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center"
+                            className="bg-slate-700/80 hover:bg-slate-600 cursor-pointer text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center"
                         >
                             <Heart className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} />
                         </button>
-                        <button className="bg-slate-700/80 hover:bg-slate-600 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center">
+                        <button
+                            onClick={() => {
+                                goFilmDetail(item.slug)
+                            }}
+                            className="bg-slate-700/80 hover:bg-slate-600 cursor-pointer text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center">
                             <Info className="w-4 h-4" />
                         </button>
                     </div>

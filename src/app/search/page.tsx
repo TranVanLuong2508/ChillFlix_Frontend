@@ -7,6 +7,7 @@ import MovieCardVertical from "@/components/homepage/movie-card-vertical"
 import FilterPanel from "@/components/search/filter-panel"
 import { userFavoriteStore } from "@/stores/favoriteStore"
 import { userServices } from "@/services"
+import { LayoutPanelLeft } from "lucide-react"
 
 interface SearchResult {
     result: any[]
@@ -101,6 +102,10 @@ export default function SearchPage() {
     return (
         <div className="w-full bg-[#191B24] p-6 min-h-screen">
             <div className="max-w-7xl mx-auto">
+                <div className="flex align-middle">
+                    <LayoutPanelLeft className="w-8 h-8 font-bold text-white mr-4" />
+                    <h1 className="text-2xl md:text-2xl font-bold text-white mb-4">Duyệt Tìm</h1>
+                </div>
                 {/* Filter Panel */}
                 <FilterPanel showResults={true} />
 
