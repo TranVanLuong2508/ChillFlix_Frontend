@@ -100,7 +100,7 @@ export default function SearchPage() {
     // }
 
     return (
-        <div className="w-full bg-[#191B24] p-6 min-h-screen">
+        <div className="w-full bg-[#191B24] p-6 min-h-screen mt-24">
             <div className="max-w-7xl mx-auto">
                 <div className="flex align-middle">
                     <LayoutPanelLeft className="w-8 h-8 font-bold text-white mr-4" />

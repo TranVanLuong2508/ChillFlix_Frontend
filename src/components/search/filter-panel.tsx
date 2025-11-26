@@ -33,7 +33,7 @@ interface FilterPanelProps {
 export default function FilterPanel({ onFiltersChange, showResults = true }: FilterPanelProps) {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const [isExpanded, setIsExpanded] = useState(true)
+    const [isExpanded, setIsExpanded] = useState(false)
     const [filters, setFilters] = useState<FilterState>({})
     const [filterOptions, setFilterOptions] = useState<FilterOptions>({
         countries: [],

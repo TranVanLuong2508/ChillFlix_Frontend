@@ -5,6 +5,7 @@ import { Play, Heart, Info } from "lucide-react";
 import type { FilmDetailRes } from "@/types/filmType";
 import Link from "next/link";
 import { userServices } from "@/services";
+import { useFilmRouter } from "@/hooks/filmRouter";
 
 interface MovieCardProps {
   item: FilmDetailRes;
@@ -24,6 +25,7 @@ export default function MovieCard({
   const [isHovered, setIsHovered] = useState(false);
   //   const [isFavorite, setIsFavorite] = useState(false);
   const cardContainerRef = useRef<HTMLDivElement>(null);
+  const { goFilmDetail } = useFilmRouter()
 
   const getGenreText = (genre: any): string => {
     if (typeof genre === "string") return genre;
@@ -100,9 +102,11 @@ export default function MovieCard({
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              <Link
+              <div
                 className="flex-1 rounded-lg flex "
-                href={`http://localhost:3000/film-detail/${item.slug}`}
+                onClick={() => {
+                  goFilmDetail(item.slug)
+                }}
               >
                 <button
                   className="flex-1 bg-gradient-to-r from-yellow-300 to-yellow-500
@@ -113,7 +117,7 @@ export default function MovieCard({
                   <Play className="w-4 h-4 fill-current" />
                   Xem ngay
                 </button>
-              </Link>
+              </div>
               <button
                 onClick={() => {
                   hanhleToggleFavorite(item.filmId);

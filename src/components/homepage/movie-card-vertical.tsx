@@ -72,104 +72,19 @@ export default function MovieCardVertical({ item, handleToggleFavorite, isFavori
                         </button>
                     </div>
                 )}
-
-                {/* Full Popup Card */}
-                {isHovered && (
-                    <div
-                        className={`absolute z-50 w-80 bg-[#191B24] rounded-lg overflow-hidden shadow-2xl border border-slate-700 pointer-events-auto animate-popup-in`}
-                        style={{
-                            bottom: "100%",
-                            left: "50%",
-                            transform: "translateX(-50%) translateY(-8px)",
-                        }}
-                    >
-                        {/* Preview Image */}
-                        <div className="relative w-full h-40 overflow-hidden bg-slate-800">
-                            <img src={item.posterUrl || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" />
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-3 space-y-2">
-                            {/* Title */}
-                            <div>
-                                <h2 className="text-base font-bold text-white">{item.title}</h2>
-                                {item.originalTitle && <p className="text-xs text-gray-400">{item.originalTitle}</p>}
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-2">
-                                <div
-                                    className="flex-1 rounded-lg flex"
-                                    onClick={() => {
-                                        goFilmDetail(item.filmId)
-                                    }}
-                                >
-                                    <button
-                                        className="flex-1 bg-gradient-to-r from-yellow-300 to-yellow-500
-                            hover:from-yellow-400 hover:to-yellow-200 
-                            hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]
-                            transition-all duration-300 ease-in-out cursor-pointer text-white font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center gap-2 text-sm"
-                                    >
-                                        <Play className="w-4 h-4 fill-current" />
-                                        Xem ngay
-                                    </button>
-                                </div>
-                                <button
-                                    onClick={() => {
-                                        handleToggleFavorite(item.filmId)
-                                    }}
-                                    className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
-                                >
-                                    <Heart className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} />
-                                </button>
-                                <button className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
-                                    <Info className="w-4 h-4" />
-                                </button>
-                            </div>
-
-                            {/* Metadata */}
-                            <div className="flex flex-wrap gap-1 text-xs text-gray-300">
-                                {item.imdbRating && (
-                                    <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-[#f0d25c]">
-                                        <span className="text-amber-400 font-bold text-xs">IMDb: </span>
-                                        <span className="text-white font-bold text-xs">{item.imdbRating}</span>
-                                    </div>
-                                )}
-                                {item.age && (
-                                    <span className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white text-xs">
-                                        {typeof item.age === "string"
-                                            ? item.age
-                                            : (item.age as any)?.valueVi || (item.age as any)?.valueEn || ""}
-                                    </span>
-                                )}
-                                {item.year && <span className="bg-slate-800 px-2 py-0.5 rounded">{item.year}</span>}
-                                {item.episodes && <span className="bg-slate-800 px-2 py-0.5 rounded">{item.episodes}</span>}
-                            </div>
-
-                            {/* Genres */}
-                            {item.genres && item.genres.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
-                                    {item.genres.map((genre, idx) => (
-                                        <span key={idx} className="text-xs text-gray-400">
-                                            {getGenreText(genre)}
-                                            {idx < item.genres!.length - 1 && " •"}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
             </div>
 
-            <div className="mt-3 space-y-1 flex-1">
-                <h3 className="font-bold text-white text-sm line-clamp-2">{item.title}</h3>
+            <div className="mt-3 space-y-1 flex-1"
+                onClick={() => {
+                    goFilmDetail(item.slug)
+                }}
+            >
+                <h3 className="font-bold text-white text-sm line-clamp-2 hover:text-yellow-400">{item.title}</h3>
                 {item.originalTitle && <p className="text-xs text-gray-400 line-clamp-1">{item.originalTitle}</p>}
 
                 {/* Metadata */}
                 <div className="flex flex-wrap gap-1 text-xs text-gray-400 pt-2">
                     {item.year && <span>{item.year}</span>}
-                    {item.imdbRating && <span className="text-amber-400">IMDb: {item.imdbRating}</span>}
                 </div>
             </div>
         </div>

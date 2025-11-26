@@ -99,7 +99,7 @@ export default function HeroCarousel() {
 
     if (loading || films.length === 0) {
         return (
-            <section className="relative w-full h-[500px] md:h-[550px] lg:h-[600px] bg-slate-950 flex items-center justify-center">
+            <section className="relative w-full h-[500px] md:h-[550px] lg:h-[100vh] bg-slate-950 flex items-center justify-center">
                 <div className="text-white">Đang tải dữ liệu...</div>
             </section>
         )
@@ -168,7 +168,7 @@ export default function HeroCarousel() {
             ))}
 
             {/* Content Container */}
-            <div className="relative h-[500px] md:h-[550px] lg:h-[600px] flex items-center select-none">
+            <div className="relative h-[500px] md:h-[550px] lg:h-[100vh] flex items-center select-none">
                 <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
                     <div className="max-w-xl space-y-2 md:space-y-3">
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">

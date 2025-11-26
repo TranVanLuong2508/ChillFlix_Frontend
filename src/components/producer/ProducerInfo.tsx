@@ -7,7 +7,6 @@ import { useProducerStore } from "@/stores/producerStore"
 export default function ProducerInfo() {
     const [liked, setLiked] = useState(false)
     const { producer } = useProducerStore()
-
     if (!producer) {
         return <div className=" py-20">Không có thông tin nhà sản xuất.</div>
     }

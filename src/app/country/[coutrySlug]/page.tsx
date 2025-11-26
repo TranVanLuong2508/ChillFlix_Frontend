@@ -141,7 +141,7 @@ export default function CountryPage({ params }: CountryPageProps) {
     }, [])
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+        <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 mt-24">
             <main className="pb-12 bg-[#191B24]">
                 {/* Header Section */}
                 <div className="px-4 py-8 ">

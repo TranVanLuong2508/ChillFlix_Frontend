@@ -36,9 +36,9 @@ export default function ProducerDetail() {
     }
 
     return (
-        <main className="flex flex-col min-h-screen bg-[#191B24] text-white overflow-x-hidden">
+        <main className="flex flex-col min-h-screen bg-[#191B24] text-white overflow-x-hidden mt-24">
             <section className="relative flex-1 w-full">
-                <div className="max-w-[1400px] mx-auto px-2 sm:px-4 lg:px-6">
+                <div className="max-w-[1400px] mx-auto px-2 sm:px-2 lg:px-2">
                     <div className="flex flex-col gap-10">
                         <div className="border-b border-zinc-800 pb-6">
                             <ProducerInfo />
