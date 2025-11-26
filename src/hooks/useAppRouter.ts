@@ -30,5 +30,7 @@ export const useAppRouter = () => {
     goCountry: (countrySlug: string) => router.push(`/country/${countrySlug}`),
     goLatestUpdate: () => router.push("/search?sort=Latest Update"),
     goMostViewed: () => router.push("/search?sort=Views"),
+
+    goCoWatching: () => router.push("/co-watching"),
   };
 };

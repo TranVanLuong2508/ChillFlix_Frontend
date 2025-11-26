@@ -93,7 +93,7 @@ export default function FilmDetailPage() {
       </Head>
       <main className="bg-[#191B24] min-h-screen">
         <Background />
-        <div className="relative z-20 mx-auto mt-[-100px] px-2 sm:px-4 md:px-6 lg:px-8 max-w-full md:max-w-[95vw] lg:max-w-[1990px]">
+        <div className="relative z-20 mx-auto mt-[-280px] px-2 sm:px-4 md:px-6 lg:px-8 max-w-full md:max-w-[95vw] lg:max-w-[1990px]">
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
             <div className="col-span-1 lg:col-span-3">
               <div className="flex justify-center lg:block">
