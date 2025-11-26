@@ -8,31 +8,60 @@ import { useFilmStore } from "@/stores/filmStore";
 import SearchDropdown from "./search-dropdown";
 import { FilmCard } from "./filmCard";
 import { FormCreateRoom } from "@/components/co_watching/formCreateRoom";
+import { toast } from "sonner";
 
 export const Form = () => {
 
   const [selectedFilm, setSelectedFilm] = useState<IFilmSearch | null>(null);
   const [flag, setFlag] = useState(0);
+  const [hasFetch, setHasFetch] = useState(false);
 
-  const { filmData, partData, getDetailFilm, resetFilmDetail, getPartData } = useFilmStore();
+  const { filmData, partData, loadingPart, getDetailFilm, resetFilmDetail, getPartData } = useFilmStore();
 
   useEffect(() => {
     handleGetDataFilm();
+    setHasFetch(false);
   }, [selectedFilm]);
 
+  useEffect(() => {
+    if (loadingPart) return;
+
+    if (selectedFilm && filmData && selectedFilm.filmId === filmData.film.filmId) {
+      if (hasFetch && (!partData || partData.length === 0)) {
+        toast.error("Phim này chưa có tập phim nào, vui lòng chọn phim khác");
+        setFlag(0);
+        setSelectedFilm(null);
+        resetFilmDetail();
+        setHasFetch(false);
+      }
+    }
+  }, [selectedFilm, filmData, partData, loadingPart, hasFetch]);
 
   useEffect(() => {
-    if (!filmData || (partData && partData[0].filmId === filmData.film.filmId)) {
+    if (loadingPart) return;
+    if (!filmData) {
       return;
     }
-    getPartData(filmData.film.filmId);
-  }, [filmData, partData, getPartData]);
+    if (partData !== null) {
+      return;
+    }
+
+    const handleFetchPart = async () => {
+      await getPartData(filmData.film.filmId);
+      setHasFetch(true);
+    }
+
+    handleFetchPart();
+  }, [filmData, partData, getPartData, loadingPart]);
 
   const handleGetDataFilm = async () => {
-    if (!selectedFilm || (filmData && selectedFilm.filmId === filmData.film.filmId)) return;
-    if (flag === 0) {
+    if (!selectedFilm) return;
+    if ((filmData && selectedFilm.filmId === filmData.film.filmId)) {
       setFlag(1);
+      return;
     }
+    resetFilmDetail();
+    setFlag(1);
     getDetailFilm(selectedFilm.slug);
   }
 
@@ -61,7 +90,7 @@ export const Form = () => {
           </div>
         </div>
       )}
-      {filmData && partData && (
+      {filmData && partData && partData.length > 0 && flag !== 0 && (
         <div className="pt-8 grid grid-cols-12 gap-8 min-h-[90vh] max-h-[90vh]">
           <div className={cn(
             "col-span-5 rounded-3xl bg-[#212a56] overflow-hidden transition-all duration-240 ease",
