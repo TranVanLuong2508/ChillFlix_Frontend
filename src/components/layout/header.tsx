@@ -211,7 +211,6 @@ export default function Header() {
 
     const handleDeleteComment = ({ commentId }: DeleteCommentData) => {
       removeCommentRealtime(commentId);
-      toast.warning("Bạn đã xóa một bình luận");
     };
 
     const handleCountComments = ({ filmId, total }: CountCommentsData) => {
@@ -464,23 +463,20 @@ export default function Header() {
                             key={tab}
                             value={tab}
                             className={`relative flex-1 cursor-pointer rounded-none py-2 transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:text-yellow-400 
-                              ${
-                                isActive
-                                  ? "text-yellow-400 font-semibold scale-[1.03]"
-                                  : "text-gray-400 hover:text-yellow-300"
+                              ${isActive
+                                ? "text-yellow-400 font-semibold scale-[1.03]"
+                                : "text-gray-400 hover:text-yellow-300"
                               }`}
                           >
                             {tab === "film" && "Phim"}
                             {tab === "community" && "Cộng đồng"}
                             {tab === "read" && "Đã đọc"}
 
-                            {/* Underline animation */}
                             <span
-                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${
-                                isActive
-                                  ? "w-full opacity-100"
-                                  : "w-0 opacity-0"
-                              }`}
+                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${isActive
+                                ? "w-full opacity-100"
+                                : "w-0 opacity-0"
+                                }`}
                             />
                             {tab === "community" && unreadCount > 0 && (
                               <span className="absolute top-3 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
@@ -502,11 +498,10 @@ export default function Header() {
                   {/* TAB: community (chưa đọc) */}
                   <TabsContent
                     value="community"
-                    className={`p-4 text-left text-sm text-gray-300 ${
-                      showAllNotifications
-                        ? "max-h-[500px] overflow-y-auto"
-                        : ""
-                    }`}
+                    className={`p-4 text-left text-sm text-gray-300 ${showAllNotifications
+                      ? "max-h-[500px] overflow-y-auto"
+                      : ""
+                      }`}
                   >
                     {notifications.filter((n) => !n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
@@ -528,78 +523,27 @@ export default function Header() {
                                     if (n.notificationId > 0) {
                                       await markAsRead(n.notificationId);
                                     }
-                                    const commentId =
-                                      n.result.commentId || n.result.parentId;
-                                    const currentPath =
-                                      window.location.pathname;
-                                    const isOnSameFilm =
-                                      n.result?.slug &&
-                                      (currentPath.includes(
-                                        `/film-detail/${n.result.slug}`
-                                      ) ||
-                                        currentPath.includes(
-                                          `/play/${n.result.slug}`
-                                        ));
+                                    const commentId = n.result.commentId || n.result.parentId;
+                                    const currentPath = window.location.pathname;
+                                    const isOnSameFilm = n.result?.slug && (currentPath.includes(`/film-detail/${n.result.slug}`) || currentPath.includes(`/play/${n.result.slug}`));
                                     if (isOnSameFilm) {
-                                      const { eventBus } = await import(
-                                        "@/lib/eventBus"
-                                      );
+                                      const { eventBus } = await import("@/lib/eventBus");
                                       eventBus.emit("switchTab", "comments");
-                                      setTimeout(() => {
-                                        const commentElement =
-                                          document.getElementById(
-                                            `comment-${commentId}`
-                                          );
-                                        if (commentElement) {
-                                          const elementPosition =
-                                            commentElement.getBoundingClientRect()
-                                              .top + window.pageYOffset;
-                                          const offsetPosition =
-                                            elementPosition - 100;
-                                          window.scrollTo({
-                                            top: offsetPosition,
-                                            behavior: "smooth",
-                                          });
-                                          setTimeout(() => {
-                                            const contentDiv =
-                                              commentElement.querySelector(
-                                                ":scope > .flex.items-start"
-                                              ) as HTMLElement | null;
-                                            const target =
-                                              contentDiv || commentElement;
-                                            target.classList.add(
-                                              "highlight-comment"
-                                            );
-                                            setTimeout(() => {
-                                              target.classList.remove(
-                                                "highlight-comment"
-                                              );
-                                            }, 2800);
-                                          }, 800);
-                                        }
-                                      }, 100);
+                                      const url = new URL(window.location.href);
+                                      url.searchParams.set("commentId", String(commentId));
+                                      url.searchParams.set("t", Date.now().toString());
+                                      window.history.replaceState(null, "", url.toString());
                                       return;
                                     }
                                     if (n.result?.slug) {
-                                      router.push(
-                                        `/film-detail/${n.result.slug}?commentId=${commentId}`
-                                      );
+                                      router.push(`/film-detail/${n.result.slug}?commentId=${commentId}&t=${Date.now()}`);
                                     } else {
                                       try {
-                                        const filmServices = (
-                                          await import("@/services/filmService")
-                                        ).default;
-                                        const filmData =
-                                          (await filmServices.getFilmById(
-                                            String(n.result.filmId)
-                                          )) as IBackendRes<FilmDetailRes>;
-                                        const slug =
-                                          filmData?.data?.film?.slug ||
-                                          filmData?.data?.film.slug;
+                                        const filmServices = (await import("@/services/filmService")).default;
+                                        const filmData = (await filmServices.getFilmById(String(n.result.filmId))) as IBackendRes<FilmDetailRes>;
+                                        const slug = filmData?.data?.film?.slug || filmData?.data?.film.slug;
                                         if (filmData?.EC === 1 && slug) {
-                                          router.push(
-                                            `/film-detail/${slug}?commentId=${commentId}`
-                                          );
+                                          router.push(`/film-detail/${slug}?commentId=${commentId}&t=${Date.now()}`);
                                         } else {
                                           toast.error(
                                             "Không tìm thấy thông tin phim. Vui lòng thử lại sau."
@@ -634,36 +578,24 @@ export default function Header() {
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (n.notificationId > 0) {
-                                        deleteNotification(
-                                          n.notificationId
-                                        ).catch(() => {
-                                          toast.error(
-                                            "Không thể xóa thông báo. Vui lòng thử lại."
-                                          );
+                                        deleteNotification(n.notificationId).catch(() => {
+                                          toast.error("Không thể xóa thông báo. Vui lòng thử lại.");
                                         });
                                       }
                                     }}
-                                    className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-red-400"
-                                  >
+                                    className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-red-400">
                                     <X size={14} />
                                   </button>
                                 </div>
                               </li>
                             ))}
                         </ul>
-
                         {notifications.filter((n) => !n.isRead).length > 3 && (
                           <button
-                            onClick={() =>
-                              setShowAllNotifications(!showAllNotifications)
-                            }
+                            onClick={() => setShowAllNotifications(!showAllNotifications)}
                             className="mt-3 w-full py-2 text-center text-sm font-medium text-yellow-400 transition-colors hover:text-yellow-300"
                           >
-                            {showAllNotifications
-                              ? "Thu gọn"
-                              : `Xem tất cả (${
-                                  notifications.filter((n) => !n.isRead).length
-                                } thông báo)`}
+                            {showAllNotifications ? "Thu gọn" : `Xem tất cả (${notifications.filter((n) => !n.isRead).length} thông báo)`}
                           </button>
                         )}
                       </>
@@ -673,16 +605,9 @@ export default function Header() {
                   {/* TAB: read (đã đọc) */}
                   <TabsContent
                     value="read"
-                    className={`p-4 text-left text-sm text-gray-300 ${
-                      showAllReadNotifications
-                        ? "max-h-[500px] overflow-y-auto"
-                        : ""
-                    }`}
-                  >
+                    className={`p-4 text-left text-sm text-gray-300 ${showAllReadNotifications ? "max-h-[500px] overflow-y-auto" : ""}`}>
                     {notifications.filter((n) => n.isRead).length === 0 ? (
-                      <div className="text-center text-gray-500">
-                        Chưa có thông báo đã đọc
-                      </div>
+                      <div className="text-center text-gray-500">Chưa có thông báo đã đọc</div>
                     ) : (
                       <>
                         <ul className="space-y-3">
@@ -695,59 +620,33 @@ export default function Header() {
                                 className="cursor-pointer rounded-lg border border-[#2a3040]/60 bg-[#1a1f2e]/60 p-3 opacity-70 transition-all hover:bg-[#2a3040]/60"
                                 onClick={async () => {
                                   if (!n.result?.filmId) return;
-                                  const commentId =
-                                    n.result.commentId || n.result.parentId;
+                                  const commentId = n.result.commentId || n.result.parentId;
                                   const currentPath = window.location.pathname;
-                                  const isOnSameFilm =
-                                    n.result?.slug &&
-                                    (currentPath.includes(
-                                      `/film-detail/${n.result.slug}`
-                                    ) ||
-                                      currentPath.includes(
-                                        `/play/${n.result.slug}`
-                                      ));
+                                  const isOnSameFilm = n.result?.slug && (currentPath.includes(`/film-detail/${n.result.slug}`) || currentPath.includes(`/play/${n.result.slug}`));
+                                  // Lấy danh sách comments từ store
+                                  const { useCommentStore } = await import("@/stores/comentStore");
+                                  const comments = useCommentStore.getState().comments || [];
+                                  // Kiểm tra commentId có tồn tại không
+                                  const commentExists = comments.some((c) => String(c.id) === String(commentId)) || comments.some((c) => (c.replies || []).some((r) => String(r.id) === String(commentId)));
                                   if (isOnSameFilm) {
-                                    const { eventBus } = await import(
-                                      "@/lib/eventBus"
-                                    );
+                                    const { eventBus } = await import("@/lib/eventBus");
                                     eventBus.emit("switchTab", "comments");
-                                    setTimeout(() => {
-                                      const commentElement =
-                                        document.getElementById(
-                                          `comment-${commentId}`
-                                        );
-                                      if (commentElement) {
-                                        const elementPosition =
-                                          commentElement.getBoundingClientRect()
-                                            .top + window.pageYOffset;
-                                        const offsetPosition =
-                                          elementPosition - 100;
-                                        window.scrollTo({
-                                          top: offsetPosition,
-                                          behavior: "smooth",
-                                        });
-                                        setTimeout(() => {
-                                          const contentDiv =
-                                            commentElement.querySelector(
-                                              ":scope > .flex.items-start"
-                                            ) as HTMLElement | null;
-                                          const target =
-                                            contentDiv || commentElement;
-                                          target.classList.add(
-                                            "highlight-comment"
-                                          );
-                                          setTimeout(() => {
-                                            target.classList.remove(
-                                              "highlight-comment"
-                                            );
-                                          }, 2800);
-                                        }, 800);
-                                      }
-                                    }, 100);
+                                    if (commentExists && commentId) {
+                                      const url = new URL(window.location.href);
+                                      url.searchParams.set("commentId", String(commentId));
+                                      url.searchParams.set("t", Date.now().toString());
+                                      window.history.replaceState(null, "", url.toString());
+                                    } else {
+                                      toast.error("Bình luận này đã bị xóa hoặc không còn tồn tại.");
+                                    }
+                                    return;
                                   } else if (n.result?.slug) {
-                                    router.push(
-                                      `/film-detail/${n.result.slug}?commentId=${commentId}`
-                                    );
+                                    if (commentExists && commentId) {
+                                      router.push(`/film-detail/${n.result.slug}?commentId=${commentId}&t=${Date.now()}`);
+                                    } else {
+                                      toast.error("Bình luận này đã bị xóa hoặc không còn tồn tại.");
+                                      router.push(`/film-detail/${n.result.slug}`);
+                                    }
                                   }
                                 }}
                               >
@@ -758,26 +657,19 @@ export default function Header() {
                                       {n.message}
                                     </div>
                                     <div className="mt-1 text-xs text-gray-500">
-                                      {new Date(n.createdAt).toLocaleTimeString(
-                                        "vi-VN"
-                                      )}
+                                      {new Date(n.createdAt).toLocaleTimeString("vi-VN")}
                                     </div>
                                   </div>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (n.notificationId > 0) {
-                                        deleteNotification(
-                                          n.notificationId
-                                        ).catch(() => {
-                                          toast.error(
-                                            "Không thể xóa thông báo. Vui lòng thử lại."
-                                          );
+                                        deleteNotification(n.notificationId).catch(() => {
+                                          toast.error("Không thể xóa thông báo. Vui lòng thử lại.");
                                         });
                                       }
                                     }}
-                                    className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-red-400"
-                                  >
+                                    className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-red-400">
                                     <X size={14} />
                                   </button>
                                 </div>
@@ -787,18 +679,9 @@ export default function Header() {
 
                         {notifications.filter((n) => n.isRead).length > 3 && (
                           <button
-                            onClick={() =>
-                              setShowAllReadNotifications(
-                                !showAllReadNotifications
-                              )
-                            }
-                            className="mt-3 w-full py-2 text-center text-sm font-medium text-yellow-400 transition-colors hover:text-yellow-300"
-                          >
-                            {showAllReadNotifications
-                              ? "Thu gọn"
-                              : `Xem tất cả (${
-                                  notifications.filter((n) => n.isRead).length
-                                } thông báo)`}
+                            onClick={() => setShowAllReadNotifications(!showAllReadNotifications)}
+                            className="mt-3 w-full py-2 text-center text-sm font-medium text-yellow-400 transition-colors hover:text-yellow-300">
+                            {showAllReadNotifications ? "Thu gọn" : `Xem tất cả (${notifications.filter((n) => n.isRead).length} thông báo)`}
                           </button>
                         )}
                       </>

@@ -11,8 +11,7 @@ import {
   ThumbsUp,
   Trash2,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { useSearchParams } from "next/navigation";
 
 import { useFilmStore } from "@/stores/filmStore";
 import { useCommentStore } from "@/stores/comentStore";
@@ -32,6 +31,9 @@ import {
 import { formatTimeFromNowVN } from "@/lib/dateFomat";
 
 export default function CommentSection() {
+  const searchParams = useSearchParams();
+  const commentIdFromUrl = searchParams.get("commentId");
+
   const { filmData } = useFilmStore();
   const { authUser } = useAuthStore();
   const { fullName } = authUser || {};
@@ -54,6 +56,18 @@ export default function CommentSection() {
   const [commentText, setCommentText] = useState("");
   const [replyText, setReplyText] = useState("");
   const [visibleReplies, setVisibleReplies] = useState<Record<string, number>>({});
+  const [scrollCommentId, setScrollCommentId] = useState<string | null>(null);
+
+  const getVisibleCount = (commentId: string) => {
+    return visibleReplies[commentId] || 1;
+  };
+
+  const loadMoreReplies = (commentId: string) => {
+    setVisibleReplies((prev) => ({
+      ...prev,
+      [commentId]: (prev[commentId] || 1) + 3,
+    }));
+  };
 
   useEffect(() => {
     if (filmId) {
@@ -74,12 +88,13 @@ export default function CommentSection() {
   };
 
   const handleReplySend = async () => {
-    if (!filmId || !replyText.trim() || !replyingTo?.rootParentId) return;
+    if (!filmId || !replyText.trim() || !replyingTo) return;
+    const parentId = replyingTo.replyId || replyingTo.rootParentId;
 
     await createComment({
       content: replyText,
       filmId,
-      parentId: replyingTo.rootParentId,
+      parentId,
     });
     countComments(filmId);
     setReplyText("");
@@ -95,17 +110,6 @@ export default function CommentSection() {
     countComments(filmId);
   };
 
-  const loadMoreReplies = (commentId: string) => {
-    setVisibleReplies((prev) => ({
-      ...prev,
-      [commentId]: (prev[commentId] || 1) + 3,
-    }));
-  };
-
-  const getVisibleCount = (commentId: string) => {
-    return visibleReplies[commentId] || 1;
-  };
-
   const countReplies = (replies: any[]): number => {
     if (!replies || replies.length === 0) return 0;
     let count = replies.length;
@@ -117,8 +121,75 @@ export default function CommentSection() {
     return count;
   };
 
+  useEffect(() => {
+    if (!commentIdFromUrl || comments.length === 0) return;
+    // Luôn scroll khi commentIdFromUrl thay đổi (kể cả khi chỉ t đổi)
+    const targetId = commentIdFromUrl;
+    let foundParentKey: string | null = null;
+    let neededVisible = 0;
+    for (const cmt of comments) {
+      if (!cmt.replies || cmt.replies.length === 0) continue;
+      const flattened: any[] = [];
+      const flatten = (reps: any[]) => {
+        reps.forEach((r: any) => {
+          flattened.push(r);
+          if (r.replies && r.replies.length > 0) {
+            flatten(r.replies);
+          }
+        });
+      };
+      flatten(cmt.replies);
+      const index = flattened.findIndex(
+        (rep: any) => String(rep.id) === String(targetId)
+      );
+      if (index !== -1) {
+        foundParentKey = `${cmt.id}-replies`;
+        neededVisible = index + 1;
+        break;
+      }
+    }
+    if (foundParentKey) {
+      setVisibleReplies((prev) => {
+        const current = prev[foundParentKey!] || 1;
+        if (current >= neededVisible) return prev;
+        return {
+          ...prev,
+          [foundParentKey!]: neededVisible,
+        };
+      });
+    }
+    const scrollTimer = setTimeout(() => {
+      const commentElement = document.getElementById(`comment-${targetId}`);
+      if (commentElement) {
+        const elementPosition =
+          commentElement.getBoundingClientRect().top + window.pageYOffset;
+        const offsetPosition = elementPosition - 100;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+        setScrollCommentId(commentIdFromUrl + "-" + Date.now());
+        setTimeout(() => {
+          const contentDiv = commentElement.querySelector(
+            ":scope > .flex.items-start"
+          ) as HTMLElement | null;
+          const targetEl = contentDiv || (commentElement as HTMLElement);
+          targetEl.classList.add("highlight-comment");
+          setTimeout(() => {
+            targetEl.classList.remove("highlight-comment");
+            const url = new URL(window.location.href);
+            url.searchParams.delete("commentId");
+            url.searchParams.delete("t");
+            window.history.replaceState(null, "", url.pathname + url.search);
+          }, 1000);
+        }, 500);
+      }
+    }, 200);
+    return () => clearTimeout(scrollTimer);
+  }, [commentIdFromUrl, comments]);
   const renderReplies = (replies: any[], parent: any, rootParent: any) => {
     if (!replies || replies.length === 0) return null;
+
     const flattenedReplies: any[] = [];
     const flatten = (reps: any[]) => {
       reps.forEach((r) => {
@@ -130,190 +201,183 @@ export default function CommentSection() {
     };
     flatten(replies);
 
-    const sortedReplies = flattenedReplies.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-
     const parentKey = `${rootParent.id}-replies`;
     const visibleCount = getVisibleCount(parentKey);
-    const hasMore = sortedReplies.length > visibleCount;
-    const visibleReplies = sortedReplies.slice(0, visibleCount);
+    const hasMore = flattenedReplies.length > visibleCount;
+    const visibleReplies = flattenedReplies.slice(0, visibleCount);
 
     return (
       <div className="mt-3 space-y-3" style={{ marginLeft: 48 }}>
-        {visibleReplies.map((rep, index) => {
-          return (
-            <div
-              key={`${rep.id}-${index}`}
-              id={`comment-${rep.id}`}
-              className="flex flex-col relative"
-            >
-              <div className="flex items-start gap-3">
-                <div className="relative w-10 h-10 z-10">
-                  <img
-                    src={rep.user.avatar || "/images/monkey.jpg"}
-                    alt="avatar"
-                    className="w-full h-full rounded-full object-cover border-2 border-[#0a0b0e]"
-                  />
-                </div>
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-sm font-semibold text-white">
-                      {rep.user.name}
-                    </p>
-
-                    <div className="flex items-baseline text-sm text-gray-400 gap-1">
-                      <ChevronRight size={13} className="relative top-[2px]" />
-                      <span>{rep.parent?.user?.name || rootParent.user.name}</span>
-                    </div>
-
-                    <p className="text-xs text-gray-500">
-                      {formatTimeFromNowVN(rep.createdAt)}
-                    </p>
-                  </div>
-
-                  <p className="text-gray-300 text-sm mt-1 leading-relaxed break-words overflow-wrap-anywhere">
-                    {rep.content}
+        {visibleReplies.map((rep, index) => (
+          <div
+            key={`${rep.id}-${index}`}
+            id={`comment-${rep.id}`}
+            className="flex flex-col relative"
+          >
+            <div className="flex items-start gap-3">
+              <div className="relative w-10 h-10 z-10">
+                <img
+                  src={rep.user.avatar || "/images/monkey.jpg"}
+                  alt="avatar"
+                  className="w-full h-full rounded-full object-cover border-2 border-[#0a0b0e]"
+                />
+              </div>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex items-baseline gap-2">
+                  <p className="text-sm font-semibold text-white">
+                    {rep.user.name}
                   </p>
 
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
-                    <button
-                      onClick={() =>
-                        setReplyingTo(
-                          replyingTo?.replyId === rep.id
-                            ? null
-                            : {
-                              rootParentId: rootParent.id,
-                              replyId: rep.id,
-                              replyToName: rep.user.name,
-                            }
-                        )
-                      }
-                      className="flex items-center gap-2 hover:text-yellow-400 transition"
-                    >
-                      <Reply size={16} /> Trả lời
-                    </button>
-
-                    <button
-                      onClick={() => handleReact(rep.id, "LIKE")}
-                      className="flex items-center gap-1 hover:text-yellow-400 transition"
-                    >
-                      <ThumbsUp
-                        size={16}
-                        className={
-                          rep.currentUserReaction === "LIKE"
-                            ? "text-yellow-400 fill-yellow-400"
-                            : ""
-                        }
-                      />
-                      <span>{rep.totalLike}</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleReact(rep.id, "DISLIKE")}
-                      className="flex items-center gap-1 hover:text-red-400 transition"
-                    >
-                      <ThumbsDown
-                        size={16}
-                        className={
-                          rep.currentUserReaction === "DISLIKE"
-                            ? "text-red-400 fill-red-500"
-                            : ""
-                        }
-                      />
-                      <span>{rep.totalDislike}</span>
-                    </button>
-
-                    {authUser?.userId === rep.user.id && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <button
-                            className="flex items-center gap-2 hover:text-red-400 transition"
-                            type="button"
-                          >
-                            <Trash2 size={16} /> Xóa
-                          </button>
-                        </AlertDialogTrigger>
-
-                        <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle className="flex items-center gap-2">
-                              <AlertTriangle
-                                size={20}
-                                className="text-yellow-400"
-                              />
-                              Xác nhận xóa bình luận?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription className="text-gray-400">
-                              Hành động này không thể hoàn tác.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-
-                          <AlertDialogFooter>
-                            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
-                              Hủy
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteComment(rep.id)}
-                              className="bg-red-600 hover:bg-red-500 text-white"
-                            >
-                              Xóa
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
+                  <div className="flex items-baseline text-sm text-gray-400 gap-1">
+                    <ChevronRight size={13} className="relative top-[2px]" />
+                    <span>{rep.parent?.user?.name || rootParent.user.name}</span>
                   </div>
 
-                  {replyingTo?.replyId === rep.id && (
-                    <div className="ml-10 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
-                      <p className="text-xs text-gray-400 mb-1">
-                        Đang trả lời{" "}
-                        <span className="text-yellow-400">
-                          {replyingTo?.replyToName}
-                        </span>
-                      </p>
-                      <textarea
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            handleReplySend();
+                  <p className="text-xs text-gray-500">
+                    {formatTimeFromNowVN(rep.createdAt)}
+                  </p>
+                </div>
+
+                <p className="text-gray-300 text-sm mt-1 leading-relaxed break-words overflow-wrap-anywhere">
+                  {rep.content}
+                </p>
+
+                <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                  <button
+                    onClick={() =>
+                      setReplyingTo(
+                        replyingTo?.replyId === rep.id
+                          ? null
+                          : {
+                            rootParentId: rootParent.id,
+                            replyId: rep.id,
+                            replyToName: rep.user.name,
                           }
-                        }}
-                        rows={2}
-                        placeholder="Viết phản hồi..."
-                        className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
-                      />
-                      <div className="flex items-center justify-between mt-2">
+                      )
+                    }
+                    className="flex items-center gap-2 hover:text-yellow-400 transition"
+                  >
+                    <Reply size={16} /> Trả lời
+                  </button>
+
+                  <button
+                    onClick={() => handleReact(rep.id, "LIKE")}
+                    className="flex items-center gap-1 hover:text-yellow-400 transition"
+                  >
+                    <ThumbsUp
+                      size={16}
+                      className={
+                        rep.currentUserReaction === "LIKE"
+                          ? "text-yellow-400 fill-yellow-400"
+                          : ""
+                      }
+                    />
+                    <span>{rep.totalLike}</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleReact(rep.id, "DISLIKE")}
+                    className="flex items-center gap-1 hover:text-red-400 transition"
+                  >
+                    <ThumbsDown
+                      size={16}
+                      className={
+                        rep.currentUserReaction === "DISLIKE"
+                          ? "text-red-400 fill-red-500"
+                          : ""
+                      }
+                    />
+                    <span>{rep.totalDislike}</span>
+                  </button>
+
+                  {authUser?.userId === rep.user.id && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
                         <button
-                          onClick={handleReplySend}
-                          className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
+                          className="flex items-center gap-2 hover:text-red-400 transition"
+                          type="button"
                         >
-                          Gửi <Send size={14} className="text-yellow-400" />
+                          <Trash2 size={16} /> Xóa
                         </button>
-                      </div>
-                    </div>
+                      </AlertDialogTrigger>
+
+                      <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertTriangle
+                              size={20}
+                              className="text-yellow-400"
+                            />
+                            Xác nhận xóa bình luận?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-gray-400">
+                            Hành động này không thể hoàn tác.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
+                            Hủy
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteComment(rep.id)}
+                            className="bg-red-600 hover:bg-red-500 text-white"
+                          >
+                            Xóa
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
                 </div>
+
+                {replyingTo?.replyId === rep.id && (
+                  <div className="ml-10 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
+                    <p className="text-xs text-gray-400 mb-1">
+                      Đang trả lời{" "}
+                      <span className="text-yellow-400">
+                        {replyingTo?.replyToName}
+                      </span>
+                    </p>
+                    <textarea
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleReplySend();
+                        }
+                      }}
+                      rows={2}
+                      placeholder="Viết phản hồi..."
+                      className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
+                    />
+                    <div className="flex items-center justify-between mt-2">
+                      <button
+                        onClick={handleReplySend}
+                        className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
+                      >
+                        Gửi <Send size={14} className="text-yellow-400" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
 
         {hasMore && (
           <button
             onClick={() => loadMoreReplies(parentKey)}
             className="ml-12 mt-2 text-sm text-yellow-400 hover:text-yellow-300 transition font-medium"
           >
-            Xem thêm {Math.min(3, sortedReplies.length - visibleCount)} phản hồi...
+            Xem thêm{" "}
+            {Math.min(3, flattenedReplies.length - visibleCount)} phản hồi...
           </button>
         )}
       </div>
     );
-
   };
 
   return (
@@ -324,6 +388,7 @@ export default function CommentSection() {
         </h3>
       </div>
 
+      {/* form comment */}
       <div className="bg-[#191B24] p-6 rounded-xl border border-zinc-800 shadow-lg">
         <div className="flex items-center gap-3 mb-4">
           {isAuthenticated ? (
@@ -342,9 +407,7 @@ export default function CommentSection() {
             </>
           ) : (
             <button
-              onClick={() => {
-                openLoginModal();
-              }}
+              onClick={openLoginModal}
               className="text-sm font-semibold text-gray-300 transition"
             >
               Bạn cần{" "}
@@ -559,6 +622,7 @@ export default function CommentSection() {
                       </div>
                     </div>
                   )}
+
                   {renderReplies(cmt.replies, cmt, cmt)}
                 </div>
               ))}
