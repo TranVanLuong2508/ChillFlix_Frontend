@@ -52,30 +52,30 @@ export default function SeriesPage() {
 
         const transformedFilms = filmList.map(
           (film: any) =>
-            ({
-              filmId: film.filmId,
-              id: film.filmId,
-              title: film.title,
-              originalTitle: film.originalTitle,
-              posterUrl: getPosterUrl(film),
-              imdbRating: 7.5,
-              age: film.age,
-              year: film.year,
-              slug: film.slug,
-              genres:
-                film.genres
-                  ?.map((genre: any) =>
-                    typeof genre === "string"
-                      ? genre
-                      : genre.valueVi || genre.valueEn || genre.keyMap || ""
-                  )
-                  .filter(Boolean) || [],
-              badges: [
-                { text: "PD", color: "bg-blue-600" },
-                { text: film.type?.valueVi || "Series", color: "bg-green-600" },
-              ],
-              episodes: "Phần 1",
-            } as FilmDetailRes)
+          ({
+            filmId: film.filmId,
+            id: film.filmId,
+            title: film.title,
+            originalTitle: film.originalTitle,
+            posterUrl: getPosterUrl(film),
+            imdbRating: 7.5,
+            age: film.age,
+            year: film.year,
+            slug: film.slug,
+            genres:
+              film.genres
+                ?.map((genre: any) =>
+                  typeof genre === "string"
+                    ? genre
+                    : genre.valueVi || genre.valueEn || genre.keyMap || ""
+                )
+                .filter(Boolean) || [],
+            badges: [
+              { text: "PD", color: "bg-blue-600" },
+              { text: film.type?.valueVi || "Series", color: "bg-green-600" },
+            ],
+            episodes: "Phần 1",
+          } as FilmDetailRes)
         );
 
         setFilms(transformedFilms);
@@ -155,7 +155,7 @@ export default function SeriesPage() {
                         <MovieCardVertical
                           item={film}
                           isFavorite={isFavorite}
-                          handleToggleFavorite={hanhleToggleFavorite}
+                          handleToggleFavorite={handleToggleFavorite}
                         />
                       </div>
                     );

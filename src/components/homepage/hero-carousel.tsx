@@ -17,11 +17,11 @@ const getPosterUrl = (film: any): string => {
   if (film.posterUrl) return film.posterUrl; // fallback for old format
   if (film.filmImages && Array.isArray(film.filmImages)) {
     const posterImage = film.filmImages.find(
-      (img: any) => img.type === "poster"
+      (img: any) => img.type === "backdrop"
     );
     if (posterImage) return posterImage.url;
     // fallback to first image if poster not found
-    if (film.filmImages.length > 0) return film.filmImages[0].url;
+    if (film.filmImages.length > 0) return film.filmImages[1].url;
   }
   return "/placeholder.svg";
 };
@@ -50,18 +50,18 @@ export default function HeroCarousel() {
 
         const heroFilms = res.data.result.map(
           (film: any) =>
-            ({
-              filmId: film.filmId,
-              title: film.title,
-              originalTitle: film.originalTitle,
-              description: film.description,
-              posterUrl: getPosterUrl(film),
-              year: film.year,
-              age: film.age,
-              genres: film.genres,
-              slug: film.slug,
-              duration: film.duration,
-            } as FilmDetailRes)
+          ({
+            filmId: film.filmId,
+            title: film.title,
+            originalTitle: film.originalTitle,
+            description: film.description,
+            posterUrl: getPosterUrl(film),
+            year: film.year,
+            age: film.age,
+            genres: film.genres,
+            slug: film.slug,
+            duration: film.duration,
+          } as FilmDetailRes)
         );
         setFilms(heroFilms);
       } catch (error) {
@@ -130,7 +130,7 @@ export default function HeroCarousel() {
         setDragStart(e.clientX);
         setAutoPlay(false);
       }}
-      onMouseMove={() => {}}
+      onMouseMove={() => { }}
       onMouseUp={(e: React.MouseEvent) => {
         if (!isDragging) return;
         setIsDragging(false);
@@ -164,9 +164,8 @@ export default function HeroCarousel() {
       {films.map((s, index) => (
         <div
           key={s.filmId}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentSlide ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
         >
           {/* Background Image */}
           <div
@@ -286,11 +285,10 @@ export default function HeroCarousel() {
           <button
             key={film.filmId}
             onClick={() => goToSlide(index)}
-            className={`relative flex-shrink-0 w-10 h-14 md:w-12 md:h-16 rounded-lg overflow-hidden transition-all duration-300 border-2 ${
-              index === currentSlide
-                ? "border-amber-400 ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-950 scale-105"
-                : "border-white/40 hover:border-white/70 opacity-75 hover:opacity-100"
-            }`}
+            className={`relative flex-shrink-0 w-10 h-14 md:w-12 md:h-16 rounded-lg overflow-hidden transition-all duration-300 border-2 ${index === currentSlide
+              ? "border-amber-400 ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-950 scale-105"
+              : "border-white/40 hover:border-white/70 opacity-75 hover:opacity-100"
+              }`}
           >
             <img
               src={film.posterUrl || "/placeholder.svg"}
