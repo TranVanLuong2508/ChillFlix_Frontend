@@ -13,7 +13,7 @@ dayjs.extend(relativeTime);
 dayjs.locale("vi");
 
 export const formatTimeFromNowVN = (date: string | Date) => {
-  return dayjs(date).tz("Asia/Ho_Chi_Minh").fromNow();
+  return dayjs.utc(date).tz("Asia/Ho_Chi_Minh").fromNow();
 };
 
 export const formatDate = (dateString: string | null): string => {

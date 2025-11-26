@@ -57,7 +57,6 @@ export default function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
 
-
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showAllNotifications, setShowAllNotifications] = useState(false);
   const [showAllReadNotifications, setShowAllReadNotifications] =
@@ -132,7 +131,6 @@ export default function Header() {
       socket.emit("register", { userId });
     }
   }, [authUser?.userId]);
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -227,7 +225,6 @@ export default function Header() {
 
     const handleDeleteComment = ({ commentId }: DeleteCommentData) => {
       removeCommentRealtime(commentId);
-      toast.warning("Bạn đã xóa một bình luận");
     };
 
     const handleCountComments = ({ filmId, total }: CountCommentsData) => {
@@ -268,10 +265,11 @@ export default function Header() {
     <header
       className={`
     fixed top-0 left-0 w-full z-50 transition-all duration-700 ease-in-out
-    ${isScrolled
-          ? "bg-[#0f1419]/80 backdrop-blur-md"
-          : "bg-gradient-to-b from-black/80 via-black/40 to-transparent"
-        }
+    ${
+      isScrolled
+        ? "bg-[#0f1419]/80 backdrop-blur-md"
+        : "bg-gradient-to-b from-black/80 via-black/40 to-transparent"
+    }
   `}
     >
       <div className="mx-auto px-4 py-4">
@@ -299,7 +297,9 @@ export default function Header() {
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center gap-0">
             <button
-              className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
+              className={`text-gray-300 hover:text-yellow-400 ${
+                isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+              } transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
               onClick={() => {
                 goSingleFilms();
               }}
@@ -307,7 +307,9 @@ export default function Header() {
               Phim Lẻ
             </button>
             <button
-              className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
+              className={`text-gray-300 hover:text-yellow-400 ${
+                isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+              } transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
               onClick={() => {
                 goSeriesFilms();
               }}
@@ -318,7 +320,11 @@ export default function Header() {
             {/* Thể loại */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className={`flex items-center gap-1 text-white hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}>
+                <button
+                  className={`flex items-center gap-1 text-white hover:text-yellow-400 ${
+                    isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+                  } transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}
+                >
                   Thể loại
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -351,7 +357,11 @@ export default function Header() {
             {/* Quốc gia */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className={`flex items-center gap-1 text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}>
+                <button
+                  className={`flex items-center gap-1 text-gray-300 hover:text-yellow-400 ${
+                    isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+                  } transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}
+                >
                   Quốc gia
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -381,14 +391,22 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}>
+            <button
+              className={`text-gray-300 hover:text-yellow-400 ${
+                isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+              } transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
+            >
               Xem Chung
             </button>
 
             {/* Thêm */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className={`flex items-center gap-1 text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}>
+                <button
+                  className={`flex items-center gap-1 text-gray-300 hover:text-yellow-400 ${
+                    isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+                  } transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}
+                >
                   Thêm
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -424,7 +442,11 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}>
+            <button
+              className={`text-gray-300 hover:text-yellow-400 ${
+                isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+              } transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
+            >
               Phim VIP
             </button>
           </nav>
@@ -433,7 +455,9 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <button
               onClick={openDrawer}
-              className={`flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md`}
+              className={`flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 ${
+                isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+              } cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md`}
             >
               <span>Chat với FlixAI</span>
             </button>
@@ -451,7 +475,9 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} relative cursor-pointer transition-all duration-200 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}
+                  className={`text-gray-300 hover:text-yellow-400 ${
+                    isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+                  } relative cursor-pointer transition-all duration-200 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}
                 >
                   <Bell className="w-8 h-8" strokeWidth={2.6} />
                   {unreadCount > 0 && (
@@ -488,21 +514,22 @@ export default function Header() {
                             key={tab}
                             value={tab}
                             className={`relative flex-1 cursor-pointer rounded-none py-2 transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:text-yellow-400 
-                              ${isActive
-                                ? "text-yellow-400 font-semibold scale-[1.03]"
-                                : "text-gray-400 hover:text-yellow-300"
+                              ${
+                                isActive
+                                  ? "text-yellow-400 font-semibold scale-[1.03]"
+                                  : "text-gray-400 hover:text-yellow-300"
                               }`}
                           >
                             {tab === "film" && "Phim"}
                             {tab === "community" && "Cộng đồng"}
                             {tab === "read" && "Đã đọc"}
 
-                            {/* Underline animation */}
                             <span
-                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${isActive
-                                ? "w-full opacity-100"
-                                : "w-0 opacity-0"
-                                }`}
+                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${
+                                isActive
+                                  ? "w-full opacity-100"
+                                  : "w-0 opacity-0"
+                              }`}
                             />
                             {tab === "community" && unreadCount > 0 && (
                               <span className="absolute top-3 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
@@ -524,10 +551,11 @@ export default function Header() {
                   {/* TAB: community (chưa đọc) */}
                   <TabsContent
                     value="community"
-                    className={`p-4 text-left text-sm text-gray-300 ${showAllNotifications
-                      ? "max-h-[500px] overflow-y-auto"
-                      : ""
-                      }`}
+                    className={`p-4 text-left text-sm text-gray-300 ${
+                      showAllNotifications
+                        ? "max-h-[500px] overflow-y-auto"
+                        : ""
+                    }`}
                   >
                     {notifications.filter((n) => !n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
@@ -566,44 +594,27 @@ export default function Header() {
                                         "@/lib/eventBus"
                                       );
                                       eventBus.emit("switchTab", "comments");
-                                      setTimeout(() => {
-                                        const commentElement =
-                                          document.getElementById(
-                                            `comment-${commentId}`
-                                          );
-                                        if (commentElement) {
-                                          const elementPosition =
-                                            commentElement.getBoundingClientRect()
-                                              .top + window.pageYOffset;
-                                          const offsetPosition =
-                                            elementPosition - 100;
-                                          window.scrollTo({
-                                            top: offsetPosition,
-                                            behavior: "smooth",
-                                          });
-                                          setTimeout(() => {
-                                            const contentDiv =
-                                              commentElement.querySelector(
-                                                ":scope > .flex.items-start"
-                                              ) as HTMLElement | null;
-                                            const target =
-                                              contentDiv || commentElement;
-                                            target.classList.add(
-                                              "highlight-comment"
-                                            );
-                                            setTimeout(() => {
-                                              target.classList.remove(
-                                                "highlight-comment"
-                                              );
-                                            }, 2800);
-                                          }, 800);
-                                        }
-                                      }, 100);
+                                      const url = new URL(window.location.href);
+                                      url.searchParams.set(
+                                        "commentId",
+                                        String(commentId)
+                                      );
+                                      url.searchParams.set(
+                                        "t",
+                                        Date.now().toString()
+                                      );
+                                      window.history.replaceState(
+                                        null,
+                                        "",
+                                        url.toString()
+                                      );
                                       return;
                                     }
                                     if (n.result?.slug) {
                                       router.push(
-                                        `/film-detail/${n.result.slug}?commentId=${commentId}`
+                                        `/film-detail/${
+                                          n.result.slug
+                                        }?commentId=${commentId}&t=${Date.now()}`
                                       );
                                     } else {
                                       try {
@@ -619,7 +630,7 @@ export default function Header() {
                                           filmData?.data?.film.slug;
                                         if (filmData?.EC === 1 && slug) {
                                           router.push(
-                                            `/film-detail/${slug}?commentId=${commentId}`
+                                            `/film-detail/${slug}?commentId=${commentId}&t=${Date.now()}`
                                           );
                                         } else {
                                           toast.error(
@@ -672,7 +683,6 @@ export default function Header() {
                               </li>
                             ))}
                         </ul>
-
                         {notifications.filter((n) => !n.isRead).length > 3 && (
                           <button
                             onClick={() =>
@@ -682,8 +692,9 @@ export default function Header() {
                           >
                             {showAllNotifications
                               ? "Thu gọn"
-                              : `Xem tất cả (${notifications.filter((n) => !n.isRead).length
-                              } thông báo)`}
+                              : `Xem tất cả (${
+                                  notifications.filter((n) => !n.isRead).length
+                                } thông báo)`}
                           </button>
                         )}
                       </>
@@ -693,10 +704,11 @@ export default function Header() {
                   {/* TAB: read (đã đọc) */}
                   <TabsContent
                     value="read"
-                    className={`p-4 text-left text-sm text-gray-300 ${showAllReadNotifications
-                      ? "max-h-[500px] overflow-y-auto"
-                      : ""
-                      }`}
+                    className={`p-4 text-left text-sm text-gray-300 ${
+                      showAllReadNotifications
+                        ? "max-h-[500px] overflow-y-auto"
+                        : ""
+                    }`}
                   >
                     {notifications.filter((n) => n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
@@ -725,48 +737,64 @@ export default function Header() {
                                       currentPath.includes(
                                         `/play/${n.result.slug}`
                                       ));
+                                  // Lấy danh sách comments từ store
+                                  const { useCommentStore } = await import(
+                                    "@/stores/comentStore"
+                                  );
+                                  const comments =
+                                    useCommentStore.getState().comments || [];
+                                  // Kiểm tra commentId có tồn tại không
+                                  const commentExists =
+                                    comments.some(
+                                      (c) => String(c.id) === String(commentId)
+                                    ) ||
+                                    comments.some((c) =>
+                                      (c.replies || []).some(
+                                        (r) =>
+                                          String(r.id) === String(commentId)
+                                      )
+                                    );
                                   if (isOnSameFilm) {
                                     const { eventBus } = await import(
                                       "@/lib/eventBus"
                                     );
                                     eventBus.emit("switchTab", "comments");
-                                    setTimeout(() => {
-                                      const commentElement =
-                                        document.getElementById(
-                                          `comment-${commentId}`
-                                        );
-                                      if (commentElement) {
-                                        const elementPosition =
-                                          commentElement.getBoundingClientRect()
-                                            .top + window.pageYOffset;
-                                        const offsetPosition =
-                                          elementPosition - 100;
-                                        window.scrollTo({
-                                          top: offsetPosition,
-                                          behavior: "smooth",
-                                        });
-                                        setTimeout(() => {
-                                          const contentDiv =
-                                            commentElement.querySelector(
-                                              ":scope > .flex.items-start"
-                                            ) as HTMLElement | null;
-                                          const target =
-                                            contentDiv || commentElement;
-                                          target.classList.add(
-                                            "highlight-comment"
-                                          );
-                                          setTimeout(() => {
-                                            target.classList.remove(
-                                              "highlight-comment"
-                                            );
-                                          }, 2800);
-                                        }, 800);
-                                      }
-                                    }, 100);
+                                    if (commentExists && commentId) {
+                                      const url = new URL(window.location.href);
+                                      url.searchParams.set(
+                                        "commentId",
+                                        String(commentId)
+                                      );
+                                      url.searchParams.set(
+                                        "t",
+                                        Date.now().toString()
+                                      );
+                                      window.history.replaceState(
+                                        null,
+                                        "",
+                                        url.toString()
+                                      );
+                                    } else {
+                                      toast.error(
+                                        "Bình luận này đã bị xóa hoặc không còn tồn tại."
+                                      );
+                                    }
+                                    return;
                                   } else if (n.result?.slug) {
-                                    router.push(
-                                      `/film-detail/${n.result.slug}?commentId=${commentId}`
-                                    );
+                                    if (commentExists && commentId) {
+                                      router.push(
+                                        `/film-detail/${
+                                          n.result.slug
+                                        }?commentId=${commentId}&t=${Date.now()}`
+                                      );
+                                    } else {
+                                      toast.error(
+                                        "Bình luận này đã bị xóa hoặc không còn tồn tại."
+                                      );
+                                      router.push(
+                                        `/film-detail/${n.result.slug}`
+                                      );
+                                    }
                                   }
                                 }}
                               >
@@ -815,8 +843,9 @@ export default function Header() {
                           >
                             {showAllReadNotifications
                               ? "Thu gọn"
-                              : `Xem tất cả (${notifications.filter((n) => n.isRead).length
-                              } thông báo)`}
+                              : `Xem tất cả (${
+                                  notifications.filter((n) => n.isRead).length
+                                } thông báo)`}
                           </button>
                         )}
                       </>
@@ -850,7 +879,7 @@ export default function Header() {
                       <DropdownMenuTrigger asChild>
                         <button className="focus:outline-none focus:ring-0 flex items-center cursor-pointer">
                           <Image
-                            src="/images/vn_flag.svg"
+                            src={authUser.avatarUrl || "/images/vn_flag.svg"}
                             alt="User Avatar"
                             width={30}
                             height={30}
@@ -871,7 +900,7 @@ export default function Header() {
                         <div className="p-4 border-b border-[#2a3040]/50">
                           <div className="flex items-center gap-3 mb-3">
                             <Image
-                              src="/images/vn_flag.svg"
+                              src={authUser.avatarUrl || "/images/vn_flag.svg"}
                               alt="User Avatar"
                               width={30}
                               height={30}

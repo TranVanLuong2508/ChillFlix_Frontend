@@ -13,17 +13,15 @@ export default function ProfilePage() {
   // });
   const [userEmail, setUserEmail] = useState("");
   const [userFullName, setUserFullName] = useState("");
-
+  const [avatarUrl, setAvatarUrl] = useState("");
   useEffect(() => {
-    // const authUser = localStorage.getItem("auth-storage");
-    // if (authUser) {
-    //   const user = JSON.parse(authUser);
-    //   console.log(user.state.authUser);
-    if (isAuthenticated && authUser) {
-      setUserEmail(authUser.email);
-      setUserFullName(authUser.fullName);
-    }
-  }, []);
+    if (!isAuthenticated || !authUser) return;
+
+    setUserEmail(authUser.email);
+    setUserFullName(authUser.fullName);
+    setAvatarUrl(authUser.avatarUrl || "");
+
+  }, [authUser]);
 
   return (
     <div className="min-h-screen p-8" style={{ backgroundColor: "#1a1d24" }}>

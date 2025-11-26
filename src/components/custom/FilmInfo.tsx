@@ -6,12 +6,13 @@ import { AllCodeValue } from "@/types/allcode.type";
 import { Star } from "lucide-react";
 import { useFilmRouter } from "@/hooks/filmRouter";
 import { useEffect } from "react";
+import { useAppRouter } from "@/hooks/useAppRouter";
 
 export default function FilmInfo() {
   const { loading, error, filmData } = useFilmStore();
   const { averageRating, fetchRatings } = useRatingStore();
-  const { goActorDetail, goDirectorDetail } = useFilmRouter();
-
+  const { goActorDetail, goDirectorDetail, goProducerDetail } = useFilmRouter();
+  const { goGenre, goCountry } = useAppRouter();
   useEffect(() => {
     if (filmData?.film?.filmId) {
       fetchRatings(filmData.film.filmId);
@@ -58,6 +59,7 @@ export default function FilmInfo() {
           film.genres.map((g: AllCodeValue) => (
             <button
               key={g.keyMap}
+              onClick={() => goGenre(g.keyMap)}
               className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-1.5 py-0.5 rounded cursor-pointer whitespace-nowrap"
             >
               {g.valueVi}
@@ -85,7 +87,9 @@ export default function FilmInfo() {
       <div className="flex items-center gap-2 text-sm">
         <h3 className="font-semibold text-white">Quốc gia: </h3>
         {film.country?.valueVi ? (
-          <button className="text-gray-300 cursor-pointer hover:text-yellow-400">
+          <button
+            onClick={() => goCountry(film.country.keyMap)}
+            className="text-gray-300 cursor-pointer hover:text-yellow-400">
             {film.country.valueVi}
           </button>
         ) : (
@@ -100,9 +104,8 @@ export default function FilmInfo() {
               <span key={p.producerId || p.slug || idx} className="flex items-center">
                 <button
                   className="text-gray-300 cursor-pointer hover:text-yellow-400"
-                  // onClick={() => goProducerDetail(p.slug)}
+                  onClick={() => goProducerDetail(p.producerId || p.slug)}
                   type="button"
-                  disabled
                 >
                   {p.producerName}
                 </button>

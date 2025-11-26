@@ -16,6 +16,7 @@ export interface Notification {
     userId: number;
     fullName: string;
     email?: string;
+    avatarUrl?: string;
   };
   result?: NotificationResult;
   createdAt: string;

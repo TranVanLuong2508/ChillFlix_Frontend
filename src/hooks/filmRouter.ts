@@ -11,6 +11,7 @@ export const useFilmRouter = () => {
 
     goDirectorDetail: (directorSlug: number | string) =>
       router.push(filmPath.DIRECTOR_DETAIL(directorSlug)),
+    goProducerDetail: (producerSlug: number | string) => router.push(filmPath.PRODUCER_DETAIL(producerSlug)),
 
     goWatchNow: (episodeId: string) =>
       router.push(playPath.WATCHNOW(episodeId)),

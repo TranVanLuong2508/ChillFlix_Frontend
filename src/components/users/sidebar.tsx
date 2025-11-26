@@ -1,5 +1,6 @@
 "use client"
 
+import { useAuthStore } from "@/stores/authStore"
 import { User, Heart, List, Clock, Bell, LogOut } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 
@@ -14,6 +15,7 @@ export default function PlaylistSidebar({
 }: PlaylistSidebarProps) {
     const router = useRouter()
     const pathname = usePathname()
+    const { authUser } = useAuthStore()
 
     const menuItems = [
         { id: "favorites", label: "Yêu thích", icon: Heart, href: "/user/favorites" },
@@ -49,7 +51,7 @@ export default function PlaylistSidebar({
                         <button
                             key={item.id}
                             onClick={() => router.push(item.href)}
-                            className="w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 ease-out"
+                            className="w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 ease-out cursor-pointer"
                             style={
                                 isActive
                                     ? {
@@ -97,13 +99,13 @@ export default function PlaylistSidebar({
                 <div className="flex items-center gap-3 mb-6">
                     {/* Avatar */}
                     <div
-                        className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg"
-                        style={{
-                            backgroundColor: "#FFD875",
-                            boxShadow: "0 8px 16px rgba(255, 216, 117, 0.2)",
-                        }}
+                        className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg border border-yellow-500"
                     >
-                        <User size={24} className="text-white" />
+                        <img
+                            src={authUser.avatarUrl || "/images/vn_flag.svg"}
+                            alt="User Avatar"
+                            className="w-10 h-10 rounded-full object-cover"
+                        />
                     </div>
 
                     {/* User Details */}
@@ -116,7 +118,7 @@ export default function PlaylistSidebar({
                 {/* Logout Button */}
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ease-out"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ease-out cursor-pointer"
                     style={{ color: "#d1d5db" }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = "rgba(255, 216, 117, 0.12)"
@@ -128,9 +130,9 @@ export default function PlaylistSidebar({
                     }}
                 >
                     <LogOut size={20} />
-                    <span className="text-sm font-medium">Thoát</span>
+                    <span className="text-sm font-medium cursor-pointer">Thoát</span>
                 </button>
             </div>
-        </div>
+        </div >
     )
 }

@@ -10,7 +10,7 @@ import type {
 import { useAuthStore } from "./authStore";
 
 interface ReplyingToState {
-  parentId: string;
+  rootParentId: string;
   replyId?: string;
   replyToName?: string;
 }
@@ -307,10 +307,7 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
       set((state) => {
         const mappedComment = mapBackendToItem(newComment);
         const exists = existsInTree(state.comments, mappedComment.id);
-        if (exists) {
-          console.log("[COMMENT SOCKET] Comment already exists, skipping");
-          return state;
-        }
+        if (exists) return state;
 
         if (newComment.parent) {
           const addReplyRecursive = (
@@ -374,10 +371,8 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
     },
 
     reactCommentRealtime: (reaction) => {
-      const { commentId, totalLike, totalDislike, userReaction, userId } =
-        reaction;
+      const { commentId, totalLike, totalDislike, userReaction, userId } = reaction;
       const currentUser = useAuthStore.getState().authUser;
-
       const updateTree = (list: CommentItem[]): CommentItem[] =>
         list.map((c) => {
           const replies = c.replies || [];
