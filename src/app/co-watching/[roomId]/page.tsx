@@ -11,7 +11,7 @@ const LiveRoomPage = async ({ params }: LiveRoomPageProps) => {
   const { roomId } = await params;
 
   return (
-    <div className="text-white">
+    <div className="text-white mt-[80px]">
       <MainSection roomId={roomId} />
     </div>
   )

@@ -184,14 +184,14 @@ const Player = ({
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <Button
+                {/* <Button
                   variant={"ghost"}
                   size={"sm"}
                   className="hover:bg-transparent hover:text-white"
                 >
                   <Eye className="size-4" />
                   <span className="text-sm">10</span>
-                </Button>
+                </Button> */}
 
                 {!dataRoom.room.isPrivate && (
                   <CopyButton />
