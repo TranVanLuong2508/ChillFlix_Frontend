@@ -46,32 +46,32 @@ export default function Home() {
         const films = response.data?.result || [];
         const transformedFilms = films.map(
           (film: any) =>
-            ({
-              filmId: film.filmId,
-              id: film.filmId,
-              title: film.title,
-              originalTitle: film.originalTitle,
-              posterUrl: getPosterUrl(film), // Use helper function to extract posterUrl from filmImages
-              imdbRating: 7.5,
-              age: film.age,
-              year: film.year,
-              slug: film.slug,
-              genres:
-                film.genres
-                  ?.map((genre: any) =>
-                    typeof genre === "string"
-                      ? genre
-                      : genre.valueVi || genre.valueEn || genre.keyMap || ""
-                  )
-                  .filter(Boolean) || [],
-              badges: [
-                { text: "PD.8", color: "bg-blue-600" },
-                { text: "TM.4", color: "bg-green-600" },
-              ],
-              episodes: "Phần 1, Tập 12",
-            } as FilmDetailRes)
+          ({
+            filmId: film.filmId,
+            id: film.filmId,
+            title: film.title,
+            originalTitle: film.originalTitle,
+            posterUrl: getPosterUrl(film), // Use helper function to extract posterUrl from filmImages
+            imdbRating: 7.5,
+            age: film.age,
+            year: film.year,
+            slug: film.slug,
+            genres:
+              film.genres
+                ?.map((genre: any) =>
+                  typeof genre === "string"
+                    ? genre
+                    : genre.valueVi || genre.valueEn || genre.keyMap || ""
+                )
+                .filter(Boolean) || [],
+            badges: [
+              { text: "PD.8", color: "bg-blue-600" },
+              { text: "TM.4", color: "bg-green-600" },
+            ],
+            episodes: "Phần 1, Tập 12",
+          } as FilmDetailRes)
         );
-        const itemsPerCategory = Math.ceil(transformedFilms.length / 2);
+        const itemsPerCategory = Math.ceil(transformedFilms.length / 3);
         setKoreanItems(transformedFilms.slice(0, itemsPerCategory));
         setChineseItems(
           transformedFilms.slice(itemsPerCategory, itemsPerCategory * 2)
