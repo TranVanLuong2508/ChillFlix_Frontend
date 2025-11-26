@@ -8,6 +8,7 @@ import type { FilmDetailRes } from "@/types/filmType";
 import FilterPanel from "@/components/search/filter-panel";
 import { userFavoriteStore } from "@/stores/favoriteStore";
 import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
 
 const getPosterUrl = (film: any): string => {
   if (film.posterUrl) return film.posterUrl;
@@ -30,8 +31,12 @@ export default function SinglePage() {
   const { fetchFavoriteList, favoriteList } = userFavoriteStore();
   const { isAuthenticated } = useAuthStore();
   const handleToggleFavorite = async (filmId: string) => {
-    await userServices.toggleFavoriteFilm(filmId);
-    fetchFavoriteList();
+    if (isAuthenticated) {
+      await userServices.toggleFavoriteFilm(filmId);
+      fetchFavoriteList();
+    } else {
+      toast.warning("Vui lòng đăng nhập");
+    }
   };
   // end favorite
 
