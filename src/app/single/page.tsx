@@ -88,9 +88,8 @@ export default function SinglePage() {
     }, [])
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+        <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 mt-24">
             <main className="pb-12 bg-[#191B24]">
-                {/* Header Section */}
                 <div className="px-4 py-8 ">
                     <div className="max-w-7xl mx-auto">
                         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Phim Lẻ</h1>
@@ -100,8 +99,6 @@ export default function SinglePage() {
                 <div className="max-w-7xl mx-auto">
                     <FilterPanel></FilterPanel>
                 </div>
-                {/* Filter Section */}
-                {/* Content Section */}
                 <div className="px-4 py-8">
                     {loading ? (
                         <div className="flex items-center justify-center min-h-96">

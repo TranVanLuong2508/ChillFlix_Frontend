@@ -31,7 +31,7 @@ export const useProducerStore = create<ProducerStoreState & ProducerAction>()((s
         set({ isLoadingProducer: true, error: null })
         try {
             const res = await filmProducerServices.getFilmProducerId(Number(producerId))
-            set({ producer: res.data || null })
+            set({ producer: res.data.result.producer || null })
         } catch (error: any) {
             set({ error: error.message || "Error fetching producer details" })
         } finally {
