@@ -103,13 +103,13 @@ export default function VipUpgradeContent() {
   console.log("check state", vipPlan);
 
   return (
-    <div className="w-full">
+    <div className="w-full pt-[80px]">
       {isLoading && <LoadingSpinner />}
 
       {/* Introduce */}
       {authUser.isVip === false ? (
         <>
-          <section className="py-8 px-4 text-center">
+          <section className="py-8 px-4 text-center ">
             <h1 className="text-4xl font-extrabold text-yellow-300 drop-shadow-[0_0_12px_rgba(255,215,0,0.7)]">
               Tài khoản ChillFlix VIP
             </h1>

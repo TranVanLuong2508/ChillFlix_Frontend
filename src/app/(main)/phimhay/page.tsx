@@ -8,6 +8,8 @@ import filmServices from "@/services/filmService";
 import { filmInUserPage } from "@/types/user.type";
 import { userServices } from "@/services";
 import { userFavoriteStore } from "@/stores/favoriteStore";
+import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
 
 const getPosterUrl = (film: any): string => {
   if (film.posterUrl) return film.posterUrl; // fallback for old format
@@ -28,13 +30,18 @@ export default function Home() {
   const [usukItems, setUsukItems] = useState<FilmDetailRes[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuthStore();
 
   const { fetchFavoriteList, favoriteList } = userFavoriteStore(); //luong add
 
   //luong add
   const hanhleToggleFavorite = async (filmId: string) => {
-    await userServices.toggleFavoriteFilm(filmId);
-    fetchFavoriteList();
+    if (isAuthenticated) {
+      await userServices.toggleFavoriteFilm(filmId);
+      fetchFavoriteList();
+    } else {
+      toast.warning("Vui lòng đăng nhập");
+    }
   };
   //end luong add
 
@@ -46,30 +53,30 @@ export default function Home() {
         const films = response.data?.result || [];
         const transformedFilms = films.map(
           (film: any) =>
-          ({
-            filmId: film.filmId,
-            id: film.filmId,
-            title: film.title,
-            originalTitle: film.originalTitle,
-            posterUrl: getPosterUrl(film), // Use helper function to extract posterUrl from filmImages
-            imdbRating: 7.5,
-            age: film.age,
-            year: film.year,
-            slug: film.slug,
-            genres:
-              film.genres
-                ?.map((genre: any) =>
-                  typeof genre === "string"
-                    ? genre
-                    : genre.valueVi || genre.valueEn || genre.keyMap || ""
-                )
-                .filter(Boolean) || [],
-            badges: [
-              { text: "PD.8", color: "bg-blue-600" },
-              { text: "TM.4", color: "bg-green-600" },
-            ],
-            episodes: "Phần 1, Tập 12",
-          } as FilmDetailRes)
+            ({
+              filmId: film.filmId,
+              id: film.filmId,
+              title: film.title,
+              originalTitle: film.originalTitle,
+              posterUrl: getPosterUrl(film), // Use helper function to extract posterUrl from filmImages
+              imdbRating: 7.5,
+              age: film.age,
+              year: film.year,
+              slug: film.slug,
+              genres:
+                film.genres
+                  ?.map((genre: any) =>
+                    typeof genre === "string"
+                      ? genre
+                      : genre.valueVi || genre.valueEn || genre.keyMap || ""
+                  )
+                  .filter(Boolean) || [],
+              badges: [
+                { text: "PD.8", color: "bg-blue-600" },
+                { text: "TM.4", color: "bg-green-600" },
+              ],
+              episodes: "Phần 1, Tập 12",
+            } as FilmDetailRes)
         );
         const itemsPerCategory = Math.ceil(transformedFilms.length / 3);
         setKoreanItems(transformedFilms.slice(0, itemsPerCategory));
@@ -87,8 +94,10 @@ export default function Home() {
     };
 
     fetchFilms();
-    fetchFavoriteList(); //luong add
-  }, []);
+    if (isAuthenticated) {
+      fetchFavoriteList(); //luong add
+    }
+  }, [isAuthenticated]);
 
   if (loading) {
     return (

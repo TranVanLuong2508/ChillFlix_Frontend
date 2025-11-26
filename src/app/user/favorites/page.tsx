@@ -18,9 +18,11 @@ export default function ProfilePage() {
       setUserEmail(authUser.email);
       setUserFullName(authUser.fullName);
 
-      fetListFistTime();
+      if (isAuthenticated) {
+        fetListFistTime();
+      }
     }
-  }, [authUser]);
+  }, [authUser, isAuthenticated]);
 
   const fetListFistTime = async () => {
     setLoading(true);
@@ -42,7 +44,10 @@ export default function ProfilePage() {
   // ];
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: "#1a1d24" }}>
+    <div
+      className="min-h-screen p-8 pt-[80px]"
+      style={{ backgroundColor: "#1a1d24" }}
+    >
       <div className="flex gap-8 max-w-7xl mx-auto">
         <PlaylistSidebar userName={userFullName} userEmail={userEmail} />{" "}
         <FavoriteFilms

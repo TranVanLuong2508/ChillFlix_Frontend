@@ -47,6 +47,7 @@ import CreatePlaylistModal from "@/components/users/playlists/CreatePlaylistModa
 import CreatePlaylistInFilmDetail from "@/components/users/playlists/CreatePlaylistInFilmDetail";
 import { filmPath } from "@/constants/path";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
 
 interface PlayBarProps {
   activeTab: "comments" | "ratings";
@@ -69,39 +70,46 @@ const ModalAdd = ({ action }: { action: actionType }) => {
   const { userPlaylists, fetchPlaylists } = userPlaylistStore();
 
   const [openCreate, setOpenCreate] = useState(false);
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    fetchPlaylists();
-  }, []);
+    if (isAuthenticated) {
+      fetchPlaylists();
+    }
+  }, [isAuthenticated]);
 
   const handleToggleFilm = async (
     playlistId: string,
     filmId: string,
     isCheck: boolean
   ) => {
-    if (!filmId || !playlistId) return;
-    try {
-      if (isCheck) {
-        const res = await userServices.CallRemoveFilmFromPlaylist(
-          playlistId,
-          filmId
-        );
-        if (res && res?.EC === 1) {
-          toast.success(PlayListMessage.deleteSucess);
+    if (isAuthenticated) {
+      if (!filmId || !playlistId) return;
+      try {
+        if (isCheck) {
+          const res = await userServices.CallRemoveFilmFromPlaylist(
+            playlistId,
+            filmId
+          );
+          if (res && res?.EC === 1) {
+            toast.success(PlayListMessage.deleteSucess);
+          }
+        } else {
+          const res = await userServices.CallAddFilmToPlaylist(
+            playlistId,
+            filmId
+          );
+          if (res && res?.EC === 1) {
+            toast.success(PlayListMessage.addSucess);
+          }
         }
-      } else {
-        const res = await userServices.CallAddFilmToPlaylist(
-          playlistId,
-          filmId
-        );
-        if (res && res?.EC === 1) {
-          toast.success(PlayListMessage.addSucess);
-        }
+        fetchPlaylists();
+      } catch (err) {
+        console.log("Error toggle playlist:", err);
+        toast.error("Lỗi thao tác");
       }
-      fetchPlaylists();
-    } catch (err) {
-      console.log("Error toggle playlist:", err);
-      toast.error("Lỗi thao tác");
+    } else {
+      toast.warning("Vui lòng đăng nhập");
     }
   };
 
@@ -170,7 +178,13 @@ const ModalAdd = ({ action }: { action: actionType }) => {
           <DropdownMenuSeparator className="my-3 bg-zinc-600" />
 
           <DropdownMenuItem
-            onClick={() => setOpenCreate(true)}
+            onClick={() => {
+              if (isAuthenticated) {
+                setOpenCreate(true);
+              } else {
+                toast.warning("Vui lòng đăng nhập");
+              }
+            }}
             className="flex justify-center p-2 font-medium rounded-md cursor-pointer text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_12px_rgba(250,204,21,0.45)] focus:bg-yellow-400 focus:text-black transition-all duration-200 ease-in-out"
           >
             + Thêm mới
@@ -338,10 +352,12 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   //luong add
   const { favoriteList, fetchFavoriteList } = userFavoriteStore();
   const { filmData } = useFilmStore();
-
+  const { isAuthenticated } = useAuthStore();
   useEffect(() => {
-    fetchFavoriteList();
-  }, []);
+    if (isAuthenticated) {
+      fetchFavoriteList();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     let likeStatus = false;
@@ -354,8 +370,12 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   }, [favoriteList]);
 
   const hanhleToggleFavorite = async (filmId: string) => {
-    await userServices.toggleFavoriteFilm(filmId);
-    fetchFavoriteList();
+    if (isAuthenticated) {
+      await userServices.toggleFavoriteFilm(filmId);
+      fetchFavoriteList();
+    } else {
+      toast.warning("Vui lòng đăng nhập");
+    }
   };
   //end luong add
   const actions: actionType[] = [

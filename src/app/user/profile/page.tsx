@@ -20,11 +20,13 @@ export default function ProfilePage() {
     setUserEmail(authUser.email);
     setUserFullName(authUser.fullName);
     setAvatarUrl(authUser.avatarUrl || "");
-
   }, [authUser]);
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: "#1a1d24" }}>
+    <div
+      className="min-h-screen p-8 pt-[80px]"
+      style={{ backgroundColor: "#1a1d24" }}
+    >
       <div className="flex gap-12 max-w-7xl mx-auto">
         <PlaylistSidebar userName={userFullName} userEmail={userEmail} />
         <ProfileRight />
