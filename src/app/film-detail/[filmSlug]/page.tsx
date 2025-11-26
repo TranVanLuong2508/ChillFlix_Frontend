@@ -18,9 +18,7 @@ export default function FilmDetailPage() {
 
   const { loading, error, filmData, getDetailFilm } = useFilmStore();
 
-  const [activeTab, setActiveTab] = useState<"comments" | "ratings">(
-    "comments"
-  );
+  const [activeTab, setActiveTab] = useState<"comments" | "ratings">("comments");
   const [hasScrolled, setHasScrolled] = useState(false);
 
   useEffect(() => {
@@ -85,7 +83,7 @@ export default function FilmDetailPage() {
         <meta property="og:url" content={currentUrl} />
         <meta property="og:type" content="website" />
       </Head>
-      <main className="bg-[#191B24] min-h-screen">
+      <main className="bg-[#191B24] min-h-screen pt-[72px]">
         <Background />
         <div className="relative z-20 mx-auto mt-[-100px] px-2 sm:px-4 md:px-6 lg:px-8 max-w-full md:max-w-[95vw] lg:max-w-[1990px]">
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">

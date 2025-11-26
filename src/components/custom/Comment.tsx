@@ -123,7 +123,6 @@ export default function CommentSection() {
 
   useEffect(() => {
     if (!commentIdFromUrl || comments.length === 0) return;
-    // Luôn scroll khi commentIdFromUrl thay đổi (kể cả khi chỉ t đổi)
     const targetId = commentIdFromUrl;
     let foundParentKey: string | null = null;
     let neededVisible = 0;
@@ -181,8 +180,8 @@ export default function CommentSection() {
             url.searchParams.delete("commentId");
             url.searchParams.delete("t");
             window.history.replaceState(null, "", url.pathname + url.search);
-          }, 1000);
-        }, 500);
+          }, 1500);
+        }, 600);
       }
     }, 200);
     return () => clearTimeout(scrollTimer);
@@ -214,10 +213,10 @@ export default function CommentSection() {
             id={`comment-${rep.id}`}
             className="flex flex-col relative"
           >
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 px-3 py-3">
               <div className="relative w-10 h-10 z-10">
                 <img
-                  src={rep.user.avatar || "/images/monkey.jpg"}
+                  src={rep.user?.avatar || "/images/default-avatar.png"}
                   alt="avatar"
                   className="w-full h-full rounded-full object-cover border-2 border-[#0a0b0e]"
                 />
@@ -395,7 +394,7 @@ export default function CommentSection() {
             <>
               <div className="relative w-12 h-12">
                 <img
-                  src="/images/monkey.jpg"
+                  src={authUser?.avatarUrl || "/images/monkey.jpg"}
                   alt="avatar"
                   className="w-full h-full rounded-full object-cover"
                 />
@@ -474,7 +473,7 @@ export default function CommentSection() {
                   <div className="flex items-start gap-3">
                     <div className="relative w-10 h-10">
                       <img
-                        src={cmt.user.avatar || "/images/monkey.jpg"}
+                        src={cmt.user?.avatar || "/images/monkey.jpg"}
                         alt="avatar"
                         className="w-full h-full rounded-full object-cover"
                       />

@@ -715,7 +715,7 @@ export default function Header() {
                       <DropdownMenuTrigger asChild>
                         <button className="focus:outline-none focus:ring-0 flex items-center cursor-pointer">
                           <Image
-                            src="/images/vn_flag.svg"
+                            src={authUser.avatarUrl || "/images/vn_flag.svg"}
                             alt="User Avatar"
                             width={30}
                             height={30}
@@ -736,7 +736,7 @@ export default function Header() {
                         <div className="p-4 border-b border-[#2a3040]/50">
                           <div className="flex items-center gap-3 mb-3">
                             <Image
-                              src="/images/vn_flag.svg"
+                              src={authUser.avatarUrl || "/images/vn_flag.svg"}
                               alt="User Avatar"
                               width={30}
                               height={30}

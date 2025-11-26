@@ -1,5 +1,5 @@
 "use client"
-
+import { useAuthStore } from "@/stores/authStore"
 import { useState, useEffect } from "react"
 import { useNotificationStore } from "@/stores/notificationStore"
 import { useRouter } from "next/navigation"
@@ -11,6 +11,7 @@ const ITEMS_PER_PAGE = 5
 export default function Notications() {
     const [activeTab, setActiveTab] = useState<TabType>("community")
     const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
+    const { authUser } = useAuthStore()
     const router = useRouter()
 
     const {
@@ -48,8 +49,6 @@ export default function Notications() {
         setActiveTab(tab)
         setVisibleCount(ITEMS_PER_PAGE)
     }
-
-    //Cuộn hightlight bình luận
     const scrollToComment = (commentId: string) => {
         const commentElement = document.getElementById(`comment-${commentId}`)
         if (!commentElement) return
@@ -77,8 +76,8 @@ export default function Notications() {
             if (fetchedSlug) {
                 router.push(`/film-detail/${fetchedSlug}?commentId=${commentId}`)
             }
-        } catch (err) {
-            console.error('Failed to fetch film slug:', err)
+        } catch (error) {
+            console.error('Failed to fetch film slug:', error)
         }
     }
 
@@ -104,7 +103,18 @@ export default function Notications() {
         }
     }
 
-
+    const CheckAvatar = (notification: any) => {
+        if (notification.replier && notification.replier.avatarUrl) {
+            return notification.replier.avatarUrl;
+        }
+        if (notification.avatarUrl) {
+            return notification.avatarUrl;
+        }
+        if (authUser?.userId === notification.userId) {
+            return authUser.avatarUrl || "/images/vn_flag.svg";
+        }
+        return "/images/vn_flag.svg";
+    }
     const hasAnyNotifications = notifications.length > 0
 
     if (isLoading && !hasAnyNotifications) {
@@ -201,7 +211,11 @@ export default function Notications() {
                                         {/* Avatar */}
                                         <div className="flex-shrink-0">
                                             <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-600">
-                                                <i className="fas fa-user text-gray-400" />
+                                                <img
+                                                    src={CheckAvatar(notification)}
+                                                    alt="User Avatar"
+                                                    className="w-10 h-10 rounded-full object-cover"
+                                                />
                                             </div>
                                         </div>
 

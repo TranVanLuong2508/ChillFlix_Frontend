@@ -38,9 +38,8 @@ export default function ActorDetail() {
             <div className="text-center py-20">Diễn viên này chưa tham gia bộ phim nào.</div>
         );
     }
-    console.log("filmActorData", filmActorData);
     return (
-        <main className="flex flex-col min-h-screen bg-[#191B24] text-white overflow-x-hidden">
+        <main className="flex flex-col min-h-screen bg-[#191B24] text-white overflow-x-hidden pt-[72px]">
             <section className="relative flex-1 w-full">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     <div className="grid grid-cols-1 lg:grid-cols-16 gap-8 lg:gap-12 items-start justify-center">
