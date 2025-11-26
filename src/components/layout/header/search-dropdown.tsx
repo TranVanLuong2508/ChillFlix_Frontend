@@ -7,7 +7,7 @@ import { Loader, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-export default function SearchDropdown() {
+export default function SearchDropdown({ isScrolled }: { isScrolled: boolean }) {
   const [filmResult, setFilmResult] = useState<IFilmSearch[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -82,15 +82,19 @@ export default function SearchDropdown() {
     <>
       <div className="flex-1 max-w-md" ref={wrapperRef}>
         <div className="relative ">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white" />
           <Input
             value={keyword}
             onChange={handleChangSeachValue}
             type="text"
             placeholder="Tìm kiếm phim"
-            className="pl-10 bg-[#1a1f2e] border-[#2a3040] border-2 text-white placeholder:text-gray-500
+            className={`pl-10 border-2 text-white placeholder:text-gray-400 transition-all duration-500
              focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0
-             focus-visible:border-[#2a3040] focus:shadow-[0_0_12px_2px_rgba(59,130,246,0.5)] "
+             ${isScrolled
+                ? "bg-[#1a1f2e] border-[#2a3040] focus-visible:border-[#2a3040] focus:shadow-[0_0_12px_2px_rgba(234,179,8,0.3)]"
+                : "bg-white/30 border-none focus-visible:border-[#2a3040] border-[#2a3040]"
+              }
+             `}
           />
           {keyword.trim() !== "" && showDropdown && (
             <div className="absolute mt-2 left-0 w-full bg-[#1a1f2e] border border-[#2a3040] rounded-xl shadow-xl p-3 z-50">

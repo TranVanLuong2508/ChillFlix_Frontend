@@ -55,6 +55,8 @@ export default function Header() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
+
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showAllNotifications, setShowAllNotifications] = useState(false);
@@ -130,6 +132,20 @@ export default function Header() {
       socket.emit("register", { userId });
     }
   }, [authUser?.userId]);
+
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const fetchGenresList = async () => {
     const res = await allCodeServie.getGenresList();
@@ -249,7 +265,15 @@ export default function Header() {
   ]);
 
   return (
-    <header className="sticky top-0 left-0 w-full z-50 bg-[#0f1419]/70 backdrop-blur-md border-b border-[#1a1f2e]/60">
+    <header
+      className={`
+    fixed top-0 left-0 w-full z-50 transition-all duration-700 ease-in-out
+    ${isScrolled
+          ? "bg-[#0f1419]/80 backdrop-blur-md"
+          : "bg-gradient-to-b from-black/80 via-black/40 to-transparent"
+        }
+  `}
+    >
       <div className="mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
@@ -270,12 +294,12 @@ export default function Header() {
           </div>
 
           {/* Search Bar */}
-          <SearchDropdown />
+          <SearchDropdown isScrolled={isScrolled} />
 
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center gap-0">
             <button
-              className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md"
+              className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
               onClick={() => {
                 goSingleFilms();
               }}
@@ -283,7 +307,7 @@ export default function Header() {
               Phim Lẻ
             </button>
             <button
-              className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md"
+              className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
               onClick={() => {
                 goSeriesFilms();
               }}
@@ -294,7 +318,7 @@ export default function Header() {
             {/* Thể loại */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
+                <button className={`flex items-center gap-1 text-white hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}>
                   Thể loại
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -327,7 +351,7 @@ export default function Header() {
             {/* Quốc gia */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
+                <button className={`flex items-center gap-1 text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}>
                   Quốc gia
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -357,14 +381,14 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}>
               Xem Chung
             </button>
 
             {/* Thêm */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
+                <button className={`flex items-center gap-1 text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition px-3 py-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}>
                   Thêm
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -400,7 +424,7 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md">
+            <button className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}>
               Phim VIP
             </button>
           </nav>
@@ -409,7 +433,7 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <button
               onClick={openDrawer}
-              className="flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md"
+              className={`flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md`}
             >
               <span>Chat với FlixAI</span>
             </button>
@@ -427,7 +451,7 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] relative cursor-pointer transition-all duration-200 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none"
+                  className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} relative cursor-pointer transition-all duration-200 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none`}
                 >
                   <Bell className="w-8 h-8" strokeWidth={2.6} />
                   {unreadCount > 0 && (
@@ -464,10 +488,9 @@ export default function Header() {
                             key={tab}
                             value={tab}
                             className={`relative flex-1 cursor-pointer rounded-none py-2 transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:text-yellow-400 
-                              ${
-                                isActive
-                                  ? "text-yellow-400 font-semibold scale-[1.03]"
-                                  : "text-gray-400 hover:text-yellow-300"
+                              ${isActive
+                                ? "text-yellow-400 font-semibold scale-[1.03]"
+                                : "text-gray-400 hover:text-yellow-300"
                               }`}
                           >
                             {tab === "film" && "Phim"}
@@ -476,11 +499,10 @@ export default function Header() {
 
                             {/* Underline animation */}
                             <span
-                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${
-                                isActive
-                                  ? "w-full opacity-100"
-                                  : "w-0 opacity-0"
-                              }`}
+                              className={`absolute bottom-0 left-0 h-[2px] rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ${isActive
+                                ? "w-full opacity-100"
+                                : "w-0 opacity-0"
+                                }`}
                             />
                             {tab === "community" && unreadCount > 0 && (
                               <span className="absolute top-3 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
@@ -502,11 +524,10 @@ export default function Header() {
                   {/* TAB: community (chưa đọc) */}
                   <TabsContent
                     value="community"
-                    className={`p-4 text-left text-sm text-gray-300 ${
-                      showAllNotifications
-                        ? "max-h-[500px] overflow-y-auto"
-                        : ""
-                    }`}
+                    className={`p-4 text-left text-sm text-gray-300 ${showAllNotifications
+                      ? "max-h-[500px] overflow-y-auto"
+                      : ""
+                      }`}
                   >
                     {notifications.filter((n) => !n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
@@ -661,9 +682,8 @@ export default function Header() {
                           >
                             {showAllNotifications
                               ? "Thu gọn"
-                              : `Xem tất cả (${
-                                  notifications.filter((n) => !n.isRead).length
-                                } thông báo)`}
+                              : `Xem tất cả (${notifications.filter((n) => !n.isRead).length
+                              } thông báo)`}
                           </button>
                         )}
                       </>
@@ -673,11 +693,10 @@ export default function Header() {
                   {/* TAB: read (đã đọc) */}
                   <TabsContent
                     value="read"
-                    className={`p-4 text-left text-sm text-gray-300 ${
-                      showAllReadNotifications
-                        ? "max-h-[500px] overflow-y-auto"
-                        : ""
-                    }`}
+                    className={`p-4 text-left text-sm text-gray-300 ${showAllReadNotifications
+                      ? "max-h-[500px] overflow-y-auto"
+                      : ""
+                      }`}
                   >
                     {notifications.filter((n) => n.isRead).length === 0 ? (
                       <div className="text-center text-gray-500">
@@ -796,9 +815,8 @@ export default function Header() {
                           >
                             {showAllReadNotifications
                               ? "Thu gọn"
-                              : `Xem tất cả (${
-                                  notifications.filter((n) => n.isRead).length
-                                } thông báo)`}
+                              : `Xem tất cả (${notifications.filter((n) => n.isRead).length
+                              } thông báo)`}
                           </button>
                         )}
                       </>
