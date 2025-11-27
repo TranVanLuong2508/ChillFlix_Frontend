@@ -21,7 +21,7 @@ export default function ProfilePage() {
     }, [])
 
     return (
-        <div className="min-h-screen p-8" style={{ backgroundColor: "#1a1d24" }}>
+        <div className="min-h-screen p-8 pt-[80px]" style={{ backgroundColor: "#1a1d24" }}>
             <div className="flex gap-8 max-w-7xl mx-auto">
                 <PlaylistSidebar userName={userData.fullName} userEmail={userData.email} />
                 <div className="flex-1">

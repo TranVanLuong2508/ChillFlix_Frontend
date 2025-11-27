@@ -82,7 +82,7 @@ export default function PlayPage() {
   console.log('>> Episode: ', episodeDetail)
 
   return (
-    <div className="w-full bg-zinc-950 text-white">
+    <div className="w-full bg-zinc-950 text-white pt-[72px]">
       <div className="px-[20px] pt-4">
         <Player currentPart={p!} currentEpisode={ep!} episodeDetail={episodeDetail} partDetail={partDetail} key={searchParams.toString()} />
         <div className="py-10">
