@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Star, Trash2 } from "lucide-react";
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import { useFilmStore } from "@/stores/filmStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
@@ -49,6 +47,7 @@ export default function Ratings() {
         };
 
         const handleRatingDeleted = (data: any) => {
+
             if (data.filmId === filmId) {
                 deleteRatingRealtime(data.ratingId);
             }
@@ -65,7 +64,7 @@ export default function Ratings() {
 
     const handleSend = async () => {
         if (!isAuthenticated) {
-            openLoginModal();
+            toast.warning("Bạn cần đăng nhập để đánh giá phim.");
             return;
         }
 

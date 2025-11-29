@@ -111,9 +111,9 @@ export default function Notications() {
             return notification.avatarUrl;
         }
         if (authUser?.userId === notification.userId) {
-            return authUser.avatarUrl || "/images/vn_flag.svg";
+            return authUser.avatarUrl || "/images/small.png";
         }
-        return "/images/vn_flag.svg";
+        return "/images/small.png";
     }
     const hasAnyNotifications = notifications.length > 0
 

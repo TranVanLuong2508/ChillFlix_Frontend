@@ -723,29 +723,13 @@ export default function Header() {
                                       currentPath.includes(
                                         `/play/${n.result.slug}`
                                       ));
-                                  // Lấy danh sách comments từ store
-                                  const { useCommentStore } = await import(
-                                    "@/stores/comentStore"
-                                  );
-                                  const comments =
-                                    useCommentStore.getState().comments || [];
-                                  // Kiểm tra commentId có tồn tại không
-                                  const commentExists =
-                                    comments.some(
-                                      (c) => String(c.id) === String(commentId)
-                                    ) ||
-                                    comments.some((c) =>
-                                      (c.replies || []).some(
-                                        (r) =>
-                                          String(r.id) === String(commentId)
-                                      )
-                                    );
+
                                   if (isOnSameFilm) {
                                     const { eventBus } = await import(
                                       "@/lib/eventBus"
                                     );
                                     eventBus.emit("switchTab", "comments");
-                                    if (commentExists && commentId) {
+                                    if (commentId) {
                                       const url = new URL(window.location.href);
                                       url.searchParams.set(
                                         "commentId",
@@ -760,22 +744,15 @@ export default function Header() {
                                         "",
                                         url.toString()
                                       );
-                                    } else {
-                                      toast.error(
-                                        "Bình luận này đã bị xóa hoặc không còn tồn tại."
-                                      );
                                     }
                                     return;
                                   } else if (n.result?.slug) {
-                                    if (commentExists && commentId) {
+                                    if (commentId) {
                                       router.push(
                                         `/film-detail/${n.result.slug
                                         }?commentId=${commentId}&t=${Date.now()}`
                                       );
                                     } else {
-                                      toast.error(
-                                        "Bình luận này đã bị xóa hoặc không còn tồn tại."
-                                      );
                                       router.push(
                                         `/film-detail/${n.result.slug}`
                                       );
