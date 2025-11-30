@@ -57,6 +57,7 @@ interface CommentStoreActions {
     userReaction?: CommentReactionType;
   }) => void;
   hideCommentRealtime: (commentId: string, isHidden: boolean) => void;
+  unhideCommentRealtime: (comment: BackendComment) => void;
 }
 
 const mapBackendToItem = (c: BackendComment): CommentItem => ({
@@ -445,6 +446,44 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
           ...state,
           comments: hideTree(state.comments),
           totalComments: newTotal,
+        };
+      });
+    },
+
+    unhideCommentRealtime: (unhiddenComment: BackendComment) => {
+      set((state) => {
+        const mappedComment = mapBackendToItem(unhiddenComment);
+        const exists = existsInTree(state.comments, mappedComment.id);
+        if (exists) return state;
+
+        // Nếu là root comment (không có parent)
+        if (!unhiddenComment.parent) {
+          return {
+            ...state,
+            comments: [mappedComment, ...state.comments],
+            totalComments: (state.totalComments || 0) + 1,
+          };
+        }
+
+        // Nếu là reply, thêm vào parent
+        const addToParent = (list: CommentItem[]): CommentItem[] =>
+          list.map((c) => {
+            if (c.id === unhiddenComment.parent?.commentId) {
+              return {
+                ...c,
+                replies: [...(c.replies || []), mappedComment],
+              };
+            }
+            return {
+              ...c,
+              replies: addToParent(c.replies || []),
+            };
+          });
+
+        return {
+          ...state,
+          comments: addToParent(state.comments),
+          totalComments: (state.totalComments || 0) + 1,
         };
       });
     },

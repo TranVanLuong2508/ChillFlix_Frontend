@@ -87,6 +87,7 @@ export default function Header() {
     countCommentsRealtime,
     reactCommentRealtime,
     hideCommentRealtime,
+    unhideCommentRealtime,
   } = useCommentStore();
 
   const {
@@ -248,6 +249,9 @@ export default function Header() {
     socket.on("hideComment", ({ commentId, isHidden }) => {
       hideCommentRealtime(commentId, isHidden);
     });
+    socket.on("unhideComment", (comment) => {
+      unhideCommentRealtime(comment);
+    });
     socket.on('hiddenCommentNotification', async (data) => {
       toast.warning(data.message);
       await refreshNotifications();
@@ -262,6 +266,7 @@ export default function Header() {
       socket.off("countComments", handleCountComments);
       socket.off("reactComment", reactCommentRealtime);
       socket.off("hideComment");
+      socket.off("unhideComment");
       socket.off("hiddenCommentNotification");
     };
   }, [
@@ -272,6 +277,7 @@ export default function Header() {
     countCommentsRealtime,
     reactCommentRealtime,
     hideCommentRealtime,
+    unhideCommentRealtime,
     refreshNotifications,
   ]);
 
@@ -574,13 +580,16 @@ export default function Header() {
                                 key={n.notificationId}
                                 className="cursor-pointer rounded-lg border border-[#2a3040]/60 bg-[#1a1f2e]/60 p-3 transition-all hover:bg-[#2a3040]/60"
                                 onClick={async () => {
-                                  if (!n.result?.filmId) return;
                                   try {
-                                    if (n.notificationId > 0) {
+                                    if (n.notificationId > 0 && !n.isRead) {
                                       await markAsRead(n.notificationId);
+                                      refreshNotifications();
                                     }
-                                    const commentId =
-                                      n.result.commentId || n.result.parentId;
+                                    if (!n.result?.filmId && !n.result?.slug) return;
+
+                                    const isHiddenType = ['hidden_comment', 'violation_warning'].includes(n.type);
+                                    const commentId = isHiddenType ? null : (n.result.commentId || n.result.parentId);
+
                                     const currentPath =
                                       window.location.pathname;
                                     const isOnSameFilm =
@@ -596,27 +605,33 @@ export default function Header() {
                                         "@/lib/eventBus"
                                       );
                                       eventBus.emit("switchTab", "comments");
-                                      const url = new URL(window.location.href);
-                                      url.searchParams.set(
-                                        "commentId",
-                                        String(commentId)
-                                      );
-                                      url.searchParams.set(
-                                        "t",
-                                        Date.now().toString()
-                                      );
-                                      window.history.replaceState(
-                                        null,
-                                        "",
-                                        url.toString()
-                                      );
+
+                                      if (commentId) {
+                                        const url = new URL(window.location.href);
+                                        url.searchParams.set(
+                                          "commentId",
+                                          String(commentId)
+                                        );
+                                        url.searchParams.set(
+                                          "t",
+                                          Date.now().toString()
+                                        );
+                                        window.history.replaceState(
+                                          null,
+                                          "",
+                                          url.toString()
+                                        );
+                                      }
                                       return;
                                     }
                                     if (n.result?.slug) {
-                                      router.push(
-                                        `/film-detail/${n.result.slug
-                                        }?commentId=${commentId}&t=${Date.now()}`
-                                      );
+                                      if (commentId) {
+                                        router.push(
+                                          `/film-detail/${n.result.slug}?commentId=${commentId}&t=${Date.now()}`
+                                        );
+                                      } else {
+                                        router.push(`/film-detail/${n.result.slug}`);
+                                      }
                                     } else {
                                       try {
                                         const filmServices = (
@@ -630,12 +645,16 @@ export default function Header() {
                                           filmData?.data?.film?.slug ||
                                           filmData?.data?.film.slug;
                                         if (filmData?.EC === 1 && slug) {
-                                          router.push(
-                                            `/film-detail/${slug}?commentId=${commentId}&t=${Date.now()}`
-                                          );
+                                          if (commentId) {
+                                            router.push(
+                                              `/film-detail/${slug}?commentId=${commentId}&t=${Date.now()}`
+                                            );
+                                          } else {
+                                            router.push(`/film-detail/${slug}`);
+                                          }
                                         } else {
                                           toast.error(
-                                            "Không tìm thấy thông tin phim. Vui lòng thử lại sau."
+                                            "Không tìm thấy thông tin. Vui lòng thử lại sau."
                                           );
                                         }
                                       } catch {
@@ -725,8 +744,9 @@ export default function Header() {
                                 className="cursor-pointer rounded-lg border border-[#2a3040]/60 bg-[#1a1f2e]/60 p-3 opacity-70 transition-all hover:bg-[#2a3040]/60"
                                 onClick={async () => {
                                   if (!n.result?.filmId) return;
-                                  const commentId =
-                                    n.result.commentId || n.result.parentId;
+
+                                  const isHiddenType = ['hidden_comment', 'violation_warning'].includes(n.type);
+                                  const commentId = isHiddenType ? null : (n.result.commentId || n.result.parentId);
                                   const currentPath = window.location.pathname;
                                   const isOnSameFilm =
                                     n.result?.slug &&
