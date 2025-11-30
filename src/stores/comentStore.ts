@@ -56,12 +56,14 @@ interface CommentStoreActions {
     totalDislike: number;
     userReaction?: CommentReactionType;
   }) => void;
+  hideCommentRealtime: (commentId: string, isHidden: boolean) => void;
 }
 
 const mapBackendToItem = (c: BackendComment): CommentItem => ({
   id: c.commentId,
   content: c.content,
   createdAt: c.createdAt,
+  isHidden: c.isHidden,
   totalLike: c.totalLike,
   totalDislike: c.totalDislike,
   totalChildrenComment: c.totalChildrenComment,
@@ -400,6 +402,51 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
         ...state,
         comments: updateTree(state.comments),
       }));
+    },
+
+    hideCommentRealtime: (commentId: string, isHidden: boolean) => {
+      set((state) => {
+        let hiddenCount = 0;
+        const findAndCount = (list: CommentItem[]): number => {
+          for (const c of list) {
+            if (c.id === commentId) {
+              return countSubtree(c);
+            }
+            if (c.replies && c.replies.length) {
+              const count = findAndCount(c.replies);
+              if (count > 0) return count;
+            }
+          }
+          return 0;
+        };
+
+        hiddenCount = findAndCount(state.comments);
+        const hideTree = (list: CommentItem[]): CommentItem[] =>
+          list
+            .map((c) => {
+              if (c.id === commentId) {
+                return {
+                  ...c,
+                  isHidden,
+                  replies: (c.replies || []).map((r) => ({ ...r, isHidden })),
+                };
+              }
+              return {
+                ...c,
+                replies: hideTree(c.replies || []),
+              };
+            })
+            .filter((c) => !c.isHidden);
+        const newTotal = isHidden
+          ? Math.max((state.totalComments || 0) - hiddenCount, 0)
+          : (state.totalComments || 0) + hiddenCount;
+
+        return {
+          ...state,
+          comments: hideTree(state.comments),
+          totalComments: newTotal,
+        };
+      });
     },
 
     setReplyingTo: (info) => set({ replyingTo: info }),

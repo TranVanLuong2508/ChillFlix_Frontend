@@ -44,6 +44,7 @@ export interface CommentItem {
   id: string;
   content: string;
   createdAt: string;
+  isHidden?: boolean;
   totalLike: number;
   totalDislike: number;
   totalChildrenComment: number;

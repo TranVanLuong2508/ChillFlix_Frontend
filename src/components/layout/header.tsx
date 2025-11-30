@@ -86,6 +86,7 @@ export default function Header() {
     replyCommentRealtime,
     countCommentsRealtime,
     reactCommentRealtime,
+    hideCommentRealtime,
   } = useCommentStore();
 
   const {
@@ -178,6 +179,10 @@ export default function Header() {
     }
   };
 
+  const refreshNotifications = async () => {
+    await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+  };
+
   useEffect(() => {
     const handleConnect = () => {
       if (authUser?.userId) {
@@ -205,7 +210,7 @@ export default function Header() {
 
       const message = `${data.replyComment.user.fullName} đã trả lời bình luận của bạn: "${data.replyComment.content}"`;
 
-      await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+      await refreshNotifications();
       toast.success(message);
     };
 
@@ -220,7 +225,7 @@ export default function Header() {
         data.reactionType === "LIKE" ? "thích" : "không thích";
       const message = `${data.reactionUser.fullName} đã ${reactionText} bình luận của bạn`;
 
-      await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+      await refreshNotifications();
       toast.success(message);
     };
 
@@ -240,7 +245,13 @@ export default function Header() {
     socket.on("deleteComment", handleDeleteComment);
     socket.on("countComments", handleCountComments);
     socket.on("reactComment", reactCommentRealtime);
-
+    socket.on("hideComment", ({ commentId, isHidden }) => {
+      hideCommentRealtime(commentId, isHidden);
+    });
+    socket.on('hiddenCommentNotification', async (data) => {
+      toast.warning(data.message);
+      await refreshNotifications();
+    });
     return () => {
       socket.off("connect", handleConnect);
       socket.off("newComment", handleNewComment);
@@ -250,6 +261,8 @@ export default function Header() {
       socket.off("deleteComment", handleDeleteComment);
       socket.off("countComments", handleCountComments);
       socket.off("reactComment", reactCommentRealtime);
+      socket.off("hideComment");
+      socket.off("hiddenCommentNotification");
     };
   }, [
     authUser?.userId,
@@ -258,8 +271,8 @@ export default function Header() {
     removeCommentRealtime,
     countCommentsRealtime,
     reactCommentRealtime,
-    fetchNotifications,
-    fetchUnreadCount,
+    hideCommentRealtime,
+    refreshNotifications,
   ]);
 
   return (
