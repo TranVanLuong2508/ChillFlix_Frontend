@@ -62,8 +62,9 @@ export const CommentServices = {
     reason: string,
     description?: string
   ): Promise<IBackendRes<any>> => {
-    return privateAxios.post(`/comment/report-comment`, {
-      commentId,
+    return privateAxios.post(`/report`, {
+      reportType: "COMMENT",
+      targetId: commentId,
       reason,
       description,
     });

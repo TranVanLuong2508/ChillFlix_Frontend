@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Star, Trash2 } from "lucide-react";
+import { Star, Trash2, Flag, AlertTriangle } from "lucide-react";
 import { useFilmStore } from "@/stores/filmStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuthModalStore } from "@/stores/authModalStore";
@@ -8,6 +8,29 @@ import { useRatingStore } from "@/stores/ratingStore";
 import { socket } from "@/lib/socket";
 import { toast } from "sonner";
 import { formatTimeFromNowVN } from "@/lib/dateFomat";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { ratingService } from "@/services/ratingService";
 
 export default function Ratings() {
     const { filmData } = useFilmStore();
@@ -30,6 +53,23 @@ export default function Ratings() {
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
     const [comment, setComment] = useState("");
+    const [reportContent, setReportContent] = useState("");
+    const [reportingRatingId, setReportingRatingId] = useState<string | null>(null);
+    const [reportReason, setReportReason] = useState("");
+    const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+
+    const REPORT_REASONS = [
+        "Ngôn từ thô tục, xúc phạm",
+        "Phát tán thông tin sai sự thật",
+        "Quảng cáo, spam, lừa đảo",
+        "Kích động bạo lực, thù ghét",
+        "Nội dung khiêu dâm, đồi trụy",
+        "Tiết lộ thông tin cá nhân",
+        "Bắt nạt, quấy rối người khác",
+        "Vi phạm pháp luật, bản quyền",
+        "Nội dung không liên quan đến phim",
+        "Khác (vui lòng ghi rõ)"
+    ];
 
     useEffect(() => {
         if (filmId) {
@@ -53,12 +93,22 @@ export default function Ratings() {
             }
         };
 
+        const handleRatingHidden = (data: any) => {
+            if (data.isHidden) {
+                deleteRatingRealtime(data.ratingId);
+            } else {
+                fetchRatings(filmId);
+            }
+        };
+
         socket.on('ratingUpdated', handleRatingUpdated);
         socket.on('ratingDeleted', handleRatingDeleted);
+        socket.on('hideRating', handleRatingHidden);
 
         return () => {
             socket.off('ratingUpdated', handleRatingUpdated);
             socket.off('ratingDeleted', handleRatingDeleted);
+            socket.off('hideRating', handleRatingHidden);
         };
     }, [filmId, updateRatingRealtime, deleteRatingRealtime]);
 
@@ -91,6 +141,53 @@ export default function Ratings() {
             toast.success(response?.EM || "Xóa đánh giá thành công");
         } catch (error: any) {
             toast.error(error.message || "Không thể xóa đánh giá. Vui lòng thử lại.");
+        }
+    };
+
+    const handleSendReport = async () => {
+        setIsSubmittingReport(true);
+
+        if (!reportReason) {
+            toast.warning("Vui lòng chọn lý do báo cáo.");
+            setIsSubmittingReport(false);
+            return;
+        }
+
+        if (reportReason === REPORT_REASONS[9] && !reportContent.trim()) {
+            toast.warning("Vui lòng nhập nội dung báo cáo chi tiết.");
+            setIsSubmittingReport(false);
+            return;
+        }
+
+        if (!reportingRatingId) {
+            toast.error("Không tìm thấy đánh giá cần báo cáo.");
+            setIsSubmittingReport(false);
+            return;
+        }
+
+        try {
+            const description = reportReason === REPORT_REASONS[9]
+                ? reportContent
+                : reportReason;
+
+            const res = await ratingService.reportRating(
+                reportingRatingId,
+                reportReason,
+                description
+            );
+
+            if (res.EC === 1) {
+                toast.success("Báo cáo của bạn đã được gửi. Cảm ơn bạn!");
+                setReportingRatingId(null);
+                setReportReason("");
+                setReportContent("");
+            } else {
+                toast.error(res.EM || "Gửi báo cáo thất bại. Vui lòng thử lại.");
+            }
+        } catch (error) {
+            toast.error("Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại.");
+        } finally {
+            setIsSubmittingReport(false);
         }
     };
 
@@ -183,14 +280,59 @@ export default function Ratings() {
                                                     {formatTimeFromNowVN(rev.createdAt)}
                                                 </p>
                                             </div>
-                                            {authUser?.userId === rev.user?.id && (
-                                                <button
-                                                    onClick={() => handleDelete(rev.ratingId)}
-                                                    className="text-red-400 hover:text-red-300 transition"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            )}
+                                            <div className="flex items-center gap-2">
+                                                {authUser?.userId === rev.user?.id ? (
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <button
+                                                                type="button"
+                                                                className="text-red-400 hover:text-red-300 transition"
+                                                                title="Xóa"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle className="flex items-center gap-2">
+                                                                    <AlertTriangle size={20} className="text-yellow-400" />
+                                                                    Xác nhận xóa đánh giá?
+                                                                </AlertDialogTitle>
+                                                                <AlertDialogDescription className="text-gray-400">
+                                                                    Hành động này không thể hoàn tác.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
+                                                                    Hủy
+                                                                </AlertDialogCancel>
+                                                                <AlertDialogAction
+                                                                    onClick={() => handleDelete(rev.ratingId)}
+                                                                    className="bg-red-600 hover:bg-red-500 text-white"
+                                                                >
+                                                                    Xóa
+                                                                </AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => {
+                                                            if (!isAuthenticated) {
+                                                                toast.warning("Bạn cần đăng nhập để báo cáo đánh giá.");
+                                                                return;
+                                                            }
+                                                            setReportingRatingId(rev.ratingId);
+                                                            setReportReason("");
+                                                            setReportContent("");
+                                                        }}
+                                                        className="text-gray-400 hover:text-red-400 transition"
+                                                        title="Báo cáo"
+                                                    >
+                                                        <Flag size={16} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="flex items-center mt-1">
@@ -218,6 +360,78 @@ export default function Ratings() {
                     </div>
                 )}
             </div>
+
+            {/* Report Dialog */}
+            <Dialog open={!!reportingRatingId} onOpenChange={(open) => {
+                if (!open) {
+                    setReportingRatingId(null);
+                    setReportReason("");
+                    setReportContent("");
+                }
+            }}>
+                <DialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-red-500 text-lg flex items-center gap-2">
+                            <AlertTriangle size={20} className="text-yellow-400" />
+                            Báo cáo đánh giá tiêu cực
+                        </DialogTitle>
+                        <DialogDescription className="text-gray-400">
+                            Vui lòng chọn lý do báo cáo:
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <RadioGroup value={reportReason} onValueChange={setReportReason}>
+                        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                            {REPORT_REASONS.map((reason) => (
+                                <div key={reason} className="flex items-center space-x-2">
+                                    <RadioGroupItem
+                                        value={reason}
+                                        id={reason}
+                                        className="border-gray-600 text-yellow-400"
+                                    />
+                                    <Label
+                                        htmlFor={reason}
+                                        className="text-sm text-gray-300 cursor-pointer flex-1"
+                                    >
+                                        {reason}
+                                    </Label>
+                                </div>
+                            ))}
+                        </div>
+                    </RadioGroup>
+
+                    {reportReason === REPORT_REASONS[9] && (
+                        <Textarea
+                            value={reportContent}
+                            onChange={(e) => setReportContent(e.target.value)}
+                            placeholder="Nhập nội dung báo cáo chi tiết..."
+                            className="bg-zinc-800 border-zinc-700 text-white placeholder-gray-500 min-h-[100px]"
+                        />
+                    )}
+
+                    <div className="flex gap-2 justify-end">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setReportingRatingId(null);
+                                setReportReason("");
+                                setReportContent("");
+                            }}
+                            disabled={isSubmittingReport}
+                            className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700"
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            onClick={handleSendReport}
+                            disabled={isSubmittingReport || !reportReason}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            {isSubmittingReport ? "Đang gửi..." : "Gửi báo cáo"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

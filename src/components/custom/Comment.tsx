@@ -30,6 +30,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { formatTimeFromNowVN } from "@/lib/dateFomat";
 import { toast } from "sonner";
 import { CommentServices } from "@/services/commentService";
@@ -405,96 +416,93 @@ export default function CommentSection() {
                       </AlertDialogContent>
                     </AlertDialog>
                   )}
-                  <AlertDialog
-                    open={reportingCommentId === rep.id} onOpenChange={(open) => {
-
-                      if (open) {
+                  <Dialog open={reportingCommentId === rep.id} onOpenChange={(open) => {
+                    if (!open) {
+                      setReportingCommentId(null);
+                      setReportReason("");
+                      setReportContent("");
+                    }
+                  }}>
+                    <button
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          toast.warning("Bạn cần đăng nhập để báo cáo bình luận.");
+                          return;
+                        }
                         setReportingCommentId(rep.id);
-                      } else {
-                        setReportingCommentId(null);
-                        setReportContent("");
                         setReportReason("");
-                      }
-                    }}>
-                    <AlertDialogTrigger asChild>
-                      <button
-                        className="flex items-center gap-1 hover:text-red-500 transition"
-                        title="Báo cáo"
-                        onClick={() => {
-                          if (!isAuthenticated) {
-                            toast.warning("Bạn cần đăng nhập để báo cáo bình luận.");
-                          } else {
-                            setReportingCommentId(rep.id);
-                          }
-                          if (authUser.userId === reportingCommentId) {
-                            toast.warning("Bạn không thể báo cáo bình luận của mình.");
-                            return;
-                          }
-                        }}
-                        type="button"
-                      >
-                        <Flag size={16} />
-                        <span>Báo cáo</span>
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="flex items-center gap-2">
+                        setReportContent("");
+                      }}
+                      className="flex items-center gap-1 hover:text-red-500 transition"
+                      title="Báo cáo"
+                      type="button"
+                    >
+                      <Flag size={16} />
+                      <span>Báo cáo</span>
+                    </button>
+
+                    <DialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-md">
+                      <DialogHeader>
+                        <DialogTitle className="text-red-500 flex items-center gap-2">
                           <AlertTriangle size={20} className="text-yellow-400" />
                           Báo cáo bình luận tiêu cực
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-gray-400 mb-2">
+                        </DialogTitle>
+                        <DialogDescription className="text-gray-400">
                           Vui lòng chọn lý do báo cáo:
-                        </AlertDialogDescription>
-                        <div className="flex flex-col gap-2 mb-2">
-                          {REPORT_REASONS.map((reason, idx) => (
-                            <label
-                              key={reason}
-                              className={`flex items-center gap-3 cursor-pointer text-sm select-none py-2 px-3 rounded-lg transition border border-transparent ${reportReason === reason ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'hover:bg-zinc-800/60'}`}
-                            >
-                              <span className="relative flex items-center justify-center w-[15px] h-[15px]">
-                                <input
-                                  type="radio"
-                                  name={`report-reason-${rep.id}`}
-                                  value={reason}
-                                  checked={reportReason === reason}
-                                  onChange={() => setReportReason(reason)}
-                                  className="peer appearance-none w-[15px] h-[15px] rounded-full border border-blue-400 checked:bg-blue-500 checked:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-150"
-                                  style={{ minWidth: 15, minHeight: 15 }}
-                                />
-                                <span className="pointer-events-none absolute left-0 top-0 w-[15px] h-[15px] rounded-full border border-blue-400 flex items-center justify-center">
-                                  {reportReason === reason && (
-                                    <span className="block w-[9px] h-[9px] rounded-full bg-yellow-400" />
-                                  )}
-                                </span>
-                              </span>
-                              <span className="flex-1">{reason}</span>
-                            </label>
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <RadioGroup value={reportReason} onValueChange={setReportReason}>
+                        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                          {REPORT_REASONS.map((reason) => (
+                            <div key={reason} className="flex items-center space-x-2">
+                              <RadioGroupItem
+                                value={reason}
+                                id={`rep-${rep.id}-${reason}`}
+                                className="border-gray-600 text-yellow-400"
+                              />
+                              <Label
+                                htmlFor={`rep-${rep.id}-${reason}`}
+                                className="text-sm text-gray-300 cursor-pointer flex-1"
+                              >
+                                {reason}
+                              </Label>
+                            </div>
                           ))}
                         </div>
-                        {reportReason === REPORT_REASONS[9] && (
-                          <textarea
-                            value={reportContent}
-                            onChange={e => setReportContent(e.target.value)}
-                            rows={3}
-                            placeholder="Nhập nội dung báo cáo chi tiết..."
-                            className="w-full bg-zinc-800/70 text-gray-200 placeholder-gray-500 resize-none outline-none text-sm p-2 rounded-lg border border-zinc-700"
-                          />
-                        )}
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
+                      </RadioGroup>
+
+                      {reportReason === REPORT_REASONS[9] && (
+                        <Textarea
+                          value={reportContent}
+                          onChange={(e) => setReportContent(e.target.value)}
+                          placeholder="Nhập nội dung báo cáo chi tiết..."
+                          className="bg-zinc-800 border-zinc-700 text-white placeholder-gray-500 min-h-[100px]"
+                        />
+                      )}
+
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setReportingCommentId(null);
+                            setReportReason("");
+                            setReportContent("");
+                          }}
+                          className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700"
+                        >
                           Hủy
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-blue-600 hover:bg-blue-500 text-white"
+                        </Button>
+                        <Button
                           onClick={handleSendReport}
+                          disabled={!reportReason}
+                          className="bg-red-600 hover:bg-red-700 text-white"
                         >
                           Gửi báo cáo
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 {replyingTo?.replyId === rep.id && (
@@ -752,90 +760,93 @@ export default function CommentSection() {
                             </AlertDialogContent>
                           </AlertDialog>
                         )}
-                        <AlertDialog open={reportingCommentId === cmt.id} onOpenChange={(open) => {
-                          if (open) {
-                            setReportingCommentId(cmt.id);
-                          } else {
+                        <Dialog open={reportingCommentId === cmt.id} onOpenChange={(open) => {
+                          if (!open) {
                             setReportingCommentId(null);
-                            setReportContent("");
                             setReportReason("");
+                            setReportContent("");
                           }
                         }}>
-                          <AlertDialogTrigger asChild>
-                            <button
-                              className="flex items-center gap-1 hover:text-red-500 transition"
-                              title="Báo cáo"
-                              onClick={() => {
-                                if (!isAuthenticated) {
-                                  toast.warning("Bạn cần đăng nhập để báo cáo bình luận.");
-                                } else {
-                                  setReportingCommentId(cmt.id);
-                                }
-                              }}
-                              type="button"
-                            >
-                              <Flag size={16} />
-                              <span>Báo cáo</span>
-                            </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-[#191B24] border-zinc-800 text-white">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              if (!isAuthenticated) {
+                                toast.warning("Bạn cần đăng nhập để báo cáo bình luận.");
+                                return;
+                              }
+                              setReportingCommentId(cmt.id);
+                              setReportReason("");
+                              setReportContent("");
+                            }}
+                            className="flex items-center gap-1 hover:text-red-500 transition"
+                            title="Báo cáo"
+                            type="button"
+                          >
+                            <Flag size={16} />
+                            <span>Báo cáo</span>
+                          </button>
+
+                          <DialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-md">
+                            <DialogHeader>
+                              <DialogTitle className="text-red-500 flex items-center gap-2">
                                 <AlertTriangle size={20} className="text-yellow-400" />
                                 Báo cáo bình luận tiêu cực
-                              </AlertDialogTitle>
-                              <AlertDialogDescription className="text-gray-400 mb-2">
+                              </DialogTitle>
+                              <DialogDescription className="text-gray-400">
                                 Vui lòng chọn lý do báo cáo:
-                              </AlertDialogDescription>
-                              <div className="flex flex-col gap-2 mb-2">
-                                {REPORT_REASONS.map((reason, idx) => (
-                                  <label
-                                    key={reason}
-                                    className={`flex items-center gap-3 cursor-pointer text-sm select-none py-2 px-3 rounded-lg transition border border-transparent ${reportReason === reason ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'hover:bg-zinc-800/60'}`}
-                                  >
-                                    <span className="relative flex items-center justify-center w-[15px] h-[15px]">
-                                      <input
-                                        type="radio"
-                                        name={`report-reason-${cmt.id}`}
-                                        value={reason}
-                                        checked={reportReason === reason}
-                                        onChange={() => setReportReason(reason)}
-                                        className="peer appearance-none w-[15px] h-[15px] rounded-full border border-blue-400 checked:bg-blue-500 checked:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-150"
-                                        style={{ minWidth: 15, minHeight: 15 }}
-                                      />
-                                      <span className="pointer-events-none absolute left-0 top-0 w-[15px] h-[15px] rounded-full border border-blue-400 flex items-center justify-center">
-                                        {reportReason === reason && (
-                                          <span className="block w-[9px] h-[9px] rounded-full bg-yellow-400" />
-                                        )}
-                                      </span>
-                                    </span>
-                                    <span className="flex-1">{reason}</span>
-                                  </label>
+                              </DialogDescription>
+                            </DialogHeader>
+
+                            <RadioGroup value={reportReason} onValueChange={setReportReason}>
+                              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                                {REPORT_REASONS.map((reason) => (
+                                  <div key={reason} className="flex items-center space-x-2">
+                                    <RadioGroupItem
+                                      value={reason}
+                                      id={`cmt-${cmt.id}-${reason}`}
+                                      className="border-gray-600 text-yellow-400"
+                                    />
+                                    <Label
+                                      htmlFor={`cmt-${cmt.id}-${reason}`}
+                                      className="text-sm text-gray-300 cursor-pointer flex-1"
+                                    >
+                                      {reason}
+                                    </Label>
+                                  </div>
                                 ))}
                               </div>
-                              {reportReason === REPORT_REASONS[9] && (
-                                <textarea
-                                  value={reportContent}
-                                  onChange={e => setReportContent(e.target.value)}
-                                  rows={3}
-                                  placeholder="Nhập nội dung báo cáo chi tiết..."
-                                  className="w-full bg-zinc-800/70 text-gray-200 placeholder-gray-500 resize-none outline-none text-sm p-2 rounded-lg border border-zinc-700"
-                                />
-                              )}
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-gray-200 hover:bg-zinc-700">
+                            </RadioGroup>
+
+                            {reportReason === REPORT_REASONS[9] && (
+                              <Textarea
+                                value={reportContent}
+                                onChange={(e) => setReportContent(e.target.value)}
+                                placeholder="Nhập nội dung báo cáo chi tiết..."
+                                className="bg-zinc-800 border-zinc-700 text-white placeholder-gray-500 min-h-[100px]"
+                              />
+                            )}
+
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                variant="outline"
+                                onClick={() => {
+                                  setReportingCommentId(null);
+                                  setReportReason("");
+                                  setReportContent("");
+                                }}
+                                className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700"
+                              >
                                 Hủy
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                className="bg-blue-600 hover:bg-blue-500 text-white"
+                              </Button>
+                              <Button
                                 onClick={handleSendReport}
+                                disabled={!reportReason}
+                                className="bg-red-600 hover:bg-red-700 text-white"
                               >
                                 Gửi báo cáo
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </div>

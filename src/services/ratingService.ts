@@ -20,4 +20,17 @@ export const ratingService = {
   deleteRating: (ratingId: string) => {
     return privateAxios.delete(`/rating/delete-rating/${ratingId}`);
   },
+
+  reportRating: (
+    ratingId: string,
+    reason: string,
+    description?: string
+  ): Promise<IBackendRes<any>> => {
+    return privateAxios.post(`/report`, {
+      reportType: "RATING",
+      targetId: ratingId,
+      reason,
+      description,
+    });
+  },
 };

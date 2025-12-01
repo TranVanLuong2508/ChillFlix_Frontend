@@ -256,6 +256,18 @@ export default function Header() {
       toast.warning(data.message);
       await refreshNotifications();
     });
+    socket.on('warningNotification', async (data) => {
+      toast.warning(data.message, {
+        duration: 5000,
+      });
+      await refreshNotifications();
+    });
+    socket.on('infoNotification', async (data) => {
+      toast.success(data.message, {
+        duration: 5000,
+      });
+      await refreshNotifications();
+    });
     return () => {
       socket.off("connect", handleConnect);
       socket.off("newComment", handleNewComment);
@@ -268,6 +280,8 @@ export default function Header() {
       socket.off("hideComment");
       socket.off("unhideComment");
       socket.off("hiddenCommentNotification");
+      socket.off("warningNotification");
+      socket.off("infoNotification");
     };
   }, [
     authUser?.userId,
@@ -672,8 +686,8 @@ export default function Header() {
                               >
                                 <div className="flex items-start gap-2">
                                   <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
-                                  <div className="min-w-0 flex-1 overflow-hidden">
-                                    <div className="line-clamp-3 overflow-hidden whitespace-normal break-words text-[13px]">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="whitespace-normal break-words text-[13px]">
                                       {n.message}
                                     </div>
                                     <div className="mt-1 text-xs text-gray-500">
@@ -795,8 +809,8 @@ export default function Header() {
                               >
                                 <div className="flex items-start gap-2">
                                   <div className="mt-1.5 h-2 w-2 rounded-full" />
-                                  <div className="min-w-0 flex-1 overflow-hidden">
-                                    <div className="line-clamp-3 overflow-hidden whitespace-normal break-words text-[13px]">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="whitespace-normal break-words text-[13px]">
                                       {n.message}
                                     </div>
                                     <div className="mt-1 text-xs text-gray-500">
