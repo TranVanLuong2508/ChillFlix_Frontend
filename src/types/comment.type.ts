@@ -29,6 +29,7 @@ export interface BackendComment {
   totalDislike: number;
   totalChildrenComment: number;
   user: User;
+  film?: { filmId: string; title?: string };
   createdAt: string;
   updatedAt: string | null;
   deletedAt: string | null;

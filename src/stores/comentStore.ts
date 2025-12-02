@@ -17,6 +17,7 @@ interface ReplyingToState {
 
 interface CommentStoreState {
   activeTab: "comments" | "ratings";
+  currentFilmId: string | null;
   comments: CommentItem[];
   totalComments: number;
   meta: {
@@ -132,6 +133,7 @@ const removeNodeRecursive = (
 export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
   (set, get) => ({
     activeTab: "comments",
+    currentFilmId: null,
     comments: [],
     meta: null,
     totalComments: 0,
@@ -140,7 +142,7 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
     error: null,
 
     fetchComments: async (filmId, page = 1, limit = 10) => {
-      set({ isLoading: true, error: null });
+      set({ isLoading: true, error: null, currentFilmId: filmId });
       try {
         const isAuthenticated = useAuthStore.getState().isAuthenticated;
         const res = isAuthenticated
@@ -308,6 +310,12 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     createCommentRealtime: (newComment: BackendComment) =>
       set((state) => {
+        const currentFilmId = state.currentFilmId;
+        const commentFilmId = newComment.film?.filmId;
+        if (currentFilmId && commentFilmId && currentFilmId !== commentFilmId) {
+          return state;
+        }
+
         const mappedComment = mapBackendToItem(newComment);
         const exists = existsInTree(state.comments, mappedComment.id);
         if (exists) return state;
@@ -329,19 +337,23 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
           return {
             ...state,
             comments: addReplyRecursive(state.comments),
-            totalComments: (state.totalComments || 0) + 1,
           };
         } else {
           return {
             ...state,
             comments: [mappedComment, ...state.comments],
-            totalComments: (state.totalComments || 0) + 1,
           };
         }
       }),
 
     replyCommentRealtime: (data) =>
       set((state) => {
+        const currentFilmId = state.currentFilmId;
+        const commentFilmId = data.comment.film?.filmId;
+        if (currentFilmId && commentFilmId && currentFilmId !== commentFilmId) {
+          return state;
+        }
+
         const mappedComment = mapBackendToItem(data.comment);
         const exists = existsInTree(state.comments, mappedComment.id);
         if (exists) {
@@ -362,15 +374,17 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
         return {
           ...state,
           comments: addReplyRecursive(state.comments),
-          totalComments: (state.totalComments || 0) + 1,
         };
       }),
 
     countCommentsRealtime: (filmId: string, total?: number) => {
       if (!filmId) return;
-      set(() => ({
-        totalComments: typeof total === "number" ? total : 0,
-      }));
+      const currentFilmId = get().currentFilmId;
+      if (currentFilmId && currentFilmId === filmId) {
+        set(() => ({
+          totalComments: typeof total === "number" ? total : 0,
+        }));
+      }
     },
 
     reactCommentRealtime: (reaction) => {

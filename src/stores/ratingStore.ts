@@ -36,6 +36,7 @@ interface RatingStoreActions {
     newRating?: RatingItem;
   }) => void;
   deleteRatingRealtime: (ratingId: string) => void;
+  hideRatingRealtime: (ratingId: string, isHidden: boolean) => void;
   reset: () => void;
 }
 
@@ -177,7 +178,26 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
         ratings: state.ratings.filter((r) => r.ratingId !== ratingId),
       }));
     },
+hideRatingRealtime: (ratingId: string, isHidden: boolean) => {
+      set((state) => {
+        if (isHidden) {
+          const newRatings = state.ratings.filter((r) => r.ratingId !== ratingId);
+          let newAverage = 0;
+          if (newRatings.length > 0) {
+            const sum = newRatings.reduce((acc, r) => acc + r.ratingValue, 0);
+            newAverage = Number((sum / newRatings.length).toFixed(1));
+          }
 
+          return {
+            ...state,
+            ratings: newRatings,
+            totalRatings: newRatings.length,
+            averageRating: newAverage,
+          };
+        }
+        return state;
+      });
+    },
     reset: () =>
       set({
         ratings: [],

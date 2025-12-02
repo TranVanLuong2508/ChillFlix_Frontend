@@ -35,6 +35,7 @@ import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 import { socket } from "@/lib/socket";
 import { useCommentStore } from "@/stores/comentStore";
+import { useRatingStore } from "@/stores/ratingStore";
 import SearchDropdown from "./header/search-dropdown";
 import { useNotificationStore } from "@/stores/notificationStore";
 import {
@@ -89,6 +90,8 @@ export default function Header() {
     hideCommentRealtime,
     unhideCommentRealtime,
   } = useCommentStore();
+
+  const { hideRatingRealtime } = useRatingStore();
 
   const {
     notifications,
@@ -268,6 +271,9 @@ export default function Header() {
       });
       await refreshNotifications();
     });
+    socket.on('hideRating', ({ ratingId, isHidden }) => {
+      hideRatingRealtime(ratingId, isHidden);
+    });
     return () => {
       socket.off("connect", handleConnect);
       socket.off("newComment", handleNewComment);
@@ -282,6 +288,7 @@ export default function Header() {
       socket.off("hiddenCommentNotification");
       socket.off("warningNotification");
       socket.off("infoNotification");
+      socket.off("hideRating");
     };
   }, [
     authUser?.userId,
@@ -292,6 +299,7 @@ export default function Header() {
     reactCommentRealtime,
     hideCommentRealtime,
     unhideCommentRealtime,
+    hideRatingRealtime,
     refreshNotifications,
   ]);
 

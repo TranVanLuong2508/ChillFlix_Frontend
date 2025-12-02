@@ -387,7 +387,7 @@ export default function Ratings() {
                                     <RadioGroupItem
                                         value={reason}
                                         id={reason}
-                                        className="border-gray-600 text-yellow-400"
+                                        className="border-gray-600 text-yellow-400 focus:bg-yellow-400"
                                     />
                                     <Label
                                         htmlFor={reason}
