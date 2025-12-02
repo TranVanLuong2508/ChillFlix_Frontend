@@ -3,7 +3,7 @@ import publicAxios from "@/lib/publicAxios";
 const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL;
 
 import { IBackendRes, RatingRes } from "@/types/backend.type";
-import { FilmDetailRes } from "@/types/film.type";
+import { FilmDetailRes, IFilmVipRes } from "@/types/film.type";
 
 const filmServices = {
   getFilmById: (filmId: string): Promise<IBackendRes<FilmDetailRes>> => {
@@ -26,6 +26,10 @@ const filmServices = {
     filmId: string
   ): Promise<IBackendRes<{ result: RatingRes }>> => {
     return publicAxios.get(`/rating/get-rating-by-film/${filmId}`);
+  },
+
+  getAllVip: (): Promise<IBackendRes<{ result: IFilmVipRes[] }>> => {
+    return publicAxios.get('/films/film-vip');
   },
 
   async getAll() {

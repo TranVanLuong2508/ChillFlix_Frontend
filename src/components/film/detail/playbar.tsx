@@ -353,6 +353,8 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   const { favoriteList, fetchFavoriteList } = userFavoriteStore();
   const { filmData } = useFilmStore();
   const { isAuthenticated } = useAuthStore();
+  const { authUser, isLoggingIn } = useAuthStore();
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchFavoriteList();
@@ -417,8 +419,22 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   const p = part || "1";
   const ep = episode || "1";
   const handleFilmClick = () => {
-    if (filmData?.film.slug) {
-      router.push(filmPath.PLAYER_DETAIL(filmData.film.slug, p, ep));
+    if (filmData?.film.type.keyMap === "FT_SINGLE" && filmData.film.isVip) {
+      if (isLoggingIn) {
+        if (authUser.isVip) {
+          if (filmData?.film.slug) {
+            router.push(filmPath.PLAYER_DETAIL(filmData.film.slug, p, ep));
+          }
+        } else {
+          toast.warning("Bạn cần đăng ký VIP để xem được phim này");
+        }
+      } else {
+        toast.warning("Bạn cần đăng nhập để xem được phim này");
+      }
+    } else {
+      if (filmData?.film.slug) {
+        router.push(filmPath.PLAYER_DETAIL(filmData.film.slug, p, ep));
+      }
     }
   };
   return (

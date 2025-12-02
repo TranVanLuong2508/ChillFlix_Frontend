@@ -126,33 +126,53 @@ export default function TabsSection() {
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="relative overflow-hidden rounded-xl border border-zinc-800  bg-zinc-900 transition-all duration-300 cursor-pointer">
-                    <img
-                      src={filmData?.film.thumbUrl || "/images/small.jpg"}
-                      alt={filmData?.film.title}
-                      className="w-full h-48 md:h-40 object-cover rounded-xl transition-transform duration-500 hover:scale-105"
-                    />
+                  <div className="relative">
+                    <div className="relative overflow-hidden rounded-xl border border-zinc-800  bg-zinc-900 transition-all duration-300 cursor-pointer">
+                      <img
+                        src={filmData?.film.thumbUrl || "/images/small.jpg"}
+                        alt={filmData?.film.title}
+                        className="w-full h-48 md:h-40 object-cover rounded-xl transition-transform duration-500 hover:scale-105"
+                      />
 
-                    <h3 className="absolute bottom-3 left-4 text-yellow-400 text-base font-semibold tracking-wide drop-shadow-md">
-                      {filmData?.film.title || "Bản chiếu chính"}
-                    </h3>
+                      <h3 className="absolute bottom-3 left-4 text-yellow-400 text-base font-semibold tracking-wide drop-shadow-md">
+                        {filmData?.film.title || "Bản chiếu chính"}
+                      </h3>
 
-                    <button
-                      onClick={() =>
-                        handleWatchVideo(
-                          selectedPart?.episodes?.[0]?.episodeNumber?.toString() ??
-                          "1"
-                        )
-                      }
-                      className="absolute bottom-3 right-4 text-xs font-semibold 
+                      <button
+                        onClick={() => {
+                          if (filmData.film.isVip && !authUser.isVip) {
+                            if (isLoggingIn) {
+                              toast.warning("Bạn cần đăng ký VIP để xem tập phim này");
+                            } else {
+                              toast.warning("Bạn cần đăng nhập để xem được phim này");
+                            }
+                          } else {
+                            handleWatchVideo(
+                              selectedPart?.episodes?.[0]?.episodeNumber?.toString() ??
+                              "1"
+                            )
+                          }
+                          return;
+                        }
+                        }
+                        className="absolute bottom-3 right-4 text-xs font-semibold 
                                 bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
                                 hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
                                 transition-all duration-300 ease-in-out"
-                    >
-                      Xem ngay
-                    </button>
+                      >
+                        Xem ngay
+                      </button>
+
+                    </div>
+
+                    {filmData?.film.isVip && !authUser.isVip && (
+                      <div className="absolute top-0 right-0 -mt-2 -mr-1">
+                        <Crown size={22} className="text-amber-400" />
+                      </div>
+                    )}
                   </div>
                 </div>
+
               </>
             ) : (
               <>
@@ -207,7 +227,7 @@ export default function TabsSection() {
                       onClick={() => {
                         if (filmData?.film.isVip && !authUser.isVip && index > 2) {
                           if (isLoggingIn) {
-                            toast.warning("Bạn cần là VIP để xem tập phim này");
+                            toast.warning("Bạn cần đăng ký VIP để xem tập phim này");
                             setTimeout(() => { goUpgradeVip() }, 1000)
                           } else {
                             toast.warning("Bạn cần đăng nhập để xem tập phim này");
