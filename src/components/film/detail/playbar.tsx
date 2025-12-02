@@ -43,7 +43,6 @@ import { usePlayerStore } from "@/stores/playerStore";
 import { userPlaylistStore } from "@/stores/playlistStore";
 import { toast } from "sonner";
 import { PlayListMessage } from "@/constants/messages/user.message";
-import CreatePlaylistModal from "@/components/users/playlists/CreatePlaylistModal";
 import CreatePlaylistInFilmDetail from "@/components/users/playlists/CreatePlaylistInFilmDetail";
 import { filmPath } from "@/constants/path";
 import { useRouter } from "next/navigation";
@@ -443,7 +442,7 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
         <div className="flex items-center justify-center">
           <button
             onClick={handleFilmClick}
-            className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 ease-in-out cursor-pointer whitespace-nowrap min-w-fit"
+            className="flex items-center gap-2 px-8 py-3 font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:from-yellow-400 hover:to-yellow-200 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 ease-in-out cursor-pointer whitespace-nowrap min-w-fit relative"
           >
             <span className="inline-block w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-black border-b-[6px] border-b-transparent"></span>
             Xem Ngay

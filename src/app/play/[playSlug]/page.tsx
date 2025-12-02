@@ -14,6 +14,8 @@ import SuggestList from "@/components/film/player/suggest-list";
 
 import { useFilmStore } from "@/stores/filmStore";
 import { usePlayerStore } from "@/stores/playerStore";
+import { useAuthStore } from "@/stores/authStore";
+import VIPContent from "@/components/custom/VipContent";
 
 export default function PlayPage() {
   const { playSlug }: { playSlug: string } = useParams();
@@ -24,6 +26,7 @@ export default function PlayPage() {
 
   const { loading, filmData, partData, getDetailFilm, getPartData } = useFilmStore();
   const { handleInfoPlayer, resetInfoPlayer } = usePlayerStore();
+  const { authUser, isLoggingIn } = useAuthStore();
 
   const [episodeDetail, setEpisodeDetail] = useState<EpisodeDetail | null>(null);
   const [partDetail, setPartDetail] = useState<PartDetail | null>(null);
@@ -76,6 +79,12 @@ export default function PlayPage() {
         Không tìm thấy tập phim
       </div>
     );
+  }
+
+  if (filmData.film.isVip && !authUser.isVip) {
+    return (
+      <VIPContent />
+    )
   }
 
   return (
