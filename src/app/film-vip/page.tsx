@@ -101,9 +101,9 @@ const FilmVipPage = () => {
                           handleFilmClick(f);
                         }}
                         className="absolute bottom-3 right-4 text-xs font-semibold 
-                                                bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
+                                                bg-yellow-400 text-black px-3 py-1 rounded-full shadow-md
                                                 hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
-                                                transition-all duration-300 ease-in-out"
+                                                transition-all duration-300 ease-in-out flex items-center"
                       >
                         Xem ngay
                       </button>
