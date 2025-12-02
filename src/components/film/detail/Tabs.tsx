@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Crown, Menu } from "lucide-react";
 import { useFilmRouter } from "@/hooks/filmRouter";
 import { PartRes } from "@/types/part.type";
 import { PartDetail } from "@/types/part.type";
@@ -16,6 +16,9 @@ import {
 import { useFilmStore } from "@/stores/filmStore";
 import { usePlayerStore } from "@/stores/playerStore";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
+import { useAppRouter } from "@/hooks/useAppRouter";
 
 const tabs = [
   { id: "episodes", label: "Tập phim" },
@@ -24,6 +27,9 @@ const tabs = [
 ];
 
 export default function TabsSection() {
+  const { authUser, isLoggingIn } = useAuthStore();
+  const { goUpgradeVip } = useAppRouter();
+
   const { filmData, partData, getPartData } = useFilmStore();
   const { part, episode, resetInfoPlayer } = usePlayerStore();
 
@@ -54,15 +60,12 @@ export default function TabsSection() {
   useEffect(() => {
     if (partData) {
       if (part && part.toString() !== "1") {
-        console.log("part number: ", part);
         setSelectedPart(partData[+part - 1]);
       } else {
         setSelectedPart(partData[0]);
       }
     }
   }, [partData, part]);
-
-  console.log(">> CHECK: ", part, " - ", selectedPart);
 
   useEffect(() => {
     if (filmData?.film.filmId) {
@@ -96,8 +99,8 @@ export default function TabsSection() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`relative pb-2 font-semibold cursor-pointer transition-all duration-500 ease-in-out ${activeTab === tab.id
-                ? "text-yellow-400"
-                : "text-white hover:text-yellow-400"
+              ? "text-yellow-400"
+              : "text-white hover:text-yellow-400"
               }`}
           >
             {tab.label}
@@ -201,9 +204,18 @@ export default function TabsSection() {
                   {selectedPart?.episodes?.map((ep, index) => (
                     <div
                       key={`${ep.id}-${index}`}
-                      onClick={() =>
-                        handleWatchVideo(ep.episodeNumber.toString())
-                      }
+                      onClick={() => {
+                        if (filmData?.film.isVip && !authUser.isVip && index > 2) {
+                          if (isLoggingIn) {
+                            toast.warning("Bạn cần là VIP để xem tập phim này");
+                            setTimeout(() => { goUpgradeVip() }, 1000)
+                          } else {
+                            toast.warning("Bạn cần đăng nhập để xem tập phim này");
+                          }
+                          return;
+                        }
+                        handleWatchVideo(ep.episodeNumber.toString());
+                      }}
                       className="relative overflow-hidden rounded-xl border border-zinc-800 
                                   bg-zinc-900 hover:border-yellow-400 transition-all duration-300
                                   shadow-[0_0_12px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(250,204,21,0.3)]
@@ -224,13 +236,18 @@ export default function TabsSection() {
                           "bg-yellow-400  font-semibold text-zinc-800"
                         )}
                       >
-                        <span
-                          className={
-                            "text-sm group-hover:text-yellow-400 transition-colors duration-200 hover:text-yellow-400 font-medium"
-                          }
-                        >
-                          {ep.title || `Tập ${ep.episodeNumber}`}
-                        </span>
+                        <div className="flex items-center justify-center gap-2">
+                          {filmData?.film.isVip && index > 2 && !authUser.isVip && (
+                            <Crown size={20} className="text-amber-400" />
+                          )}
+                          <span
+                            className={
+                              "text-sm group-hover:text-yellow-400 transition-colors duration-200 hover:text-yellow-400 font-medium"
+                            }
+                          >
+                            {ep.title || `Tập ${ep.episodeNumber}`}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}

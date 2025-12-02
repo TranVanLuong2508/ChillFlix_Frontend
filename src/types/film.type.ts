@@ -18,6 +18,7 @@ export interface Film {
   filmId: string;
   originalTitle: string;
   title: string;
+  isVip: boolean;
   duration: number;
   description: string;
   releaseDate: string;

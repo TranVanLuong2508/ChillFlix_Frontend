@@ -7,6 +7,7 @@ import { Star } from "lucide-react";
 import { useFilmRouter } from "@/hooks/filmRouter";
 import { useEffect } from "react";
 import { useAppRouter } from "@/hooks/useAppRouter";
+import VIPBadge from "../film/detail/VIPBagde";
 
 export default function FilmInfo() {
   const { loading, error, filmData } = useFilmStore();
@@ -38,7 +39,14 @@ export default function FilmInfo() {
         />
       </div>
 
-      <h1 className="text-2xl font-bold text-white">{film.title || 'Đang cập nhật'}</h1>
+      <h1 className="text-2xl font-bold text-white">
+        <span>
+          {film.title || 'Đang cập nhật'}
+        </span>
+        {filmData.film.isVip && (
+          <VIPBadge size="sm" className="ml-2" />
+        )}
+      </h1>
       <h2 className="text-sm text-gray-400 italic">{film.originalTitle || (!film.title ? 'Đang cập nhật' : '')}</h2>
 
       <div className="flex flex-nowrap items-center gap-1 text-sm text-gray-300 w-full min-w-0 overflow-x-auto scrollbar-hide">

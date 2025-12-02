@@ -11,13 +11,16 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { X } from "lucide-react";
+import { Crown, X } from "lucide-react";
 import { PartDetail } from "@/types/part.type";
 import { useFilmStore } from "@/stores/filmStore";
 import { useEffect, useState } from "react";
 import { EpisodeDetail } from "@/types/episode.type";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { usePlayerStore } from "@/stores/playerStore";
+import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
+import { useAppRouter } from "@/hooks/useAppRouter";
 
 interface PlayListNavProps {
   open: boolean;
@@ -82,8 +85,22 @@ const Content = ({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
+  const { goUpgradeVip } = useAppRouter();
+  const { filmData } = useFilmStore();
+  const { authUser, isLoggingIn } = useAuthStore();
+
   // Hàm thay đổi searchParams
   const handlePlayEpisode = (episodeNumber: number) => {
+    if (filmData?.film.isVip && !authUser.isVip && episodeNumber > 2) {
+      if (isLoggingIn) {
+        toast.warning("Bạn cần là VIP để xem tập phim này");
+        setTimeout(() => { goUpgradeVip() }, 1000)
+      } else {
+        toast.warning("Bạn cần đăng nhập để xem tập phim này");
+      }
+      return;
+    }
+
     const params = new URLSearchParams(searchParams.toString());
     params.set("ep", episodeNumber.toString());
     params.set("p", selectedPart);
@@ -93,27 +110,31 @@ const Content = ({
   return (
     <>
       <Separator />
-      <ScrollArea className="h-full w-full rounded-md">
+      <div className="h-full w-full rounded-md">
         <div className="grid grid-cols-4 gap-4">
           {listEpisode.map((episode, i) => {
             const isSelected = episode.episodeNumber === +currentEpisode && isActive;
-            console.log(">>>>> Check: ", isSelected, episode.episodeNumber === +currentEpisode, isActive)
             return (
               <div
                 key={i}
                 onClick={() => handlePlayEpisode(episode.episodeNumber)}
                 className={cn(
                   "flex items-center justify-center px-3 py-2 rounded-md bg-zinc-800 text-white font-normal text-xs cursor-pointer border-3 border-zinc-800",
-                  "hover:shadow-[0_3px_3px_rgba(253,153,0,1)] transition-all duration-200 ease",
+                  "hover:shadow-[0_3px_3px_rgba(253,153,0,1)] transition-all duration-200 ease relative",
                   isSelected && "border-amber-500 text-amber-500",
                 )}
               >
                 {episode.title !== "" ? episode.title : `Tập ${episode.episodeNumber}`}
+                {filmData?.film.isVip && i > 2 && !authUser.isVip && (
+                  <div className="absolute top-0 right-0 -mt-3 -mr-2">
+                    <Crown size={20} className="text-amber-400" />
+                  </div>
+                )}
               </div>
             )
           })}
         </div>
-      </ScrollArea>
+      </div>
     </>
   );
 };
@@ -150,7 +171,7 @@ const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayLi
       <div
         className={cn(
           "bg-zinc-500/20 backdrop-blur-md text-white flex flex-col gap-4 transition ease-in-out absolute",
-          "inset-y-0 right-0 w-3/4 sm:max-w-sm px-6 py-8 my-6 mr-6 rounded-2xl overflow-hidden",
+          "inset-y-0 right-0 w-3/4 sm:max-w-sm px-6 py-8 my-6 mr-6 rounded-2xl",
           "transform transition-all duration-300 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
           open ? "opacity-100" : "opacity-0"
