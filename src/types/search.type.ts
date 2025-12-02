@@ -11,3 +11,35 @@ export interface IFilmSearch {
   year: string;
   description: string;
 }
+
+export interface IActorSearch {
+  actorId: number;
+  actorName: string;
+  slug: string;
+  avatarUrl: string;
+}
+
+export interface IDirectorSearch {
+  directorId: number;
+  directorName: string;
+  slug: string;
+  avatarUrl: string;
+}
+
+export interface IProducerSearch {
+  producerId: number;
+  producerName: string;
+  slug: string;
+}
+
+export interface ISearchActorResponse {
+  actors: IActorSearch[];
+}
+
+export interface ISearchDirectorResponse {
+  directors: IDirectorSearch[];
+}
+
+export interface ISearchProducerResponse {
+  producers: IProducerSearch[];
+}
