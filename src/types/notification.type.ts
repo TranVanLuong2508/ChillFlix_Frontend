@@ -4,11 +4,13 @@ export interface NotificationResult {
   filmId?: string;
   slug?: string;
   filmTitle?: string;
+  reason?: string;
+  note?: string;
 }
 
 export interface Notification {
   notificationId: number;
-  type: "reply" | "reaction" | "system";
+  type: "reply" | "reaction" | "system" | "warning" | "violation_warning" | "info" | "hidden_comment" | "report" | "report_result";
   message: string;
   data?: any;
   isRead: boolean;

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useNotificationStore } from "@/stores/notificationStore"
 import { useRouter } from "next/navigation"
 
-type TabType = "film" | "community"
+type TabType = "film" | "community" | "system"
 
 const ITEMS_PER_PAGE = 5
 
@@ -28,7 +28,10 @@ export default function Notications() {
 
     const filmNotifications = notifications.filter((n) => n.type === "system")
     const communityNotifications = notifications.filter((n) => n.type === "reply" || n.type === "reaction")
-    const allCurrentNotifications = activeTab === "film" ? filmNotifications : communityNotifications
+    const systemNotifications = notifications.filter((n) =>
+        n.type === "warning" || n.type === "violation_warning" || n.type === "info" || n.type === "hidden_comment" || n.type === "report" || n.type === "report_result"
+    )
+    const allCurrentNotifications = activeTab === "film" ? filmNotifications : activeTab === "community" ? communityNotifications : systemNotifications
     const currentNotifications = allCurrentNotifications.slice(0, visibleCount)
     const hasMoreLocal = visibleCount < allCurrentNotifications.length
 
@@ -37,6 +40,11 @@ export default function Notications() {
         if (notification.type === 'reaction') {
             return notification.result?.reactionType === 'DISLIKE' ? 'fas fa-thumbs-down text-red-500' : 'fas fa-thumbs-up text-yellow-500'
         }
+        if (notification.type === 'warning' || notification.type === 'violation_warning') return 'fas fa-exclamation-triangle text-orange-500'
+        if (notification.type === 'hidden_comment') return 'fas fa-eye-slash text-red-500'
+        if (notification.type === 'info') return 'fas fa-check-circle text-green-500'
+        if (notification.type === 'report') return 'fas fa-flag text-red-500'
+        if (notification.type === 'report_result') return 'fas fa-clipboard-check text-blue-500'
         return 'fas fa-info-circle text-yellow-500'
     }
 
@@ -85,6 +93,13 @@ export default function Notications() {
         try {
             if (!notification.isRead) {
                 await markAsRead(notification.notificationId)
+            }
+
+            if (notification.type === 'warning' || notification.type === 'violation_warning' || notification.type === 'info' || notification.type === 'hidden_comment' || notification.type === 'report' || notification.type === 'report_result') {
+                if (notification.result?.filmId && notification.result?.slug) {
+                    router.push(`/film-detail/${notification.result.slug}`)
+                }
+                return
             }
 
             if (!notification.result?.filmId) return
@@ -181,6 +196,17 @@ export default function Notications() {
                                     }`}
                             />
                         </button>
+                        <button
+                            onClick={() => handleTabChange("system")}
+                            className={`relative pb-2 font-semibold cursor-pointer transition-all duration-500 ease-in-out ${activeTab === "system" ? "text-yellow-400" : "text-white hover:text-yellow-400"
+                                }`}
+                        >
+                            Hệ thống ({systemNotifications.length})
+                            <span
+                                className={`absolute left-0 bottom-0 h-[2px] bg-yellow-400 transition-all duration-500 ease-in-out ${activeTab === "system" ? "w-full" : "w-0"
+                                    }`}
+                            />
+                        </button>
                     </div>
                 </div>
 
@@ -193,7 +219,11 @@ export default function Notications() {
                     ) : currentNotifications.length === 0 ? (
                         <div className="py-12 text-center">
                             <p className="text-sm text-gray-400">
-                                {activeTab === "film" ? "Không có thông báo phim nào" : "Không có thông báo cộng đồng nào"}
+                                {activeTab === "film"
+                                    ? "Không có thông báo phim nào"
+                                    : activeTab === "community"
+                                        ? "Không có thông báo cộng đồng nào"
+                                        : "Không có thông báo hệ thống nào"}
                             </p>
                         </div>
                     ) : (
