@@ -9,7 +9,7 @@ const optionList = [
 
 const PlayerLineConfig = () => {
   return (
-    <div className="px-8 py-6 bg-zinc-950 text-white flex items-center justify-between text-sm">
+    <div className="xl:px-8 xl:py-4 md:px-4 md:py-3 px-3 py-2 bg-zinc-950 text-white flex items-center justify-between lg:text-sm text-xs">
       <div className="flex items-center gap-6">
         {optionList.map((item, index) => {
           const Icon = item.icon;

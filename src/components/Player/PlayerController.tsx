@@ -175,7 +175,7 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
   return (
     <div
       ref={artRef}
-      className="artplayer-app hide-scrollbar h-[90vh] aspect-auto"
+      className="artplayer-app hide-scrollbar lg:h-[90vh] md:h-[80vh] h-[40vh] aspect-auto"
     ></div>
   );
 };
