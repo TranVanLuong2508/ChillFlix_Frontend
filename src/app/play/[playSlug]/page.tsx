@@ -92,13 +92,13 @@ export default function PlayPage() {
       <div className="px-[20px] pt-4">
         <Player currentPart={p!} currentEpisode={ep!} episodeDetail={episodeDetail} partDetail={partDetail} key={searchParams.toString()} />
         <div className="py-10">
-          <div className="grid grid-cols-10 gap-4">
-            <div className="col-span-7 ">
+          <div className="grid grid-cols-1 xl:grid-cols-10 md:grid-cols-12 gap-4">
+            <div className="xl:col-span-7 lg:col-span-9 md:col-span-8">
               <FilmInfo />
               <TabsSection />
               <CommentRatingTabs />
             </div>
-            <div className="col-span-3 border-l border-amber-500 px-4">
+            <div className="xl:col-span-3 lg:col-span-3 md:col-span-4 md:border-l border-amber-500 md:px-4 px-0">
               <SuggestList />
             </div>
           </div>

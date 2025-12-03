@@ -220,7 +220,7 @@ export default function TabsSection() {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 mt-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
                   {selectedPart?.episodes?.map((ep, index) => (
                     <div
                       key={`${ep.id}-${index}`}
@@ -262,7 +262,7 @@ export default function TabsSection() {
                           )}
                           <span
                             className={
-                              "text-sm group-hover:text-yellow-400 transition-colors duration-200 hover:text-yellow-400 font-medium"
+                              "lg:text-sm text-xs group-hover:text-yellow-400 transition-colors duration-200 hover:text-yellow-400 font-medium"
                             }
                           >
                             {ep.title || `Tập ${ep.episodeNumber}`}
