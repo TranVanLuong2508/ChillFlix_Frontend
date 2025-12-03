@@ -8,9 +8,9 @@ interface Co_WatchingLayoutProps {
 }
 
 const Co_WatchingLayout = ({ children }: Co_WatchingLayoutProps) => {
-  const { authUser, isLoggingIn } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
-  if (!isLoggingIn) {
+  if (!isAuthenticated) {
     return (
       <NotAuthContent />
     )

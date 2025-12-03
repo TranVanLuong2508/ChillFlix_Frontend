@@ -10,7 +10,7 @@ const SuggestList = () => {
           <Link
             key={index}
             href="/xem-video/shin-cau-be-but-chi-63edef863005e93c8c761fdf"
-            className="xl:flex xl:items-stretch gap-4 cursor-pointer ease-out duration-300 hover:bg-eerie-black rounded-[12px] bg-zinc-900 xl:bg-transparent shadow-[0px_10px_20px_0px_rgba(59,_130,_246,_0.3)]"
+            className="xl:flex xl:items-stretch gap-4 cursor-pointer ease-out duration-300 hover:bg-eerie-black rounded-[12px] bg-zinc-900 xl:bg-transparent shadow-[0px_10px_20px_0px_rgba(59,_130,_246,_0.3)] md:shadow-none"
           >
             <div className="relative w-full xl:w-[130px] xl:min-w-[130px] rounded-[8px] xl:rounded-[12px] overflow-hidden">
               <div className="w-full pb-[56.25%] relative">

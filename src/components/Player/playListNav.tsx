@@ -85,12 +85,12 @@ const Content = ({
 
   const { goUpgradeVip } = useAppRouter();
   const { filmData } = useFilmStore();
-  const { authUser, isLoggingIn } = useAuthStore();
+  const { authUser, isAuthenticated } = useAuthStore();
 
   // Hàm thay đổi searchParams
   const handlePlayEpisode = (episodeNumber: number) => {
     if (filmData?.film.isVip && !authUser.isVip && episodeNumber > 2) {
-      if (isLoggingIn) {
+      if (isAuthenticated) {
         toast.warning("Bạn cần là VIP để xem tập phim này");
         setTimeout(() => { goUpgradeVip() }, 1000)
       } else {

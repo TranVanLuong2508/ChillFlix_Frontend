@@ -351,8 +351,7 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   //luong add
   const { favoriteList, fetchFavoriteList } = userFavoriteStore();
   const { filmData } = useFilmStore();
-  const { isAuthenticated } = useAuthStore();
-  const { authUser, isLoggingIn } = useAuthStore();
+  const { authUser, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -419,7 +418,7 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   const ep = episode || "1";
   const handleFilmClick = () => {
     if (filmData?.film.type.keyMap === "FT_SINGLE" && filmData.film.isVip) {
-      if (isLoggingIn) {
+      if (isAuthenticated) {
         if (authUser.isVip) {
           if (filmData?.film.slug) {
             router.push(filmPath.PLAYER_DETAIL(filmData.film.slug, p, ep));

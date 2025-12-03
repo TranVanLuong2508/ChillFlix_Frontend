@@ -26,7 +26,7 @@ export default function PlayPage() {
 
   const { loading, filmData, partData, getDetailFilm, getPartData } = useFilmStore();
   const { handleInfoPlayer, resetInfoPlayer } = usePlayerStore();
-  const { authUser, isLoggingIn } = useAuthStore();
+  const { authUser } = useAuthStore();
 
   const [episodeDetail, setEpisodeDetail] = useState<EpisodeDetail | null>(null);
   const [partDetail, setPartDetail] = useState<PartDetail | null>(null);

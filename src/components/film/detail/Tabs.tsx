@@ -27,7 +27,7 @@ const tabs = [
 ];
 
 export default function TabsSection() {
-  const { authUser, isLoggingIn } = useAuthStore();
+  const { authUser, isAuthenticated } = useAuthStore();
   const { goUpgradeVip } = useAppRouter();
 
   const { filmData, partData, getPartData } = useFilmStore();
@@ -141,7 +141,7 @@ export default function TabsSection() {
                       <button
                         onClick={() => {
                           if (filmData.film.isVip && !authUser.isVip) {
-                            if (isLoggingIn) {
+                            if (isAuthenticated) {
                               toast.warning("Bạn cần đăng ký VIP để xem tập phim này");
                             } else {
                               toast.warning("Bạn cần đăng nhập để xem được phim này");
@@ -226,7 +226,7 @@ export default function TabsSection() {
                       key={`${ep.id}-${index}`}
                       onClick={() => {
                         if (filmData?.film.isVip && !authUser.isVip && index > 2) {
-                          if (isLoggingIn) {
+                          if (isAuthenticated) {
                             toast.warning("Bạn cần đăng ký VIP để xem tập phim này");
                             setTimeout(() => { goUpgradeVip() }, 1000)
                           } else {
