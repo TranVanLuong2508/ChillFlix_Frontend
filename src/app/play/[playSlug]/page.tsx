@@ -88,8 +88,8 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="w-full bg-zinc-950 text-white pt-[72px]">
-      <div className="px-[20px] pt-4">
+    <div className="w-full bg-zinc-950 text-white md:pt-[72px] pt-[80px]">
+      <div className="px-[20px] lg:pt-4 pt-6">
         <Player currentPart={p!} currentEpisode={ep!} episodeDetail={episodeDetail} partDetail={partDetail} key={searchParams.toString()} />
         <div className="py-10">
           <div className="grid grid-cols-1 xl:grid-cols-10 md:grid-cols-12 gap-4">
