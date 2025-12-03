@@ -192,29 +192,29 @@ export default function Ratings() {
     };
 
     return (
-        <div id="rating-section" className="mt-2 text-center">
-            <div className="mb-6">
-                <h3 className="text-2xl font-semibold mb-2">Đánh giá</h3>
+        <div id="rating-section" className="mt-1.5 min-[400px]:mt-2 text-center">
+            <div className="mb-3 min-[400px]:mb-4 sm:mb-6">
+                <h3 className="text-base min-[400px]:text-lg sm:text-2xl font-semibold mb-1.5 min-[400px]:mb-2">Đánh giá</h3>
                 {totalRatings > 0 && (
-                    <div className="flex items-center justify-center gap-2 text-yellow-400">
-                        <Star size={20} className="fill-yellow-400" />
-                        <span className="text-lg font-bold">{averageRating.toFixed(1)}</span>
-                        <span className="text-sm text-gray-400">({totalRatings} đánh giá)</span>
+                    <div className="flex items-center justify-center gap-1 min-[400px]:gap-1.5 sm:gap-2 text-yellow-400">
+                        <Star size={14} className="min-[400px]:w-4 min-[400px]:h-4 sm:w-5 sm:h-5 fill-yellow-400" />
+                        <span className="text-sm min-[400px]:text-base sm:text-lg font-bold">{averageRating.toFixed(1)}</span>
+                        <span className="text-[10px] min-[400px]:text-xs sm:text-sm text-gray-400">({totalRatings} đánh giá)</span>
                     </div>
                 )}
             </div>
 
-            <div className="flex justify-center mb-4 gap-3">
+            <div className="flex justify-center mb-2 min-[400px]:mb-3 sm:mb-4 gap-1.5 min-[400px]:gap-2 sm:gap-3">
                 {[...Array(5)].map((_, i) => {
                     const val = i + 1;
                     return (
                         <Star
                             key={i}
-                            size={34}
+                            size={24}
                             onClick={() => setRating(val)}
                             onMouseEnter={() => setHover(val)}
                             onMouseLeave={() => setHover(0)}
-                            className={`cursor-pointer transition-transform ${val <= (hover || rating)
+                            className={`cursor-pointer transition-transform min-[400px]:w-[28px] min-[400px]:h-[28px] sm:w-[34px] sm:h-[34px] ${val <= (hover || rating)
                                 ? "text-yellow-400 fill-yellow-400"
                                 : "text-gray-500"
                                 }`}
@@ -225,16 +225,16 @@ export default function Ratings() {
 
             <textarea
                 placeholder="Viết nhận xét về phim (tuỳ chọn)"
-                className="w-full p-3 rounded-lg bg-zinc-800/70 text-gray-200 placeholder-gray-500 text-sm focus:outline-none resize-none h-24 mb-4 border border-zinc-800"
+                className="w-full p-1.5 min-[400px]:p-2 sm:p-3 rounded-lg bg-zinc-800/70 text-gray-200 placeholder-gray-500 text-[10px] min-[400px]:text-xs sm:text-sm focus:outline-none resize-none h-16 min-[400px]:h-20 sm:h-24 mb-2 min-[400px]:mb-3 sm:mb-4 border border-zinc-800"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
             ></textarea>
 
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-1.5 min-[400px]:gap-2 sm:gap-3">
                 <button
                     onClick={handleSend}
                     disabled={isLoading || rating === 0}
-                    className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-2 min-[400px]:px-3 sm:px-5 py-1 min-[400px]:py-1.5 sm:py-2 text-[10px] min-[400px]:text-xs sm:text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isLoading ? 'Đang gửi...' : 'Gửi đánh giá'}
                 </button>
@@ -243,27 +243,27 @@ export default function Ratings() {
                         setRating(0);
                         setComment("");
                     }}
-                    className="bg-gray-700 hover:bg-gray-600 px-5 py-2 rounded-lg"
+                    className="bg-gray-700 hover:bg-gray-600 px-2 min-[400px]:px-3 sm:px-5 py-1 min-[400px]:py-1.5 sm:py-2 text-[10px] min-[400px]:text-xs sm:text-sm rounded-lg"
                 >
                     Xoá
                 </button>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-3 min-[400px]:mt-4 sm:mt-6">
                 {ratings.length === 0 ? (
-                    <div className="bg-zinc-800/70 rounded-2xl border border-zinc-800 py-12 flex flex-col items-center justify-center text-gray-400">
-                        <Star size={40} className="mb-3 opacity-70" />
-                        <p className="text-sm">Chưa có đánh giá nào</p>
+                    <div className="bg-zinc-800/70 rounded-lg min-[400px]:rounded-xl sm:rounded-2xl border border-zinc-800 py-6 min-[400px]:py-8 sm:py-12 flex flex-col items-center justify-center text-gray-400">
+                        <Star size={28} className="min-[400px]:w-8 min-[400px]:h-8 sm:w-10 sm:h-10 mb-1.5 min-[400px]:mb-2 sm:mb-3 opacity-70" />
+                        <p className="text-[10px] min-[400px]:text-xs sm:text-sm">Chưa có đánh giá nào</p>
                     </div>
                 ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-3 min-[400px]:space-y-4 sm:space-y-6">
                         {ratings.map((rev) => (
                             <div
                                 key={rev.ratingId}
-                                className="flex flex-col gap-3 border-b border-zinc-800 pb-4"
+                                className="flex flex-col gap-1.5 min-[400px]:gap-2 sm:gap-3 border-b border-zinc-800 pb-2 min-[400px]:pb-3 sm:pb-4"
                             >
-                                <div className="flex items-start gap-3">
-                                    <div className="relative w-12 h-12">
+                                <div className="flex items-start gap-1.5 min-[400px]:gap-2 sm:gap-3">
+                                    <div className="relative w-7 h-7 min-[400px]:w-8 min-[400px]:h-8 sm:w-12 sm:h-12 flex-shrink-0">
                                         <img
                                             src={rev.user?.avatar || "/images/monkey.jpg"}
                                             alt="avatar"
@@ -271,12 +271,12 @@ export default function Ratings() {
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0 text-left">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <p className="text-sm font-semibold text-white">
+                                        <div className="flex items-start sm:items-center justify-between gap-1">
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 min-w-0">
+                                                <p className="text-[10px] min-[400px]:text-xs sm:text-sm font-semibold text-white truncate">
                                                     {rev.user?.name || 'Anonymous'}
                                                 </p>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="text-[9px] min-[400px]:text-[10px] sm:text-xs text-gray-500">
                                                     {formatTimeFromNowVN(rev.createdAt)}
                                                 </p>
                                             </div>

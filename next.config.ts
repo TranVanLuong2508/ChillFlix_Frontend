@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  allowedDevOrigins: ["sarita-premandibular-cloggily.ngrok-free.dev"],
   images: {
     remotePatterns: [
       {

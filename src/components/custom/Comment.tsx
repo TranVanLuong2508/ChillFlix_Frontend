@@ -294,15 +294,15 @@ export default function CommentSection() {
     const visibleReplies = flattenedReplies.slice(0, visibleCount);
 
     return (
-      <div className="mt-3 space-y-3" style={{ marginLeft: 48 }}>
+      <div className="mt-2 sm:mt-3 space-y-2 sm:space-y-3 ml-6 sm:ml-10 md:ml-12">
         {visibleReplies.map((rep, index) => (
           <div
             key={`${rep.id}-${index}`}
             id={`comment-${rep.id}`}
             className="flex flex-col relative"
           >
-            <div className="flex items-start gap-3 px-3 py-3">
-              <div className="relative w-10 h-10 z-10">
+            <div className="flex items-start gap-2 sm:gap-3 px-2 sm:px-3 py-2 sm:py-3">
+              <div className="relative w-7 h-7 sm:w-10 sm:h-10 z-10 flex-shrink-0">
                 <img
                   src={rep.user?.avatar || "/images/small.jpg"}
                   alt="avatar"
@@ -310,26 +310,26 @@ export default function CommentSection() {
                 />
               </div>
               <div className="flex-1 min-w-0 overflow-hidden">
-                <div className="flex items-baseline gap-2">
-                  <p className="text-sm font-semibold text-white">
+                <div className="flex flex-wrap items-baseline gap-1 sm:gap-2">
+                  <p className="text-xs sm:text-sm font-semibold text-white">
                     {rep.user.name}
                   </p>
 
-                  <div className="flex items-baseline text-sm text-gray-400 gap-1">
-                    <ChevronRight size={13} className="relative top-[2px]" />
-                    <span>{rep.parent?.user?.name || rootParent.user.name}</span>
+                  <div className="flex items-baseline text-[10px] sm:text-sm text-gray-400 gap-0.5 sm:gap-1">
+                    <ChevronRight size={10} className="sm:w-[13px] sm:h-[13px] relative top-[1px] sm:top-[2px]" />
+                    <span className="truncate max-w-[60px] sm:max-w-none">{rep.parent?.user?.name || rootParent.user.name}</span>
                   </div>
 
-                  <p className="text-xs text-gray-500">
+                  <p className="text-[10px] sm:text-xs text-gray-500">
                     {formatTimeFromNowVN(rep.createdAt)}
                   </p>
                 </div>
 
-                <p className="text-gray-300 text-sm mt-1 leading-relaxed break-words overflow-wrap-anywhere">
+                <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed break-words overflow-wrap-anywhere">
                   {rep.content}
                 </p>
 
-                <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-1.5 sm:mt-2 text-[10px] sm:text-sm text-gray-400">
                   <button
                     onClick={() =>
                       setReplyingTo(
@@ -342,37 +342,35 @@ export default function CommentSection() {
                           }
                       )
                     }
-                    className="flex items-center gap-2 hover:text-yellow-400 transition"
+                    className="flex items-center gap-1 sm:gap-2 hover:text-yellow-400 transition"
                   >
-                    <Reply size={16} /> Trả lời
+                    <Reply size={12} className="sm:w-4 sm:h-4" /> Trả lời
                   </button>
 
                   <button
                     onClick={() => handleReact(rep.id, "LIKE")}
-                    className="flex items-center gap-1 hover:text-yellow-400 transition"
+                    className="flex items-center gap-0.5 sm:gap-1 hover:text-yellow-400 transition"
                   >
                     <ThumbsUp
-                      size={16}
-                      className={
-                        rep.currentUserReaction === "LIKE"
+                      size={12}
+                      className={`sm:w-4 sm:h-4 ${rep.currentUserReaction === "LIKE"
                           ? "text-yellow-400 fill-yellow-400"
                           : ""
-                      }
+                        }`}
                     />
                     <span>{rep.totalLike}</span>
                   </button>
 
                   <button
                     onClick={() => handleReact(rep.id, "DISLIKE")}
-                    className="flex items-center gap-1 hover:text-red-400 transition"
+                    className="flex items-center gap-0.5 sm:gap-1 hover:text-red-400 transition"
                   >
                     <ThumbsDown
-                      size={16}
-                      className={
-                        rep.currentUserReaction === "DISLIKE"
+                      size={12}
+                      className={`sm:w-4 sm:h-4 ${rep.currentUserReaction === "DISLIKE"
                           ? "text-red-400 fill-red-500"
                           : ""
-                      }
+                        }`}
                     />
                     <span>{rep.totalDislike}</span>
                   </button>
@@ -506,8 +504,8 @@ export default function CommentSection() {
                 </div>
 
                 {replyingTo?.replyId === rep.id && (
-                  <div className="ml-10 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
-                    <p className="text-xs text-gray-400 mb-1">
+                  <div className="ml-0 sm:ml-6 mt-2 w-full sm:w-[80%] md:w-[60%] bg-[#1E202A] border border-zinc-800 rounded-lg sm:rounded-xl p-2 sm:p-3 shadow-inner">
+                    <p className="text-[10px] sm:text-xs text-gray-400 mb-1">
                       Đang trả lời{" "}
                       <span className="text-yellow-400">
                         {replyingTo?.replyToName}
@@ -524,14 +522,14 @@ export default function CommentSection() {
                       }}
                       rows={2}
                       placeholder="Viết phản hồi..."
-                      className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
+                      className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-xs sm:text-sm rounded-md px-2 py-1"
                     />
                     <div className="flex items-center justify-between mt-2">
                       <button
                         onClick={handleReplySend}
-                        className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
+                        className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-xs sm:text-sm"
                       >
-                        Gửi <Send size={14} className="text-yellow-400" />
+                        Gửi <Send size={12} className="sm:w-[14px] sm:h-[14px] text-yellow-400" />
                       </button>
                     </div>
                   </div>
@@ -544,7 +542,7 @@ export default function CommentSection() {
         {hasMore && (
           <button
             onClick={() => loadMoreReplies(parentKey)}
-            className="ml-12 mt-2 text-sm text-yellow-400 hover:text-yellow-300 transition font-medium"
+            className="ml-6 sm:ml-12 mt-2 text-xs sm:text-sm text-yellow-400 hover:text-yellow-300 transition font-medium"
           >
             Xem thêm{" "}
             {Math.min(3, flattenedReplies.length - visibleCount)} phản hồi...
@@ -556,33 +554,33 @@ export default function CommentSection() {
 
   return (
     <div id="comment-section" className="mt-2">
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="text-2xl font-semibold text-white flex items-center gap-2">
+      <div className="flex items-center justify-between mb-3 sm:mb-5">
+        <h3 className="text-lg sm:text-2xl font-semibold text-white flex items-center gap-2">
           Bình luận ({totalComments})
         </h3>
       </div>
 
       {/* form comment */}
-      <div className="bg-[#191B24] p-6 rounded-xl border border-zinc-800 shadow-lg">
-        <div className="flex items-center gap-3 mb-4">
+      <div className="bg-[#191B24] p-3 sm:p-6 rounded-xl border border-zinc-800 shadow-lg">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           {isAuthenticated ? (
             <>
-              <div className="relative w-12 h-12">
+              <div className="relative w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0">
                 <img
                   src={authUser?.avatarUrl || "/images/monkey.jpg"}
                   alt="avatar"
                   className="w-full h-full rounded-full object-cover"
                 />
               </div>
-              <div>
-                <p className="text-sm text-gray-400">Bình luận với tên</p>
-                <p className="text-white font-semibold">{fullName}</p>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-400">Bình luận với tên</p>
+                <p className="text-white font-semibold text-sm sm:text-base truncate">{fullName}</p>
               </div>
             </>
           ) : (
             <button
               onClick={openLoginModal}
-              className="text-sm font-semibold text-gray-300 transition"
+              className="text-xs sm:text-sm font-semibold text-gray-300 transition"
             >
               Bạn cần{" "}
               <span className="text-yellow-400 hover:text-yellow-300 underline">
@@ -593,7 +591,7 @@ export default function CommentSection() {
           )}
         </div>
 
-        <div className="bg-zinc-800/70 border border-zinc-800 rounded-lg p-4">
+        <div className="bg-zinc-800/70 border border-zinc-800 rounded-lg p-2 sm:p-4">
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
@@ -604,34 +602,34 @@ export default function CommentSection() {
               }
             }}
             maxLength={2000}
-            rows={5}
+            rows={3}
             placeholder="Viết bình luận..."
-            className="w-full bg-zinc-800/70 text-gray-200 placeholder-gray-500 resize-none outline-none text-sm p-3 rounded-xl text-left align-top"
+            className="w-full bg-zinc-800/70 text-gray-200 placeholder-gray-500 resize-none outline-none text-xs sm:text-sm p-2 sm:p-3 rounded-lg sm:rounded-xl text-left align-top"
           />
 
-          <div className="flex justify-between items-center mt-3">
-            <span className="text-gray-500 text-xs">
+          <div className="flex justify-between items-center mt-2 sm:mt-3">
+            <span className="text-gray-500 text-[10px] sm:text-xs">
               {commentText.length} / 2000
             </span>
             <button
               onClick={handleSend}
-              className="flex items-center gap-2 font-semibold text-yellow-400 hover:text-yellow-300 transition"
+              className="flex items-center gap-1 sm:gap-2 font-semibold text-yellow-400 hover:text-yellow-300 transition text-xs sm:text-sm"
             >
-              Gửi <Send size={18} className="text-yellow-400" />
+              Gửi <Send size={14} className="sm:w-[18px] sm:h-[18px] text-yellow-400" />
             </button>
           </div>
         </div>
       </div>
 
       {/* list comment */}
-      <div className="mt-6">
+      <div className="mt-4 sm:mt-6">
         {comments.length === 0 ? (
-          <div className="bg-zinc-800/70 rounded-2xl border border-zinc-800 py-12 flex flex-col items-center justify-center text-gray-400">
-            <MessageSquare size={40} className="mb-3 opacity-70" />
-            <p className="text-sm">Chưa có bình luận nào</p>
+          <div className="bg-zinc-800/70 rounded-xl sm:rounded-2xl border border-zinc-800 py-8 sm:py-12 flex flex-col items-center justify-center text-gray-400">
+            <MessageSquare size={32} className="sm:w-10 sm:h-10 mb-2 sm:mb-3 opacity-70" />
+            <p className="text-xs sm:text-sm">Chưa có bình luận nào</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {[...comments]
               .sort(
                 (a, b) =>
@@ -642,11 +640,11 @@ export default function CommentSection() {
                 <div
                   key={`${cmt.id}-${index}`}
                   id={`comment-${cmt.id}`}
-                  className="flex flex-col gap-3 border-b border-zinc-800 pb-4"
+                  className="flex flex-col gap-2 sm:gap-3 border-b border-zinc-800 pb-3 sm:pb-4"
                 >
                   {/* comment gốc */}
-                  <div className="flex items-start gap-3">
-                    <div className="relative w-10 h-10">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
                       <img
                         src={cmt.user?.avatar || "/images/monkey.jpg"}
                         alt="avatar"
@@ -654,19 +652,19 @@ export default function CommentSection() {
                       />
                     </div>
                     <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-white">
+                      <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                        <p className="text-xs sm:text-sm font-semibold text-white">
                           {cmt.user.name}
                         </p>
-                        <p className="text-xs text-gray-500 relative top-[1px]">
+                        <p className="text-[10px] sm:text-xs text-gray-500">
                           {formatTimeFromNowVN(cmt.createdAt)}
                         </p>
                       </div>
-                      <p className="text-gray-300 text-sm mt-1 leading-relaxed break-words overflow-wrap-anywhere">
+                      <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed break-words overflow-wrap-anywhere">
                         {cmt.content}
                       </p>
 
-                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-[10px] sm:text-sm text-gray-400">
                         <button
                           onClick={() =>
                             setReplyingTo(
@@ -679,9 +677,9 @@ export default function CommentSection() {
                                 }
                             )
                           }
-                          className="flex items-center gap-2 hover:text-yellow-400 transition"
+                          className="flex items-center gap-1 sm:gap-2 hover:text-yellow-400 transition"
                         >
-                          <Reply size={16} />
+                          <Reply size={14} className="sm:w-4 sm:h-4" />
                           <span>
                             Trả lời{" "}
                             {countReplies(cmt.replies || []) > 0 &&
@@ -691,30 +689,28 @@ export default function CommentSection() {
 
                         <button
                           onClick={() => handleReact(cmt.id, "LIKE")}
-                          className="flex items-center gap-1 hover:text-yellow-400 transition"
+                          className="flex items-center gap-0.5 sm:gap-1 hover:text-yellow-400 transition"
                         >
                           <ThumbsUp
-                            size={16}
-                            className={
-                              cmt.currentUserReaction === "LIKE"
+                            size={14}
+                            className={`sm:w-4 sm:h-4 ${cmt.currentUserReaction === "LIKE"
                                 ? "text-yellow-400 fill-yellow-400"
                                 : ""
-                            }
+                              }`}
                           />
                           <span>{cmt.totalLike}</span>
                         </button>
 
                         <button
                           onClick={() => handleReact(cmt.id, "DISLIKE")}
-                          className="flex items-center gap-1 hover:text-red-400 transition"
+                          className="flex items-center gap-0.5 sm:gap-1 hover:text-red-400 transition"
                         >
                           <ThumbsDown
-                            size={16}
-                            className={
-                              cmt.currentUserReaction === "DISLIKE"
+                            size={14}
+                            className={`sm:w-4 sm:h-4 ${cmt.currentUserReaction === "DISLIKE"
                                 ? "text-red-400 fill-red-500"
                                 : ""
-                            }
+                              }`}
                           />
                           <span>{cmt.totalDislike}</span>
                         </button>
@@ -853,8 +849,8 @@ export default function CommentSection() {
 
                   {/* ô nhập reply cho comment gốc */}
                   {replyingTo?.rootParentId === cmt.id && !replyingTo.replyId && (
-                    <div className="ml-12 mt-2 w-[60%] bg-[#1E202A] border border-zinc-800 rounded-xl p-3 shadow-inner">
-                      <p className="text-xs text-gray-400 mb-1">
+                    <div className="ml-8 sm:ml-12 mt-2 w-full sm:w-[70%] md:w-[60%] bg-[#1E202A] border border-zinc-800 rounded-lg sm:rounded-xl p-2 sm:p-3 shadow-inner">
+                      <p className="text-[10px] sm:text-xs text-gray-400 mb-1">
                         Đang trả lời{" "}
                         <span className="text-yellow-400">
                           {replyingTo.replyToName}
@@ -871,14 +867,14 @@ export default function CommentSection() {
                         }}
                         rows={2}
                         placeholder="Viết phản hồi..."
-                        className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-sm rounded-md px-2 py-1"
+                        className="w-full bg-transparent text-gray-200 placeholder-gray-500 resize-none outline-none text-xs sm:text-sm rounded-md px-2 py-1"
                       />
                       <div className="flex items-center justify-between mt-2">
                         <button
                           onClick={handleReplySend}
-                          className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-sm"
+                          className="flex items-center gap-1 font-semibold text-yellow-400 hover:text-yellow-300 transition text-xs sm:text-sm"
                         >
-                          Gửi <Send size={14} className="text-yellow-400" />
+                          Gửi <Send size={12} className="sm:w-[14px] sm:h-[14px] text-yellow-400" />
                         </button>
                       </div>
                     </div>
