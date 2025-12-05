@@ -130,16 +130,15 @@ export default function SearchDropdown({
           placeholder="Tìm kiếm phim"
           className={`pl-10 border-2 text-white placeholder:text-gray-400 transition-all duration-500
             focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0
-            ${
-              isScrolled
-                ? "bg-[#1a1f2e] border-[#2a3040] focus-visible:border-[#2a3040] focus:shadow-[0_0_12px_2px_rgba(234,179,8,0.3)]"
-                : "bg-white/30 border-none focus-visible:border-[#2a3040] border-[#2a3040]"
+            ${isScrolled
+              ? "bg-[#1a1f2e] border-[#2a3040] focus-visible:border-[#2a3040] focus:shadow-[0_0_12px_2px_rgba(234,179,8,0.3)]"
+              : "bg-white/30 border-none focus-visible:border-[#2a3040] border-[#2a3040]"
             }
           `}
         />
 
         {keyword.trim() !== "" && showDropdown && (
-          <div className="absolute mt-2 left-0 w-full bg-[#1a1f2e] border border-[#2a3040] rounded-xl shadow-xl p-3 z-50">
+          <div className="absolute mt-2 left-0 w-full bg-[#1a1f2e] border border-[#2a3040] rounded-xl shadow-xl p-2 md:p-3 z-50 max-w-[calc(100vw-2rem)] md:max-w-full">
             {isSearching && (
               <div className="flex items-center justify-center py-6 text-gray-400">
                 <Loader className="animate-spin" size={20} />{" "}
@@ -155,10 +154,10 @@ export default function SearchDropdown({
 
             {!isSearching && hasAnyResult && (
               <>
-                <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                <div className="space-y-2 md:space-y-3 max-h-80 overflow-y-auto pr-1">
                   {results.films.length > 0 && (
                     <>
-                      <p className="text-gray-300 text-sm mb-1">
+                      <p className="text-gray-300 text-xs md:text-sm mb-1">
                         Danh sách phim
                       </p>
 
@@ -172,17 +171,17 @@ export default function SearchDropdown({
                             setShowDropdown(false);
                             resetResults();
                           }}
-                          className="flex items-center gap-3 cursor-pointer p-2 hover:bg-[#2a3040] rounded-lg transition"
+                          className="flex items-center gap-2 md:gap-3 cursor-pointer p-1.5 md:p-2 hover:bg-[#2a3040] rounded-lg transition"
                         >
                           <img
                             src={film.thumbUrl}
-                            className="w-12 h-16 object-cover rounded-md"
+                            className="w-8 h-11 md:w-12 md:h-16 object-cover rounded-md flex-shrink-0"
                           />
-                          <div>
-                            <div className="text-white font-semibold text-sm">
+                          <div className="min-w-0 flex-1">
+                            <div className="text-white font-semibold text-xs md:text-sm truncate">
                               {film.title}
                             </div>
-                            <div className="text-gray-400 text-xs italic">
+                            <div className="text-gray-400 text-[10px] md:text-xs italic truncate">
                               {film.originalTitle}
                             </div>
                           </div>
@@ -193,7 +192,7 @@ export default function SearchDropdown({
 
                   {results.actors.length > 0 && (
                     <>
-                      <p className="text-gray-300 text-sm mb-1">Diễn viên</p>
+                      <p className="text-gray-300 text-xs md:text-sm mb-1">Diễn viên</p>
 
                       {results.actors.map((actor) => (
                         <div
@@ -201,13 +200,13 @@ export default function SearchDropdown({
                             goActorDetail(actor.slug);
                           }}
                           key={actor.actorId}
-                          className="flex items-center gap-3 cursor-pointer p-2 hover:bg-[#2a3040] rounded-lg transition"
+                          className="flex items-center gap-2 md:gap-3 cursor-pointer p-1.5 md:p-2 hover:bg-[#2a3040] rounded-lg transition"
                         >
                           <img
                             src={actor.avatarUrl}
-                            className="w-12 h-12 object-cover rounded-full"
+                            className="w-8 h-8 md:w-12 md:h-12 object-cover rounded-full flex-shrink-0"
                           />
-                          <span className="text-white text-sm">
+                          <span className="text-white text-xs md:text-sm truncate">
                             {actor.actorName}
                           </span>
                         </div>
@@ -217,7 +216,7 @@ export default function SearchDropdown({
 
                   {results.directors.length > 0 && (
                     <>
-                      <p className="text-gray-300 text-sm mb-1">Đạo diễn</p>
+                      <p className="text-gray-300 text-xs md:text-sm mb-1">Đạo diễn</p>
 
                       {results.directors.map((dir) => (
                         <div
@@ -225,13 +224,13 @@ export default function SearchDropdown({
                             goDirectorDetail(dir.slug);
                           }}
                           key={dir.directorId}
-                          className="flex items-center gap-3 cursor-pointer p-2 hover:bg-[#2a3040] rounded-lg transition"
+                          className="flex items-center gap-2 md:gap-3 cursor-pointer p-1.5 md:p-2 hover:bg-[#2a3040] rounded-lg transition"
                         >
                           <img
                             src={dir.avatarUrl}
-                            className="w-12 h-12 object-cover rounded-full"
+                            className="w-8 h-8 md:w-12 md:h-12 object-cover rounded-full flex-shrink-0"
                           />
-                          <span className="text-white text-sm">
+                          <span className="text-white text-xs md:text-sm truncate">
                             {dir.directorName}
                           </span>
                         </div>
@@ -241,7 +240,7 @@ export default function SearchDropdown({
 
                   {results.producers.length > 0 && (
                     <>
-                      <p className="text-gray-300 text-sm mb-1">Nhà sản xuất</p>
+                      <p className="text-gray-300 text-xs md:text-sm mb-1">Nhà sản xuất</p>
 
                       {results.producers.map((pro) => (
                         <div
@@ -249,13 +248,13 @@ export default function SearchDropdown({
                             goProducerDetail(pro.producerId);
                           }}
                           key={pro.producerId}
-                          className="flex items-center gap-3 cursor-pointer p-2 hover:bg-[#2a3040] rounded-lg transition"
+                          className="flex items-center gap-2 md:gap-3 cursor-pointer p-1.5 md:p-2 hover:bg-[#2a3040] rounded-lg transition"
                         >
                           <img
                             src={"/images/producer.jpg"}
-                            className="w-12 h-12 object-cover rounded-full"
+                            className="w-8 h-8 md:w-12 md:h-12 object-cover rounded-full flex-shrink-0"
                           />
-                          <span className="text-white text-sm">
+                          <span className="text-white text-xs md:text-sm truncate">
                             {pro.producerName}
                           </span>
                         </div>
@@ -264,7 +263,7 @@ export default function SearchDropdown({
                   )}
                 </div>
 
-                <button className="w-full mt-3 py-2 text-sm text-yellow-400 bg-[#2a3040] rounded-md hover:bg-[#3a4050] transition">
+                <button className="w-full mt-2 md:mt-3 py-1.5 md:py-2 text-xs md:text-sm text-yellow-400 bg-[#2a3040] rounded-md hover:bg-[#3a4050] transition">
                   Toàn bộ kết quả
                 </button>
               </>
