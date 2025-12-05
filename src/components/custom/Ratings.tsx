@@ -94,6 +94,7 @@ export default function Ratings() {
         };
 
         const handleRatingHidden = (data: any) => {
+            if (data.filmId !== filmId) return;
             if (data.isHidden) {
                 deleteRatingRealtime(data.ratingId);
             } else {
@@ -110,11 +111,12 @@ export default function Ratings() {
             socket.off('ratingDeleted', handleRatingDeleted);
             socket.off('hideRating', handleRatingHidden);
         };
-    }, [filmId, updateRatingRealtime, deleteRatingRealtime]);
+    }, [filmId, updateRatingRealtime, deleteRatingRealtime, fetchRatings]);
 
     const handleSend = async () => {
         if (!isAuthenticated) {
             toast.warning("Bạn cần đăng nhập để đánh giá phim.");
+            openLoginModal();
             return;
         }
 

@@ -36,7 +36,7 @@ interface RatingStoreActions {
     newRating?: RatingItem;
   }) => void;
   deleteRatingRealtime: (ratingId: string) => void;
-  hideRatingRealtime: (ratingId: string, isHidden: boolean) => void;
+  hideRatingRealtime: (ratingId: string, isHidden: boolean, filmId: string) => void;
   reset: () => void;
 }
 
@@ -178,9 +178,9 @@ export const useRatingStore = create<RatingStoreState & RatingStoreActions>(
         ratings: state.ratings.filter((r) => r.ratingId !== ratingId),
       }));
     },
-hideRatingRealtime: (ratingId: string, isHidden: boolean) => {
-      set((state) => {
-        if (isHidden) {
+    hideRatingRealtime: (ratingId: string, isHidden: boolean, filmId: string) => {
+      if (isHidden) {
+        set((state) => {
           const newRatings = state.ratings.filter((r) => r.ratingId !== ratingId);
           let newAverage = 0;
           if (newRatings.length > 0) {
@@ -194,9 +194,11 @@ hideRatingRealtime: (ratingId: string, isHidden: boolean) => {
             totalRatings: newRatings.length,
             averageRating: newAverage,
           };
-        }
-        return state;
-      });
+        });
+      } else {
+        // Khi unhide rating, fetch lại danh sách ratings
+        get().fetchRatings(filmId);
+      }
     },
     reset: () =>
       set({

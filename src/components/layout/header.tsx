@@ -271,8 +271,8 @@ export default function Header() {
       });
       await refreshNotifications();
     });
-    socket.on('hideRating', ({ ratingId, isHidden }) => {
-      hideRatingRealtime(ratingId, isHidden);
+    socket.on('hideRating', ({ ratingId, isHidden, filmId }) => {
+      hideRatingRealtime(ratingId, isHidden, filmId);
     });
     return () => {
       socket.off("connect", handleConnect);
