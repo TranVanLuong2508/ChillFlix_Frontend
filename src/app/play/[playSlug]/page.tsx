@@ -81,7 +81,7 @@ export default function PlayPage() {
     );
   }
 
-  if (filmData.film.isVip && !authUser.isVip) {
+  if (filmData.film.isVip && !authUser.isVip && ep && +ep > 3) {
     return (
       <VIPContent />
     )
