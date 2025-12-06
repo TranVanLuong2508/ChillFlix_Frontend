@@ -49,7 +49,7 @@ export default function FilmInfo() {
         />
       </div>
 
-      <div className="flex flex-col gap-1 min-[400px]:gap-1.5 sm:gap-2">
+      <div className="flex flex-col gap-1 min-[400px]:gap-1.5 sm:gap-2 text-center sm:text-left">
         <h1 className="text-sm min-[400px]:text-base sm:text-2xl font-bold text-white line-clamp-2 sm:line-clamp-none">
           {film.title || "Đang cập nhật"}
           {filmData.film.isVip && (
@@ -64,7 +64,7 @@ export default function FilmInfo() {
           {film.originalTitle || ""}
         </h2>
 
-        <div className="flex flex-wrap items-center gap-0.5 min-[400px]:gap-1 sm:gap-1.5 text-xs">
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-0.5 min-[400px]:gap-1 sm:gap-1.5 text-xs">
           <span className="inline-flex items-center bg-[#facc15] text-black px-1 min-[400px]:px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-semibold whitespace-nowrap text-[10px] min-[400px]:text-xs sm:text-sm">
             {averageRating > 0 ? `${averageRating.toFixed(1)}` : "N/A"}
             <Star
@@ -80,7 +80,7 @@ export default function FilmInfo() {
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-0.5 min-[400px]:gap-1 sm:hidden">
+        <div className="flex flex-wrap justify-center sm:justify-start gap-0.5 min-[400px]:gap-1 sm:hidden">
           {Array.isArray(film.genres) &&
             film.genres.slice(0, 3).map((g: AllCodeValue) => (
               <button
