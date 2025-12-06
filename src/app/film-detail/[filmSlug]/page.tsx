@@ -91,19 +91,17 @@ export default function FilmDetailPage() {
         <meta property="og:url" content={currentUrl} />
         <meta property="og:type" content="website" />
       </Head>
-      <main className="bg-[#191B24] min-h-screen">
+      <main className="bg-[#191B24] min-h-screen overflow-x-hidden">
         <Background />
-        <div className="relative z-20 mx-auto mt-[-280px] px-2 sm:px-4 md:px-6 lg:px-8 max-w-full md:max-w-[95vw] lg:max-w-[1990px]">
-          <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
+        <div className="relative z-20 mx-auto -mt-16 sm:-mt-24 md:-mt-32 lg:-mt-40 px-3 sm:px-4 md:px-6 lg:px-8 max-w-full lg:max-w-[1600px] xl:max-w-[1800px]">
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-3 sm:gap-4 lg:gap-6">
             <div className="col-span-1 lg:col-span-3">
-              <div className="flex justify-center lg:block">
-                <div className="rounded-3xl p-0 bg-[rgba(25,27,36,0.3)] backdrop-blur-[15px] mb-4 lg:mb-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-none">
-                  <FilmInfo />
-                </div>
+              <div className="rounded-2xl sm:rounded-3xl bg-[rgba(25,27,36,0.8)] sm:bg-[rgba(25,27,36,0.7)] backdrop-blur-md w-full">
+                <FilmInfo />
               </div>
             </div>
 
-            <div className="lg:col-span-7 flex flex-col gap-6 sm:gap-7 md:gap-8 rounded-3xl p-2 sm:p-4 md:p-5 bg-[rgba(25,27,36,0.3)] backdrop-blur-[15px]">
+            <div className="lg:col-span-7 flex flex-col gap-4 sm:gap-6 md:gap-8 rounded-2xl sm:rounded-3xl p-3 sm:p-4 md:p-5 bg-[rgba(25,27,36,0.8)] sm:bg-[rgba(25,27,36,0.7)] backdrop-blur-md">
               <PlayBar activeTab={activeTab} setActiveTab={setActiveTab} />
               <TabsSection />
               <CommentRatingTabs />

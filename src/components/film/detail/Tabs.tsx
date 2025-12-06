@@ -92,48 +92,50 @@ export default function TabsSection() {
   };
 
   return (
-    <div className="mt-8">
-      <div className="flex border-b border-zinc-800 space-x-6">
+    <div className="mt-3 min-[400px]:mt-4 sm:mt-8">
+      <div className="flex border-b border-zinc-800 space-x-2 min-[400px]:space-x-3 sm:space-x-6 overflow-x-auto scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`relative pb-2 font-semibold cursor-pointer transition-all duration-500 ease-in-out ${activeTab === tab.id
-              ? "text-yellow-400"
-              : "text-white hover:text-yellow-400"
-              }`}
+            className={`relative pb-1.5 min-[400px]:pb-2 text-xs min-[400px]:text-sm sm:text-base font-semibold cursor-pointer transition-all duration-500 ease-in-out whitespace-nowrap ${
+              activeTab === tab.id
+                ? "text-yellow-400"
+                : "text-white hover:text-yellow-400"
+            }`}
           >
             {tab.label}
             <span
-              className={`absolute left-0 bottom-0 h-[2px] bg-yellow-400 transition-all duration-500 ease-in-out ${activeTab === tab.id ? "w-full" : "w-0"
-                }`}
+              className={`absolute left-0 bottom-0 h-[2px] bg-yellow-400 transition-all duration-500 ease-in-out ${
+                activeTab === tab.id ? "w-full" : "w-0"
+              }`}
             />
           </button>
         ))}
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3 min-[400px]:mt-4 sm:mt-6">
         {activeTab === "episodes" && (
           <div>
             {!partData || !partData.length ? (
-              <div className="text-center text-gray-400 py-10">
+              <div className="text-center text-gray-400 py-8 sm:py-10 text-xs sm:text-sm">
                 Đang tải danh sách phần...
               </div>
             ) : filmData?.film.type.keyMap === "FT_SINGLE" ? (
               <>
-                <h2 className="text-xl font-semibold mb-3 text-yellow-400">
+                <h2 className="text-base min-[400px]:text-lg sm:text-xl font-semibold mb-2 min-[400px]:mb-3 text-yellow-400">
                   Bản chiếu
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="relative overflow-hidden rounded-xl border border-zinc-800  bg-zinc-900 transition-all duration-300 cursor-pointer">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 min-[400px]:gap-4">
+                  <div className="relative overflow-hidden rounded-lg min-[400px]:rounded-xl border border-zinc-800  bg-zinc-900 transition-all duration-300 cursor-pointer">
                     <img
                       src={filmData?.film.thumbUrl || "/images/small.jpg"}
                       alt={filmData?.film.title}
-                      className="w-full h-48 md:h-40 object-cover rounded-xl transition-transform duration-500 hover:scale-105"
+                      className="w-full h-32 min-[400px]:h-40 sm:h-48 md:h-40 object-cover rounded-lg min-[400px]:rounded-xl transition-transform duration-500 hover:scale-105"
                     />
 
-                    <h3 className="absolute bottom-3 left-4 text-yellow-400 text-base font-semibold tracking-wide drop-shadow-md">
+                    <h3 className="absolute bottom-2 min-[400px]:bottom-3 left-2 min-[400px]:left-3 sm:left-4 text-yellow-400 text-xs min-[400px]:text-sm sm:text-base font-semibold tracking-wide drop-shadow-md">
                       {filmData?.film.title || "Bản chiếu chính"}
                     </h3>
 
@@ -141,11 +143,11 @@ export default function TabsSection() {
                       onClick={() =>
                         handleWatchVideo(
                           selectedPart?.episodes?.[0]?.episodeNumber?.toString() ??
-                          "1"
+                            "1"
                         )
                       }
-                      className="absolute bottom-3 right-4 text-xs font-semibold 
-                                bg-yellow-400 text-black px-3 py-1.5 rounded-full shadow-md
+                      className="absolute bottom-2 min-[400px]:bottom-3 right-2 min-[400px]:right-3 sm:right-4 text-[9px] min-[400px]:text-[10px] sm:text-xs font-semibold 
+                                bg-yellow-400 text-black px-1.5 min-[400px]:px-2 sm:px-3 py-0.5 min-[400px]:py-1 sm:py-1.5 rounded-full shadow-md
                                 hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_12px_rgba(250,204,21,0.6)]
                                 transition-all duration-300 ease-in-out"
                     >
@@ -156,8 +158,11 @@ export default function TabsSection() {
               </>
             ) : (
               <>
-                <div className="flex items-center gap-2">
-                  <Menu size={30} className="text-white" />
+                <div className="flex items-center gap-1.5 min-[400px]:gap-2">
+                  <Menu
+                    size={20}
+                    className="text-white min-[400px]:w-6 min-[400px]:h-6 sm:w-[30px] sm:h-[30px]"
+                  />
                   <Select
                     value={(selectedPart?.partNumber || 1).toString()}
                     onValueChange={(value) => {
@@ -169,10 +174,10 @@ export default function TabsSection() {
                       }
                     }}
                   >
-                    <SelectTrigger className="flex items-center gap-2 w-[220px] border border-zinc-800/70 text-white rounded-xl px-4 py-2 focus:ring-0 focus:outline-none">
+                    <SelectTrigger className="flex items-center gap-1.5 min-[400px]:gap-2 w-[150px] min-[400px]:w-[180px] sm:w-[220px] border border-zinc-800/70 text-white rounded-lg min-[400px]:rounded-xl px-2 min-[400px]:px-3 sm:px-4 py-1.5 min-[400px]:py-2 text-xs min-[400px]:text-sm sm:text-base focus:ring-0 focus:outline-none">
                       <SelectValue
                         placeholder="Chọn phần"
-                        className="text-xl font-semibold"
+                        className="text-base min-[400px]:text-lg sm:text-xl font-semibold"
                       >
                         {selectedPart?.title ||
                           `Phần ${selectedPart?.partNumber}`}
@@ -188,10 +193,11 @@ export default function TabsSection() {
                           key={`part-item-${index}`}
                           value={p.partNumber.toString()}
                           className={`flex items-center justify-between w-full my-1 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer select-none transition-all duration-200 ease-in-out
-                        ${selectedPart?.id === p.id
-                              ? "bg-yellow-400 text-black shadow-[0_0_12px_rgba(250,204,21,0.45)]"
-                              : "text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_14px_rgba(250,204,21,0.4)]"
-                            }`}
+                        ${
+                          selectedPart?.id === p.id
+                            ? "bg-yellow-400 text-black shadow-[0_0_12px_rgba(250,204,21,0.45)]"
+                            : "text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_14px_rgba(250,204,21,0.4)]"
+                        }`}
                         >
                           {p.title || `Phần ${p.partNumber}`}
                         </SelectItem>
@@ -200,28 +206,37 @@ export default function TabsSection() {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 mt-4">
+                <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 min-[400px]:gap-3 sm:gap-4 mt-3 min-[400px]:mt-4">
                   {selectedPart?.episodes?.map((ep, index) => (
                     <div
                       key={`${ep.id}-${index}`}
                       onClick={() => {
-                        if (filmData?.film.isVip && !authUser.isVip && index > 2) {
+                        if (
+                          filmData?.film.isVip &&
+                          !authUser.isVip &&
+                          index > 2
+                        ) {
                           if (isLoggingIn) {
                             toast.warning("Bạn cần là VIP để xem tập phim này");
-                            setTimeout(() => { goUpgradeVip() }, 1000)
+                            setTimeout(() => {
+                              goUpgradeVip();
+                            }, 1000);
                           } else {
-                            toast.warning("Bạn cần đăng nhập để xem tập phim này");
+                            toast.warning(
+                              "Bạn cần đăng nhập để xem tập phim này"
+                            );
                           }
                           return;
                         }
                         handleWatchVideo(ep.episodeNumber.toString());
                       }}
                       className="relative overflow-hidden rounded-xl border border-zinc-800 
+
                                   bg-zinc-900 hover:border-yellow-400 transition-all duration-300
                                   shadow-[0_0_12px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(250,204,21,0.3)]
                                   cursor-pointer"
                     >
-                      <div className="relative w-full h-32">
+                      <div className="relative w-full h-24 min-[400px]:h-28 sm:h-32">
                         <img
                           src={ep.thumbUrl || "/images/small.jpg"}
                           alt={ep.title}
@@ -230,19 +245,21 @@ export default function TabsSection() {
                       </div>
                       <div
                         className={cn(
-                          "p-2 text-center text-white font-semibold",
+                          "p-1.5 min-[400px]:p-2 text-center text-white font-semibold",
                           ep.episodeNumber === +episode &&
-                          selectedPart.partNumber === +part &&
-                          "bg-yellow-400  font-semibold text-zinc-800"
+                            selectedPart.partNumber === +part &&
+                            "bg-yellow-400  font-semibold text-zinc-800"
                         )}
                       >
                         <div className="flex items-center justify-center gap-2">
-                          {filmData?.film.isVip && index > 2 && !authUser.isVip && (
-                            <Crown size={20} className="text-amber-400" />
-                          )}
+                          {filmData?.film.isVip &&
+                            index > 2 &&
+                            !authUser.isVip && (
+                              <Crown size={20} className="text-amber-400" />
+                            )}
                           <span
                             className={
-                              "text-sm group-hover:text-yellow-400 transition-colors duration-200 hover:text-yellow-400 font-medium"
+                              "text-[10px] min-[400px]:text-xs sm:text-sm group-hover:text-yellow-400 transition-colors duration-200 hover:text-yellow-400 font-medium"
                             }
                           >
                             {ep.title || `Tập ${ep.episodeNumber}`}
@@ -259,16 +276,12 @@ export default function TabsSection() {
 
         {activeTab === "gallery" && (
           <div>
-            {/* <h2 className="text-xl font-semibold mb-3 text-yellow-400">
-              Hình ảnh
-            </h2> */}
-
             {filmData && (filmData?.filmImages || filmData.film.thumbUrl) ? (
-              <div className="flex items-center justify-center gap-4 max-w-[1000px] mx-auto">
+              <div className="flex flex-wrap items-center justify-center gap-2 min-[400px]:gap-3 sm:gap-4 max-w-[1000px] mx-auto">
                 {filmData.film.thumbUrl && (
                   <div
                     key="thumb"
-                    className="h-[180px] w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                    className="h-[100px] w-[150px] min-[400px]:h-[130px] min-[400px]:w-[190px] sm:h-[180px] sm:w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
                   >
                     <img
                       src={filmData.film.thumbUrl}
@@ -278,7 +291,7 @@ export default function TabsSection() {
                   </div>
                 )}
 
-                <div className="h-[180px] w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
+                <div className="h-[100px] w-[150px] min-[400px]:h-[130px] min-[400px]:w-[190px] sm:h-[180px] sm:w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
                   <img
                     src={filmData?.filmImages.backdrop || "/images/small.jpg"}
                     alt={filmData.film.title}
@@ -286,7 +299,7 @@ export default function TabsSection() {
                   />
                 </div>
 
-                <div className="h-[180px] w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
+                <div className="h-[100px] w-[150px] min-[400px]:h-[130px] min-[400px]:w-[190px] sm:h-[180px] sm:w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
                   <img
                     src={filmData?.filmImages.horizontal || "/images/small.jpg"}
                     alt={filmData.film.title}
@@ -294,7 +307,7 @@ export default function TabsSection() {
                   />
                 </div>
 
-                <div className="h-[180px] w-[120px] overflow-hidden rounded-lg  border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
+                <div className="h-[100px] w-[70px] min-[400px]:h-[130px] min-[400px]:w-[90px] sm:h-[180px] sm:w-[120px] overflow-hidden rounded-lg  border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
                   <img
                     src={filmData?.filmImages.poster || "/images/small.jpg"}
                     alt={`${filmData.film.title} Poster`}
@@ -303,7 +316,7 @@ export default function TabsSection() {
                 </div>
               </div>
             ) : (
-              <p className="text-gray-400 italic mt-2">
+              <p className="text-gray-400 italic mt-2 text-xs sm:text-sm">
                 Chưa có hình ảnh cho phim này
               </p>
             )}
@@ -312,28 +325,28 @@ export default function TabsSection() {
 
         {activeTab === "cast" && (
           <div>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-x-3 gap-y-12">
+            <div className="grid grid-cols-2 min-[400px]:grid-cols-3 md:grid-cols-5 gap-x-2 min-[400px]:gap-x-3 gap-y-8 min-[400px]:gap-y-12">
               {filmData?.actors.map((a, index) => (
                 <div
                   key={`${a.actorId}-${index}`}
                   className="cursor-pointer relative size-full group"
                   onClick={() => goActorDetail(a.slug)}
                 >
-                  <div className="size-full overflow-hidden rounded-xl">
+                  <div className="size-full overflow-hidden rounded-lg min-[400px]:rounded-xl">
                     <img
                       src={a.avatarUrl || "/images/small.jpg"}
                       alt={a.actorName}
                       className="size-full object-cover object-center overflow-hidden transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
-                  <div className="absolute left-0 right-0 -bottom-6">
+                  <div className="absolute left-0 right-0 -bottom-5 min-[400px]:-bottom-6">
                     <div className="flex flex-col items-center justify-center w-full">
-                      <div className="bg-opacity-60 rounded-b-xl justify-center text-center bg-gradient-to-b from-transparent to-zinc-900/80 w-full pb-2 pt-2">
-                        <button className="text-white group-hover:text-yellow-400 transition-colors cursor-pointer">
+                      <div className="bg-opacity-60 rounded-b-lg min-[400px]:rounded-b-xl justify-center text-center bg-gradient-to-b from-transparent to-zinc-900/80 w-full pb-1.5 min-[400px]:pb-2 pt-1.5 min-[400px]:pt-2">
+                        <button className="text-white text-xs min-[400px]:text-sm group-hover:text-yellow-400 transition-colors cursor-pointer">
                           {a.actorName}
                         </button>
                       </div>
-                      <p className="text-sm text-rose-400/90 italic whitespace-nowrap w-full text-center overflow-hidden pt-1 mx-2">
+                      <p className="text-[10px] min-[400px]:text-sm text-rose-400/90 italic whitespace-nowrap w-full text-center overflow-hidden pt-0.5 min-[400px]:pt-1 mx-1 min-[400px]:mx-2">
                         {a.characterName}
                       </p>
                     </div>

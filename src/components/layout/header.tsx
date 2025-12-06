@@ -36,6 +36,7 @@ import { AuthenticationsMessage } from "@/constants/messages/user.message";
 import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 import { socket } from "@/lib/socket";
 import { useCommentStore } from "@/stores/comentStore";
+import { useRatingStore } from "@/stores/ratingStore";
 import SearchDropdown from "./header/search-dropdown";
 import { useNotificationStore } from "@/stores/notificationStore";
 import {
@@ -88,7 +89,11 @@ export default function Header() {
     replyCommentRealtime,
     countCommentsRealtime,
     reactCommentRealtime,
+    hideCommentRealtime,
+    unhideCommentRealtime,
   } = useCommentStore();
+
+  const { hideRatingRealtime } = useRatingStore();
 
   const {
     notifications,
@@ -181,6 +186,10 @@ export default function Header() {
     }
   };
 
+  const refreshNotifications = async () => {
+    await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+  };
+
   useEffect(() => {
     const handleConnect = () => {
       if (authUser?.userId) {
@@ -208,7 +217,7 @@ export default function Header() {
 
       const message = `${data.replyComment.user.fullName} đã trả lời bình luận của bạn: "${data.replyComment.content}"`;
 
-      await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+      await refreshNotifications();
       toast.success(message);
     };
 
@@ -223,7 +232,7 @@ export default function Header() {
         data.reactionType === "LIKE" ? "thích" : "không thích";
       const message = `${data.reactionUser.fullName} đã ${reactionText} bình luận của bạn`;
 
-      await Promise.all([fetchNotifications(1, 20), fetchUnreadCount()]);
+      await refreshNotifications();
       toast.success(message);
     };
 
@@ -243,7 +252,31 @@ export default function Header() {
     socket.on("deleteComment", handleDeleteComment);
     socket.on("countComments", handleCountComments);
     socket.on("reactComment", reactCommentRealtime);
-
+    socket.on("hideComment", ({ commentId, isHidden }) => {
+      hideCommentRealtime(commentId, isHidden);
+    });
+    socket.on("unhideComment", (comment) => {
+      unhideCommentRealtime(comment);
+    });
+    socket.on('hiddenCommentNotification', async (data) => {
+      toast.warning(data.message);
+      await refreshNotifications();
+    });
+    socket.on('warningNotification', async (data) => {
+      toast.warning(data.message, {
+        duration: 5000,
+      });
+      await refreshNotifications();
+    });
+    socket.on('infoNotification', async (data) => {
+      toast.success(data.message, {
+        duration: 5000,
+      });
+      await refreshNotifications();
+    });
+    socket.on('hideRating', ({ ratingId, isHidden, filmId }) => {
+      hideRatingRealtime(ratingId, isHidden, filmId);
+    });
     return () => {
       socket.off("connect", handleConnect);
       socket.off("newComment", handleNewComment);
@@ -253,6 +286,12 @@ export default function Header() {
       socket.off("deleteComment", handleDeleteComment);
       socket.off("countComments", handleCountComments);
       socket.off("reactComment", reactCommentRealtime);
+      socket.off("hideComment");
+      socket.off("unhideComment");
+      socket.off("hiddenCommentNotification");
+      socket.off("warningNotification");
+      socket.off("infoNotification");
+      socket.off("hideRating");
     };
   }, [
     authUser?.userId,
@@ -261,8 +300,10 @@ export default function Header() {
     removeCommentRealtime,
     countCommentsRealtime,
     reactCommentRealtime,
-    fetchNotifications,
-    fetchUnreadCount,
+    hideCommentRealtime,
+    unhideCommentRealtime,
+    hideRatingRealtime,
+    refreshNotifications,
   ]);
 
   return (
@@ -572,13 +613,16 @@ export default function Header() {
                                 key={n.notificationId}
                                 className="cursor-pointer rounded-lg border border-[#2a3040]/60 bg-[#1a1f2e]/60 p-3 transition-all hover:bg-[#2a3040]/60"
                                 onClick={async () => {
-                                  if (!n.result?.filmId) return;
                                   try {
-                                    if (n.notificationId > 0) {
+                                    if (n.notificationId > 0 && !n.isRead) {
                                       await markAsRead(n.notificationId);
+                                      refreshNotifications();
                                     }
-                                    const commentId =
-                                      n.result.commentId || n.result.parentId;
+                                    if (!n.result?.filmId && !n.result?.slug) return;
+
+                                    const isHiddenType = ['hidden_comment', 'violation_warning'].includes(n.type);
+                                    const commentId = isHiddenType ? null : (n.result.commentId || n.result.parentId);
+
                                     const currentPath =
                                       window.location.pathname;
                                     const isOnSameFilm =
@@ -594,27 +638,33 @@ export default function Header() {
                                         "@/lib/eventBus"
                                       );
                                       eventBus.emit("switchTab", "comments");
-                                      const url = new URL(window.location.href);
-                                      url.searchParams.set(
-                                        "commentId",
-                                        String(commentId)
-                                      );
-                                      url.searchParams.set(
-                                        "t",
-                                        Date.now().toString()
-                                      );
-                                      window.history.replaceState(
-                                        null,
-                                        "",
-                                        url.toString()
-                                      );
+
+                                      if (commentId) {
+                                        const url = new URL(window.location.href);
+                                        url.searchParams.set(
+                                          "commentId",
+                                          String(commentId)
+                                        );
+                                        url.searchParams.set(
+                                          "t",
+                                          Date.now().toString()
+                                        );
+                                        window.history.replaceState(
+                                          null,
+                                          "",
+                                          url.toString()
+                                        );
+                                      }
                                       return;
                                     }
                                     if (n.result?.slug) {
-                                      router.push(
-                                        `/film-detail/${n.result.slug
-                                        }?commentId=${commentId}&t=${Date.now()}`
-                                      );
+                                      if (commentId) {
+                                        router.push(
+                                          `/film-detail/${n.result.slug}?commentId=${commentId}&t=${Date.now()}`
+                                        );
+                                      } else {
+                                        router.push(`/film-detail/${n.result.slug}`);
+                                      }
                                     } else {
                                       try {
                                         const filmServices = (
@@ -628,12 +678,16 @@ export default function Header() {
                                           filmData?.data?.film?.slug ||
                                           filmData?.data?.film.slug;
                                         if (filmData?.EC === 1 && slug) {
-                                          router.push(
-                                            `/film-detail/${slug}?commentId=${commentId}&t=${Date.now()}`
-                                          );
+                                          if (commentId) {
+                                            router.push(
+                                              `/film-detail/${slug}?commentId=${commentId}&t=${Date.now()}`
+                                            );
+                                          } else {
+                                            router.push(`/film-detail/${slug}`);
+                                          }
                                         } else {
                                           toast.error(
-                                            "Không tìm thấy thông tin phim. Vui lòng thử lại sau."
+                                            "Không tìm thấy thông tin. Vui lòng thử lại sau."
                                           );
                                         }
                                       } catch {
@@ -651,8 +705,8 @@ export default function Header() {
                               >
                                 <div className="flex items-start gap-2">
                                   <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
-                                  <div className="min-w-0 flex-1 overflow-hidden">
-                                    <div className="line-clamp-3 overflow-hidden whitespace-normal break-words text-[13px]">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="whitespace-normal break-words text-[13px]">
                                       {n.message}
                                     </div>
                                     <div className="mt-1 text-xs text-gray-500">
@@ -723,8 +777,9 @@ export default function Header() {
                                 className="cursor-pointer rounded-lg border border-[#2a3040]/60 bg-[#1a1f2e]/60 p-3 opacity-70 transition-all hover:bg-[#2a3040]/60"
                                 onClick={async () => {
                                   if (!n.result?.filmId) return;
-                                  const commentId =
-                                    n.result.commentId || n.result.parentId;
+
+                                  const isHiddenType = ['hidden_comment', 'violation_warning'].includes(n.type);
+                                  const commentId = isHiddenType ? null : (n.result.commentId || n.result.parentId);
                                   const currentPath = window.location.pathname;
                                   const isOnSameFilm =
                                     n.result?.slug &&
@@ -734,29 +789,13 @@ export default function Header() {
                                       currentPath.includes(
                                         `/play/${n.result.slug}`
                                       ));
-                                  // Lấy danh sách comments từ store
-                                  const { useCommentStore } = await import(
-                                    "@/stores/comentStore"
-                                  );
-                                  const comments =
-                                    useCommentStore.getState().comments || [];
-                                  // Kiểm tra commentId có tồn tại không
-                                  const commentExists =
-                                    comments.some(
-                                      (c) => String(c.id) === String(commentId)
-                                    ) ||
-                                    comments.some((c) =>
-                                      (c.replies || []).some(
-                                        (r) =>
-                                          String(r.id) === String(commentId)
-                                      )
-                                    );
+
                                   if (isOnSameFilm) {
                                     const { eventBus } = await import(
                                       "@/lib/eventBus"
                                     );
                                     eventBus.emit("switchTab", "comments");
-                                    if (commentExists && commentId) {
+                                    if (commentId) {
                                       const url = new URL(window.location.href);
                                       url.searchParams.set(
                                         "commentId",
@@ -771,22 +810,15 @@ export default function Header() {
                                         "",
                                         url.toString()
                                       );
-                                    } else {
-                                      toast.error(
-                                        "Bình luận này đã bị xóa hoặc không còn tồn tại."
-                                      );
                                     }
                                     return;
                                   } else if (n.result?.slug) {
-                                    if (commentExists && commentId) {
+                                    if (commentId) {
                                       router.push(
                                         `/film-detail/${n.result.slug
                                         }?commentId=${commentId}&t=${Date.now()}`
                                       );
                                     } else {
-                                      toast.error(
-                                        "Bình luận này đã bị xóa hoặc không còn tồn tại."
-                                      );
                                       router.push(
                                         `/film-detail/${n.result.slug}`
                                       );
@@ -796,8 +828,8 @@ export default function Header() {
                               >
                                 <div className="flex items-start gap-2">
                                   <div className="mt-1.5 h-2 w-2 rounded-full" />
-                                  <div className="min-w-0 flex-1 overflow-hidden">
-                                    <div className="line-clamp-3 overflow-hidden whitespace-normal break-words text-[13px]">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="whitespace-normal break-words text-[13px]">
                                       {n.message}
                                     </div>
                                     <div className="mt-1 text-xs text-gray-500">

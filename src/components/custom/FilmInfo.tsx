@@ -3,17 +3,20 @@
 import { useFilmStore } from "@/stores/filmStore";
 import { useRatingStore } from "@/stores/ratingStore";
 import { AllCodeValue } from "@/types/allcode.type";
-import { Star } from "lucide-react";
+import { Star, ChevronDown, ChevronUp } from "lucide-react";
 import { useFilmRouter } from "@/hooks/filmRouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppRouter } from "@/hooks/useAppRouter";
 import VIPBadge from "../film/detail/VIPBagde";
+import { cn } from "@/lib/utils";
 
 export default function FilmInfo() {
   const { loading, error, filmData } = useFilmStore();
   const { averageRating, fetchRatings } = useRatingStore();
   const { goActorDetail, goDirectorDetail, goProducerDetail } = useFilmRouter();
   const { goGenre, goCountry } = useAppRouter();
+  const [isExpanded, setIsExpanded] = useState(false);
+
   useEffect(() => {
     if (filmData?.film?.filmId) {
       fetchRatings(filmData.film.filmId);
@@ -29,155 +32,256 @@ export default function FilmInfo() {
   }
 
   const { film, filmImages, actors, directors, producers } = filmData;
+
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-lg" style={{ padding: 20 }}>
-      <div className="flex items-center mb-6">
-        <img
-          src={filmImages.poster}
-          alt={film.title}
-          className="object-cover w-40 md:w-48 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200 ease-out"
-        />
-      </div>
+    <>
+      <div className="flex flex-col gap-2 min-[400px]:gap-3 sm:gap-4 p-2 min-[400px]:p-3 sm:p-4 md:p-5 rounded-lg">
+        <div className="flex flex-row gap-2 min-[400px]:gap-3 sm:gap-4 items-start sm:flex-col sm:items-start">
+          <div className="flex-shrink-0">
+            <img
+              src={filmImages.poster}
+              alt={film.title}
+              className="object-cover w-20 min-[400px]:w-24 sm:w-40 md:w-48 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200 ease-out"
+            />
+          </div>
 
-      <h1 className="text-2xl font-bold text-white">
-        <span>
-          {film.title || 'Đang cập nhật'}
-        </span>
-        {filmData.film.isVip && (
-          <VIPBadge size="sm" className="ml-2" />
-        )}
-      </h1>
-      <h2 className="text-sm text-gray-400 italic">{film.originalTitle || (!film.title ? 'Đang cập nhật' : '')}</h2>
+          <div className="flex flex-col gap-1 min-[400px]:gap-1.5 sm:gap-2 flex-1 min-w-0">
+            <h1 className="text-sm min-[400px]:text-base sm:text-2xl font-bold text-white line-clamp-2">
+              {film.title || "Đang cập nhật"}
+            </h1>
+            <h2 className="text-[10px] min-[400px]:text-xs sm:text-sm text-gray-400 italic line-clamp-1">
+              {film.originalTitle || ""}
+            </h2>
 
-      <div className="flex flex-nowrap items-center gap-1 text-sm text-gray-300 w-full min-w-0 overflow-x-auto scrollbar-hide">
-        <span className="inline-flex items-center bg-[#facc15] text-black px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
-          {averageRating > 0 ? `${averageRating.toFixed(1)}` : "Chưa có đánh giá"}
-          <Star size={14} className="ml-1" />
-        </span>
-        <span className="bg-[#FF3300] text-gray-100 px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
-          {film.age?.valueVi || 'Đang cập nhật'}
-        </span>
-        <span className="bg-[#27272a] text-gray-200 px-1.5 py-0.5 rounded border whitespace-nowrap">
-          {film.year || 'Đang cập nhật'}
-        </span>
-      </div>
+            <div className="flex flex-wrap items-center gap-0.5 min-[400px]:gap-1 text-xs text-gray-300">
+              <span className="inline-flex items-center bg-[#facc15] text-black px-1 min-[400px]:px-1.5 py-0.5 rounded font-semibold whitespace-nowrap text-[10px] min-[400px]:text-xs">
+                {averageRating > 0 ? `${averageRating.toFixed(1)}` : "N/A"}
+                <Star
+                  size={10}
+                  className="ml-0.5 min-[400px]:w-3 min-[400px]:h-3"
+                />
+              </span>
+              <span className="bg-[#FF3300] text-gray-100 px-1 min-[400px]:px-1.5 py-0.5 rounded font-semibold whitespace-nowrap text-[9px] min-[400px]:text-[10px] sm:text-xs">
+                {film.age?.valueVi || "N/A"}
+              </span>
+              <span className="bg-[#27272a] text-gray-200 px-1 min-[400px]:px-1.5 py-0.5 rounded border whitespace-nowrap text-[9px] min-[400px]:text-[10px] sm:text-xs">
+                {film.year || "N/A"}
+              </span>
+            </div>
 
-      <div className="flex flex-nowrap gap-1 text-sm text-gray-300 mt-2 overflow-x-auto scrollbar-hide">
-        {Array.isArray(film.genres) && film.genres.length > 0 ? (
-          film.genres.map((g: AllCodeValue) => (
-            <button
-              key={g.keyMap}
-              onClick={() => goGenre(g.keyMap)}
-              className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-1.5 py-0.5 rounded cursor-pointer whitespace-nowrap"
-            >
-              {g.valueVi}
-            </button>
-          ))
-        ) : (
-          <span className="italic text-gray-400">Đang cập nhật</span>
-        )}
-      </div>
+            <div className="flex flex-wrap gap-0.5 min-[400px]:gap-1 sm:hidden">
+              {Array.isArray(film.genres) &&
+                film.genres.slice(0, 3).map((g: AllCodeValue) => (
+                  <button
+                    key={g.keyMap}
+                    onClick={() => goGenre(g.keyMap)}
+                    className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-1 min-[400px]:px-1.5 py-0.5 rounded cursor-pointer text-[9px] min-[400px]:text-[10px]"
+                  >
+                    {g.valueVi}
+                  </button>
+                ))}
+              {Array.isArray(film.genres) && film.genres.length > 3 && (
+                <span className="text-gray-400 text-[9px] min-[400px]:text-[10px] px-0.5 min-[400px]:px-1">
+                  +{film.genres.length - 3}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
 
-      <div className="mt-4">
-        <h3 className="text-base font-semibold text-white mb-1">Giới thiệu:</h3>
-        <p className="text-sm text-gray-400 leading-relaxed text-justify">
-          {film.description || 'Đang cập nhật'}
-        </p>
-      </div>
+        <h1 className="text-2xl font-bold text-white">
+          <span>{film.title || "Đang cập nhật"}</span>
+          {filmData.film.isVip && <VIPBadge size="sm" className="ml-2" />}
+        </h1>
+        <h2 className="text-sm text-gray-400 italic">
+          {film.originalTitle || (!film.title ? "Đang cập nhật" : "")}
+        </h2>
 
-      <div className="flex items-center gap-2 text-sm">
-        <h3 className="font-semibold text-white">Thời lượng: </h3>
-        <span className="text-gray-300">
-          {film.duration ? `${Math.floor(film.duration / 60)}h ${film.duration % 60}m` : 'Đang cập nhật'}
-        </span>
-      </div>
+        <div className="flex flex-nowrap items-center gap-1 text-sm text-gray-300 w-full min-w-0 overflow-x-auto scrollbar-hide">
+          <span className="inline-flex items-center bg-[#facc15] text-black px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
+            {averageRating > 0
+              ? `${averageRating.toFixed(1)}`
+              : "Chưa có đánh giá"}
+            <Star size={14} className="ml-1" />
+          </span>
+          <span className="bg-[#FF3300] text-gray-100 px-1.5 py-0.5 rounded font-semibold whitespace-nowrap">
+            {film.age?.valueVi || "Đang cập nhật"}
+          </span>
+          <span className="bg-[#27272a] text-gray-200 px-1.5 py-0.5 rounded border whitespace-nowrap">
+            {film.year || "Đang cập nhật"}
+          </span>
+        </div>
 
-      <div className="flex items-center gap-2 text-sm">
-        <h3 className="font-semibold text-white">Quốc gia: </h3>
-        {film.country?.valueVi ? (
+        <div className="flex flex-nowrap gap-1 text-sm text-gray-300 mt-2 overflow-x-auto scrollbar-hide">
+          <div className="hidden sm:flex flex-wrap gap-1.5 text-sm text-gray-300">
+            {Array.isArray(film.genres) && film.genres.length > 0 ? (
+              film.genres.map((g: AllCodeValue) => (
+                <button
+                  key={g.keyMap}
+                  onClick={() => goGenre(g.keyMap)}
+                  className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-1.5 py-0.5 rounded cursor-pointer whitespace-nowrap"
+                >
+                  {g.valueVi}
+                </button>
+              ))
+            ) : (
+              <span className="italic text-gray-400">Đang cập nhật</span>
+            )}
+          </div>
+
           <button
-            onClick={() => goCountry(film.country.keyMap)}
-            className="text-gray-300 cursor-pointer hover:text-yellow-400">
-            {film.country.valueVi}
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="sm:hidden flex items-center justify-center gap-1 py-1.5 min-[400px]:py-2 text-yellow-400 text-xs min-[400px]:text-sm font-medium border-t border-b border-gray-700/50"
+          >
+            {isExpanded ? (
+              <>
+                <span>Thu gọn</span>
+                <ChevronUp size={16} />
+              </>
+            ) : (
+              <>
+                <span>Xem thêm thông tin</span>
+                <ChevronDown size={16} />
+              </>
+            )}
           </button>
-        ) : (
-          <span className="italic text-gray-400">Đang cập nhật</span>
-        )}
-      </div>
-      <div className="flex items-center gap-2 text-sm">
-        <h3 className="font-semibold text-white">Sản xuất:</h3>
-        {Array.isArray(producers) && producers.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {producers.map((p, idx) => (
-              <span key={p.producerId || p.slug || idx} className="flex items-center">
-                <button
-                  className="text-gray-300 cursor-pointer hover:text-yellow-400"
-                  onClick={() => goProducerDetail(p.producerId || p.slug)}
-                  type="button"
-                >
-                  {p.producerName}
-                </button>
-                {idx < producers.length - 1 && <span className="text-gray-400">,</span>}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <span className="text-gray-400 italic">Đang cập nhật</span>
-        )}
-      </div>
-      <div className="flex items-center gap-2 text-sm">
-        <h3 className="font-semibold text-white">Đạo diễn:</h3>
-        {Array.isArray(directors) && directors.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {directors.map((d, idx) => (
-              <span key={d.directorId || d.slug || idx} className="flex items-center">
-                <button
-                  className="text-gray-300 cursor-pointer hover:text-yellow-400"
-                  onClick={() => goDirectorDetail(d.slug)}
-                >
-                  {d.directorName}
-                </button>
-                {idx < directors.length - 1 && <span className="text-gray-400">,</span>}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <span className="text-gray-400 italic">Đang cập nhật</span>
-        )}
-      </div>
 
-      <div className="mt-2">
-        <h3 className="text-2xl font-semibold text-white">Diễn viên</h3>
-        {Array.isArray(actors) && actors.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mr-10 -ml-2">
-            {actors.map((a, index) => (
-              <div
-                key={`${a.actorId}-${index}`}
-                onClick={() => goActorDetail(a.slug)}
-                className="flex flex-col items-center text-center cursor-pointer group hover:scale-105 transition-transform duration-300 min-w-0"
-              >
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg mt-4">
-                  <img
-                    src={a.avatarUrl || "/images/small.jpg"}
-                    alt={a.actorName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div
-                  className="mt-3 text-sm text-white group-hover:text-yellow-400 transition-colors text-center truncate max-w-[110px] min-w-0"
-                  title={a.actorName}
-                >
-                  {a.actorName}
-                </div>
+          <div
+            className={cn(
+              "flex flex-col gap-2 min-[400px]:gap-3 transition-all duration-300 overflow-hidden",
+              isExpanded
+                ? "max-h-[2000px] opacity-100"
+                : "max-h-0 opacity-0 sm:max-h-none sm:opacity-100"
+            )}
+          >
+            <div>
+              <h3 className="text-xs min-[400px]:text-sm sm:text-base font-semibold text-white mb-1">
+                Giới thiệu:
+              </h3>
+              <p className="text-[10px] min-[400px]:text-xs sm:text-sm text-gray-400 leading-relaxed text-justify">
+                {film.description || "Đang cập nhật"}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-1.5 min-[400px]:gap-2 text-[10px] min-[400px]:text-xs sm:text-sm">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-white">Thời lượng:</h3>
+                <span className="text-gray-300">
+                  {film.duration
+                    ? `${Math.floor(film.duration / 60)}h ${
+                        film.duration % 60
+                      }m`
+                    : "Đang cập nhật"}
+                </span>
               </div>
-            ))}
+
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-white">Quốc gia:</h3>
+                {film.country?.valueVi ? (
+                  <button
+                    onClick={() => goCountry(film.country.keyMap)}
+                    className="text-gray-300 cursor-pointer hover:text-yellow-400"
+                  >
+                    {film.country.valueVi}
+                  </button>
+                ) : (
+                  <span className="italic text-gray-400">Đang cập nhật</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-semibold text-white">Sản xuất:</h3>
+                {Array.isArray(producers) && producers.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {producers.map((p, idx) => (
+                      <span
+                        key={p.producerId || p.slug || idx}
+                        className="flex items-center"
+                      >
+                        <button
+                          className="text-gray-300 cursor-pointer hover:text-yellow-400"
+                          onClick={() =>
+                            goProducerDetail(p.producerId || p.slug)
+                          }
+                          type="button"
+                        >
+                          {p.producerName}
+                        </button>
+                        {idx < producers.length - 1 && (
+                          <span className="text-gray-400">,</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-400 italic">Đang cập nhật</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-semibold text-white">Đạo diễn:</h3>
+                {Array.isArray(directors) && directors.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {directors.map((d, idx) => (
+                      <span
+                        key={d.directorId || d.slug || idx}
+                        className="flex items-center"
+                      >
+                        <button
+                          className="text-gray-300 cursor-pointer hover:text-yellow-400"
+                          onClick={() => goDirectorDetail(d.slug)}
+                        >
+                          {d.directorName}
+                        </button>
+                        {idx < directors.length - 1 && (
+                          <span className="text-gray-400">,</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-400 italic">Đang cập nhật</span>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-1.5 min-[400px]:mt-2">
+              <h3 className="text-sm min-[400px]:text-base sm:text-xl md:text-2xl font-semibold text-white">
+                Diễn viên
+              </h3>
+              {Array.isArray(actors) && actors.length > 0 ? (
+                <div className="flex overflow-x-auto gap-2 min-[400px]:gap-3 sm:grid sm:grid-cols-2 md:grid-cols-3 sm:gap-4 mt-1.5 min-[400px]:mt-2 pb-2 scrollbar-hide">
+                  {actors.map((a, index) => (
+                    <div
+                      key={`${a.actorId}-${index}`}
+                      onClick={() => goActorDetail(a.slug)}
+                      className="flex flex-col items-center text-center cursor-pointer group hover:scale-105 transition-transform duration-300 flex-shrink-0"
+                    >
+                      <div className="w-12 h-12 min-[400px]:w-14 min-[400px]:h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg">
+                        <img
+                          src={a.avatarUrl || "/images/small.jpg"}
+                          alt={a.actorName}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div
+                        className="mt-1 min-[400px]:mt-1.5 text-[10px] min-[400px]:text-xs sm:text-sm text-white group-hover:text-yellow-400 transition-colors text-center truncate w-14 min-[400px]:w-16 sm:w-20 md:w-24"
+                        title={a.actorName}
+                      >
+                        {a.actorName}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 italic mt-1.5 min-[400px]:mt-2 text-[10px] min-[400px]:text-xs sm:text-sm">
+                  Chưa có thông tin diễn viên
+                </p>
+              )}
+            </div>
           </div>
-        ) : (
-          <p className="text-gray-400 italic mt-2">
-            Chưa có thông tin diễn viên
-          </p>
-        )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

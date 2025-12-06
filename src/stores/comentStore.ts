@@ -17,6 +17,7 @@ interface ReplyingToState {
 
 interface CommentStoreState {
   activeTab: "comments" | "ratings";
+  currentFilmId: string | null;
   comments: CommentItem[];
   totalComments: number;
   meta: {
@@ -56,12 +57,15 @@ interface CommentStoreActions {
     totalDislike: number;
     userReaction?: CommentReactionType;
   }) => void;
+  hideCommentRealtime: (commentId: string, isHidden: boolean) => void;
+  unhideCommentRealtime: (comment: BackendComment) => void;
 }
 
 const mapBackendToItem = (c: BackendComment): CommentItem => ({
   id: c.commentId,
   content: c.content,
   createdAt: c.createdAt,
+  isHidden: c.isHidden,
   totalLike: c.totalLike,
   totalDislike: c.totalDislike,
   totalChildrenComment: c.totalChildrenComment,
@@ -129,6 +133,7 @@ const removeNodeRecursive = (
 export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
   (set, get) => ({
     activeTab: "comments",
+    currentFilmId: null,
     comments: [],
     meta: null,
     totalComments: 0,
@@ -137,7 +142,7 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
     error: null,
 
     fetchComments: async (filmId, page = 1, limit = 10) => {
-      set({ isLoading: true, error: null });
+      set({ isLoading: true, error: null, currentFilmId: filmId });
       try {
         const isAuthenticated = useAuthStore.getState().isAuthenticated;
         const res = isAuthenticated
@@ -305,6 +310,12 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
 
     createCommentRealtime: (newComment: BackendComment) =>
       set((state) => {
+        const currentFilmId = state.currentFilmId;
+        const commentFilmId = newComment.film?.filmId;
+        if (currentFilmId && commentFilmId && currentFilmId !== commentFilmId) {
+          return state;
+        }
+
         const mappedComment = mapBackendToItem(newComment);
         const exists = existsInTree(state.comments, mappedComment.id);
         if (exists) return state;
@@ -326,19 +337,23 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
           return {
             ...state,
             comments: addReplyRecursive(state.comments),
-            totalComments: (state.totalComments || 0) + 1,
           };
         } else {
           return {
             ...state,
             comments: [mappedComment, ...state.comments],
-            totalComments: (state.totalComments || 0) + 1,
           };
         }
       }),
 
     replyCommentRealtime: (data) =>
       set((state) => {
+        const currentFilmId = state.currentFilmId;
+        const commentFilmId = data.comment.film?.filmId;
+        if (currentFilmId && commentFilmId && currentFilmId !== commentFilmId) {
+          return state;
+        }
+
         const mappedComment = mapBackendToItem(data.comment);
         const exists = existsInTree(state.comments, mappedComment.id);
         if (exists) {
@@ -359,15 +374,17 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
         return {
           ...state,
           comments: addReplyRecursive(state.comments),
-          totalComments: (state.totalComments || 0) + 1,
         };
       }),
 
     countCommentsRealtime: (filmId: string, total?: number) => {
       if (!filmId) return;
-      set(() => ({
-        totalComments: typeof total === "number" ? total : 0,
-      }));
+      const currentFilmId = get().currentFilmId;
+      if (currentFilmId && currentFilmId === filmId) {
+        set(() => ({
+          totalComments: typeof total === "number" ? total : 0,
+        }));
+      }
     },
 
     reactCommentRealtime: (reaction) => {
@@ -400,6 +417,89 @@ export const useCommentStore = create<CommentStoreState & CommentStoreActions>(
         ...state,
         comments: updateTree(state.comments),
       }));
+    },
+
+    hideCommentRealtime: (commentId: string, isHidden: boolean) => {
+      set((state) => {
+        let hiddenCount = 0;
+        const findAndCount = (list: CommentItem[]): number => {
+          for (const c of list) {
+            if (c.id === commentId) {
+              return countSubtree(c);
+            }
+            if (c.replies && c.replies.length) {
+              const count = findAndCount(c.replies);
+              if (count > 0) return count;
+            }
+          }
+          return 0;
+        };
+
+        hiddenCount = findAndCount(state.comments);
+        const hideTree = (list: CommentItem[]): CommentItem[] =>
+          list
+            .map((c) => {
+              if (c.id === commentId) {
+                return {
+                  ...c,
+                  isHidden,
+                  replies: (c.replies || []).map((r) => ({ ...r, isHidden })),
+                };
+              }
+              return {
+                ...c,
+                replies: hideTree(c.replies || []),
+              };
+            })
+            .filter((c) => !c.isHidden);
+        const newTotal = isHidden
+          ? Math.max((state.totalComments || 0) - hiddenCount, 0)
+          : (state.totalComments || 0) + hiddenCount;
+
+        return {
+          ...state,
+          comments: hideTree(state.comments),
+          totalComments: newTotal,
+        };
+      });
+    },
+
+    unhideCommentRealtime: (unhiddenComment: BackendComment) => {
+      set((state) => {
+        const mappedComment = mapBackendToItem(unhiddenComment);
+        const exists = existsInTree(state.comments, mappedComment.id);
+        if (exists) return state;
+
+        // Nếu là root comment (không có parent)
+        if (!unhiddenComment.parent) {
+          return {
+            ...state,
+            comments: [mappedComment, ...state.comments],
+            totalComments: (state.totalComments || 0) + 1,
+          };
+        }
+
+        // Nếu là reply, thêm vào parent
+        const addToParent = (list: CommentItem[]): CommentItem[] =>
+          list.map((c) => {
+            if (c.id === unhiddenComment.parent?.commentId) {
+              return {
+                ...c,
+                replies: [...(c.replies || []), mappedComment],
+              };
+            }
+            return {
+              ...c,
+              replies: addToParent(c.replies || []),
+            };
+          });
+
+        return {
+          ...state,
+          comments: addToParent(state.comments),
+          totalComments: (state.totalComments || 0) + 1,
+        };
+      });
     },
 
     setReplyingTo: (info) => set({ replyingTo: info }),

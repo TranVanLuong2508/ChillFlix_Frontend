@@ -117,9 +117,9 @@ const ModalAdd = ({ action }: { action: actionType }) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex flex-col items-center justify-center w-20 h-16 rounded-2xl text-white transition-all duration-300 ease-in-out cursor-pointer hover:text-yellow-400 hover:text-shadow-[0_0_25px_rgba(250,204,21,0.4)] focus:outline-none focus:ring-0">
-            <Icon size={18} strokeWidth={2} />
-            <span className="text-xs mt-1">{action.label}</span>
+          <button className="flex flex-col items-center justify-center w-9 min-[400px]:w-10 sm:w-16 md:w-20 h-9 min-[400px]:h-10 sm:h-14 md:h-16 rounded-lg sm:rounded-2xl text-white transition-all duration-300 ease-in-out cursor-pointer hover:text-yellow-400 focus:outline-none focus:ring-0">
+            <Icon size={12} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+            <span className="text-[7px] min-[400px]:text-[8px] sm:text-xs mt-0.5 sm:mt-1 leading-tight truncate max-w-[36px] sm:max-w-none">{action.label}</span>
           </button>
         </DropdownMenuTrigger>
 
@@ -423,7 +423,61 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
   };
   return (
     <>
-      <div className="flex items-center justify-between w-full mt-4 md:px-6">
+      {/* Mobile Layout - 1 dòng */}
+      <div className="flex sm:hidden items-center justify-between w-full mt-2 px-1">
+        <button
+          onClick={handleFilmClick}
+          className="flex items-center gap-1 px-2 py-1.5 text-[10px] font-semibold rounded-full text-black bg-gradient-to-r from-yellow-300 to-yellow-500 hover:shadow-[0_0_20px_rgba(250,204,21,0.5)] transition-all duration-300 cursor-pointer whitespace-nowrap flex-shrink-0"
+        >
+          <span className="inline-block w-0 h-0 border-t-[3px] border-t-transparent border-l-[5px] border-l-black border-b-[3px] border-b-transparent"></span>
+          <span className="hidden min-[320px]:inline">Xem Ngay</span>
+          <span className="min-[320px]:hidden">Xem</span>
+        </button>
+
+        <div className="flex items-center justify-center flex-1 gap-0">
+          {actions.map((action) => {
+            const Icon = action.icon;
+            const isLiked = action.id === "like" && liked;
+
+            if (action.id === "add") {
+              return <ModalAdd key={action.id} action={action} />;
+            }
+
+            return (
+              <button
+                key={action.id}
+                onClick={action.onClick}
+                className={cn(
+                  "flex flex-col items-center justify-center w-9 h-9 min-[400px]:w-10 min-[400px]:h-10 rounded-lg transition-all duration-180 cursor-pointer",
+                  isLiked ? "text-yellow-400" : "text-white hover:text-yellow-400"
+                )}
+              >
+                <Icon
+                  size={12}
+                  strokeWidth={isLiked ? 0 : 2}
+                  fill={isLiked ? "#facc15" : "none"}
+                />
+                <span className="text-[7px] min-[400px]:text-[8px] mt-0.5 leading-tight truncate max-w-[36px]">{action.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <Button
+          variant={"default"}
+          className="px-1.5 py-1 bg-indigo-800 hover:bg-indigo-800/90 rounded-full text-xs flex-shrink-0 h-auto"
+          onClick={() => {
+            eventBus.emit("switchTab", "ratings");
+            document.getElementById("rating-section")?.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          <Star className="text-yellow-500 w-3 h-3" />
+          <span className="text-[9px] min-[400px]:text-[10px]">{averageRating > 0 ? averageRating.toFixed(1) : "0.0"}</span>
+        </Button>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden sm:flex items-center justify-between w-full mt-4 px-4 md:px-6">
         <div className="flex items-center justify-center">
           <button
             onClick={handleFilmClick}
@@ -433,7 +487,7 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
             Xem Ngay
           </button>
 
-          <div className="flex items-center gap-8 justify-center px-12">
+          <div className="flex items-center gap-4 md:gap-8 justify-center px-6 md:px-12">
             {actions.map((action) => {
               const Icon = action.icon;
               const isLiked = action.id === "like" && liked;
@@ -447,7 +501,7 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
                   key={action.id}
                   onClick={action.onClick}
                   className={cn(
-                    "flex flex-col items-center justify-center w-20 h-16 rounded-2xl transition-all duration-180 ease-in-out cursor-pointer",
+                    "flex flex-col items-center justify-center w-16 md:w-20 h-14 md:h-16 rounded-2xl transition-all duration-180 ease-in-out cursor-pointer",
                     isLiked
                       ? "text-yellow-400 hover:text-yellow-400"
                       : "text-white hover:text-yellow-400"
@@ -457,7 +511,6 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
                     size={18}
                     strokeWidth={isLiked ? 0 : 2}
                     fill={isLiked ? "#facc15" : "none"}
-                    className={`${isLiked ? "text-yellow-400" : ""}`}
                   />
                   <span className="text-xs mt-1">{action.label}</span>
                 </button>
@@ -476,10 +529,10 @@ export default function PlayBar({ activeTab, setActiveTab }: PlayBarProps) {
           }}
         >
           <p className="flex items-center justify-center gap-1">
-            <Star className="text-yellow-500" />
-            {averageRating > 0 ? averageRating.toFixed(1) : "0.0"}
+            <Star className="text-yellow-500 w-5 h-5" />
+            <span className="text-base">{averageRating > 0 ? averageRating.toFixed(1) : "0.0"}</span>
           </p>
-          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5  after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500  after:transition-transform after:duration-200 group-hover:after:scale-x-100">
+          <p className="relative inline-block text-xs font-normal after:content-[''] after:absolute after:left-0 after:-bottom-0.5 after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-yellow-500 after:transition-transform after:duration-200 group-hover:after:scale-x-100">
             Đánh giá {totalRatings > 0 && `(${totalRatings})`}
           </p>
         </Button>

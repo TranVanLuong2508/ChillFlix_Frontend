@@ -10,7 +10,7 @@ import {
   CommentReactionType,
   CountCommentsData,
 } from "@/types/comment.type";
-import { count } from "console";
+
 
 export const CommentServices = {
   getCommentsByFilmGuest: (
@@ -54,6 +54,19 @@ export const CommentServices = {
     return privateAxios.post(`/comment-reactions/create-reaction`, {
       commentId,
       type,
+    });
+  },
+
+  reportComment: (
+    commentId: string,
+    reason: string,
+    description?: string
+  ): Promise<IBackendRes<any>> => {
+    return privateAxios.post(`/report`, {
+      reportType: "COMMENT",
+      targetId: commentId,
+      reason,
+      description,
     });
   },
 };
