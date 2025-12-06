@@ -1,18 +1,17 @@
-"use client";
+"use client"
 
-import { useState, useRef } from "react";
-import { Play, Heart, Info } from "lucide-react";
-import type { FilmDetailRes } from "@/types/filmType";
-import Link from "next/link";
-import { userServices } from "@/services";
-import { useFilmRouter } from "@/hooks/filmRouter";
+import { useState, useRef, useEffect } from "react"
+import { Play, Heart, Info, Star } from "lucide-react"
+import type { FilmDetailRes } from "@/types/filmType"
+import { useFilmRouter } from "@/hooks/filmRouter"
+import { ratingService } from "@/services/ratingService"
 
 interface MovieCardProps {
-  item: FilmDetailRes;
-  badgeColor?: string;
-  showProgress?: boolean;
-  isFavorite: boolean;
-  hanhleToggleFavorite: (filmId: string) => void;
+  item: FilmDetailRes
+  badgeColor?: string
+  showProgress?: boolean
+  isFavorite: boolean
+  hanhleToggleFavorite: (filmId: string) => void
 }
 
 export default function MovieCard({
@@ -22,15 +21,38 @@ export default function MovieCard({
   isFavorite,
   hanhleToggleFavorite,
 }: MovieCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  //   const [isFavorite, setIsFavorite] = useState(false);
-  const cardContainerRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false)
+  const cardContainerRef = useRef<HTMLDivElement>(null)
+  const [averageRating, setAverageRating] = useState<number>(0)
+  const [isLoadingRating, setIsLoadingRating] = useState<boolean>(false)
   const { goFilmDetail } = useFilmRouter()
 
+  useEffect(() => {
+    if (!item.filmId) return
+
+    const fetchMovieRating = async () => {
+      setIsLoadingRating(true)
+      try {
+        const response = (await ratingService.getRatingsByFilm(item.filmId)) as any
+        if (response?.EC === 1) {
+          const result = response.result || response.data?.result
+          setAverageRating(result?.averageRating || 0)
+        }
+      } catch (error) {
+        console.error(`Error fetching rating for ${item.filmId}:`, error)
+        setAverageRating(0)
+      } finally {
+        setIsLoadingRating(false)
+      }
+    }
+
+    fetchMovieRating()
+  }, [item.filmId])
+
   const getGenreText = (genre: any): string => {
-    if (typeof genre === "string") return genre;
-    return genre?.valueVi || genre?.valueEn || "";
-  };
+    if (typeof genre === "string") return genre
+    return genre?.valueVi || genre?.valueEn || ""
+  }
   return (
     <div
       ref={cardContainerRef}
@@ -49,10 +71,7 @@ export default function MovieCard({
           {item.badges && item.badges.length > 0 && (
             <div className="absolute top-2 left-2 flex gap-1">
               {item.badges.map((badge, idx) => (
-                <span
-                  key={idx}
-                  className={`${badge.color} text-white px-2 py-0.5 rounded text-xs font-bold`}
-                >
+                <span key={idx} className={`${badge.color} text-white px-2 py-0.5 rounded text-xs font-bold`}>
                   {badge.text}
                 </span>
               ))}
@@ -62,14 +81,8 @@ export default function MovieCard({
       </div>
 
       <div className="mt-3 space-y-1">
-        <h3 className="font-bold text-white text-base line-clamp-2">
-          {item.title}
-        </h3>
-        {item.originalTitle && (
-          <p className="text-sm text-gray-400 line-clamp-1">
-            {item.originalTitle}
-          </p>
-        )}
+        <h3 className="font-bold text-white text-base line-clamp-2">{item.title}</h3>
+        {item.originalTitle && <p className="text-sm text-gray-400 line-clamp-1">{item.originalTitle}</p>}
       </div>
 
       {isHovered && (
@@ -83,11 +96,7 @@ export default function MovieCard({
         >
           {/* Preview Image */}
           <div className="relative w-full h-40 overflow-hidden bg-slate-800">
-            <img
-              src={item.posterUrl || "/placeholder.svg"}
-              alt={item.title}
-              className="w-full h-full object-cover"
-            />
+            <img src={item.posterUrl || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" />
           </div>
 
           {/* Content */}
@@ -95,9 +104,7 @@ export default function MovieCard({
             {/* Title */}
             <div>
               <h2 className="text-base font-bold text-white">{item.title}</h2>
-              {item.originalTitle && (
-                <p className="text-xs text-gray-400">{item.originalTitle}</p>
-              )}
+              {item.originalTitle && <p className="text-xs text-gray-400">{item.originalTitle}</p>}
             </div>
 
             {/* Action Buttons */}
@@ -120,29 +127,27 @@ export default function MovieCard({
               </div>
               <button
                 onClick={() => {
-                  hanhleToggleFavorite(item.filmId);
+                  hanhleToggleFavorite(item.filmId)
                 }}
                 className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Heart
-                  className="w-4 h-4"
-                  fill={isFavorite ? "currentColor" : "none"}
-                />
+                <Heart className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} />
               </button>
-              <button className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+              <button
+                onClick={() => {
+                  goFilmDetail(item.slug)
+                }} className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                 <Info className="w-4 h-4" />
               </button>
             </div>
 
             {/* Metadata */}
             <div className="flex flex-wrap gap-1 text-xs text-gray-300">
-              {item.imdbRating && (
+              {averageRating > 0 && (
                 <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-[#f0d25c]">
-                  <span className="text-amber-400 font-bold text-xs">
-                    IMDb:{" "}
-                  </span>
-                  <span className="text-white font-bold text-xs">
-                    {item.imdbRating}
+                  <span className="text-white font-bold text-xs flex items-center gap-0.5">
+                    {averageRating.toFixed(1)}
+                    <Star size={12} className="fill-amber-400 text-amber-400" />
                   </span>
                 </div>
               )}
@@ -150,21 +155,11 @@ export default function MovieCard({
                 <span className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white text-xs">
                   {typeof item.age === "string"
                     ? item.age
-                    : (item.age as any)?.valueVi ||
-                    (item.age as any)?.valueEn ||
-                    ""}
+                    : (item.age as any)?.valueVi || (item.age as any)?.valueEn || ""}
                 </span>
               )}
-              {item.year && (
-                <span className="bg-slate-800 px-2 py-0.5 rounded">
-                  {item.year}
-                </span>
-              )}
-              {item.episodes && (
-                <span className="bg-slate-800 px-2 py-0.5 rounded">
-                  {item.episodes}
-                </span>
-              )}
+              {item.year && <span className="bg-slate-800 px-2 py-0.5 rounded">{item.year}</span>}
+              {item.episodes && <span className="bg-slate-800 px-2 py-0.5 rounded">{item.episodes}</span>}
             </div>
 
             {/* Genres */}
@@ -182,5 +177,5 @@ export default function MovieCard({
         </div>
       )}
     </div>
-  );
+  )
 }
