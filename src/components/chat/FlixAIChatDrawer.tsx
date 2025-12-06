@@ -16,6 +16,8 @@ import { Send, X, Bot, User } from "lucide-react";
 import { useChatDrawerStore } from "@/stores/chatDrawerStore";
 import { geminiService } from "@/services/chatbotService";
 import VoiceSearch from "../recognition/VoiceSearch";
+import { SmartFilmText } from "./SmartFilmText";
+import { usePathname } from "next/navigation";
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -38,8 +40,8 @@ export default function FlixAIChatDrawer() {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pathName = usePathname();
 
-  // Auto scroll to bottom when new message =))
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -48,6 +50,10 @@ export default function FlixAIChatDrawer() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    closeDrawer();
+  }, [pathName]);
 
   const getChatResponse = async () => {
     try {
@@ -99,7 +105,6 @@ export default function FlixAIChatDrawer() {
     <Drawer open={isOpen} onOpenChange={closeDrawer}>
       <DrawerContent className="h-[85vh] max-h-screen bg-[#0f1419] border-t border-[#2a3040]/60 focus:outline-none focus-visible:outline-none ">
         <div className="flex flex-col h-full max-w-2xl mx-auto">
-          {/* Header */}
           <DrawerHeader className="border-b border-[#2a3040]/50 pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -127,7 +132,6 @@ export default function FlixAIChatDrawer() {
             </div>
           </DrawerHeader>
 
-          {/* Chat Messages */}
           <div ref={scrollAreaRef} className="flex-1 overflow-y-auto px-4 py-6">
             <div className="space-y-4">
               {messages.map((msg) => (
@@ -145,11 +149,13 @@ export default function FlixAIChatDrawer() {
                   <div
                     className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
                       msg.role === "user"
-                        ? "bg-gradient-to-r from-[#d4af37] to-[#f5d547] text-[#0f1419]"
-                        : "bg-[#1a1f2e] text-gray-200 border border-[#2a3040]/50"
+                        ? "bg-gradient-to-r from-[#d4af37] to-[#f5d547] text-[#0f1419] select-text"
+                        : "bg-[#1a1f2e] text-gray-200 border border-[#2a3040]/50 select-text"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    <p className="text-sm whitespace-pre-wrap">
+                      <SmartFilmText text={msg.content} />
+                    </p>
                     <p className="text-xs opacity-70 mt-1">
                       {msg.timestamp.toLocaleTimeString("vi-VN", {
                         hour: "2-digit",
@@ -191,7 +197,6 @@ export default function FlixAIChatDrawer() {
             </div>
           </div>
 
-          {/* Input */}
           <DrawerFooter className="border-t border-[#2a3040]/50 pt-4 pb-6 px-4">
             <div className="flex gap-2">
               <VoiceSearch onResult={(text) => setInput(text)} />

@@ -10,6 +10,7 @@ import {
   RotateCw,
   LogOut,
   X,
+  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ export default function Header() {
   const [genresList, setGenresList] = useState<AllCodeRow[]>([]);
   const [countriesList, setCountriesList] = useState<AllCodeRow[]>([]);
   const [activeTab, setActiveTab] = useState("film");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { openLoginModal } = useAuthModalStore();
 
@@ -105,6 +107,7 @@ export default function Header() {
 
   useEffect(() => {
     setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -273,21 +276,29 @@ export default function Header() {
   `}
     >
       <div className="mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-6">
+        <div className="flex items-center justify-between gap-2 md:gap-4 lg:gap-6">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`lg:hidden text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"} transition p-2 rounded-md`}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
           {/* Logo */}
           <div className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#f5d547] rounded-full flex items-center justify-center">
-              <div className="w-8 h-8 bg-[#0f1419] rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#d4af37] to-[#f5d547] rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 md:w-8 md:h-8 bg-[#0f1419] rounded-full flex items-center justify-center">
                 <span
                   onClick={goHome}
-                  className="text-[#d4af37] font-bold text-lg"
+                  className="text-[#d4af37] font-bold text-base md:text-lg"
                 >
                   ▶
                 </span>
               </div>
             </div>
-            <div>
-              <h1 className="text-white font-bold text-lg">ChillFlix</h1>
+            <div className="hidden sm:block">
+              <h1 className="text-white font-bold text-base md:text-lg">ChillFlix</h1>
             </div>
           </div>
 
@@ -446,10 +457,10 @@ export default function Header() {
           </nav>
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <button
               onClick={openDrawer}
-              className={`flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
+              className={`hidden md:flex items-center gap-2 text-[16px] text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
                 } cursor-pointer bg-transparent border-none transition px-3 py-2 rounded-md`}
             >
               <span>Chat với FlixAI</span>
@@ -842,7 +853,7 @@ export default function Header() {
             </DropdownMenu>
 
             {/* User Menu Dropdown */}
-            <div className="w-[120px] flex justify-end">
+            <div className="flex justify-end">
               {isLoading ? (
                 <div className="w-10 h-10 rounded-full bg-[#2a3040]/60 animate-pulse" />
               ) : (
@@ -871,11 +882,11 @@ export default function Header() {
                           />
                         </button>
                       </DropdownMenuTrigger>
-                      {/* menu content */}{" "}
+                      {/* menu content */}
                       <DropdownMenuContent
                         align="end"
                         className="bg-[#1a1f2e]/70 backdrop-blur-md border border-[#2a3040]/50 
-                        w-64 p-0 rounded-2xl shadow-xl overflow-hidden mt-2
+                        w-64 md:w-64 p-0 rounded-2xl shadow-xl overflow-hidden mt-2
                         transition-all duration-300 ease-out
                         transform origin-top-right scale-95 opacity-0 
                         data-[state=open]:scale-100 data-[state=open]:opacity-100"
@@ -966,6 +977,127 @@ export default function Header() {
                 </>
               )}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Navigation Drawer */}
+      <div
+        className={`fixed top-0 left-0 h-full w-80 bg-[#0f1419] border-r border-[#2a3040] z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Mobile Menu Header */}
+          <div className="flex items-center justify-between p-4 border-b border-[#2a3040]">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#d4af37] to-[#f5d547] rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 bg-[#0f1419] rounded-full flex items-center justify-center">
+                  <span className="text-[#d4af37] font-bold text-sm">▶</span>
+                </div>
+              </div>
+              <h2 className="text-white font-bold text-lg">Menu</h2>
+            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-gray-300 hover:text-yellow-400 p-2"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Mobile Menu Content */}
+          <div className="flex-1 overflow-y-auto py-4">
+            <nav className="flex flex-col">
+              <button
+                className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-6 py-3 text-center"
+                onClick={goSingleFilms}
+              >
+                Phim Lẻ
+              </button>
+              <button
+                className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-6 py-3 text-center"
+                onClick={goSeriesFilms}
+              >
+                Phim Bộ
+              </button>
+
+              {/* Thể loại - Mobile */}
+              <div className="border-t border-[#2a3040] my-2" />
+              <div className="px-6 py-2">
+                <h3 className="text-yellow-400 font-semibold text-sm mb-2 text-center">Thể loại</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {genresList.map((genre, index) => (
+                    <button
+                      key={`${index}-${genre.id}`}
+                      className="text-gray-300 hover:text-yellow-400 transition text-sm text-center px-3 py-2 rounded-md hover:bg-[#1a1f2e]"
+                      onClick={() => goGenre(genre.valueEn as string)}
+                    >
+                      {genre.valueVi}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quốc gia - Mobile */}
+              <div className="border-t border-[#2a3040] my-2" />
+              <div className="px-6 py-2">
+                <h3 className="text-yellow-400 font-semibold text-sm mb-2 text-center">Quốc gia</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {countriesList.map((country, index) => (
+                    <button
+                      key={`${index}-${country.id}`}
+                      className="text-gray-300 hover:text-yellow-400 transition text-sm text-center px-3 py-2 rounded-md hover:bg-[#1a1f2e]"
+                      onClick={() => goCountry(country.valueEn as string)}
+                    >
+                      {country.valueVi}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-[#2a3040] my-2" />
+              <button
+                className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-6 py-3 text-center"
+                onClick={goCoWatching}
+              >
+                Xem Chung
+              </button>
+
+              <div className="border-t border-[#2a3040] my-2" />
+              <button
+                className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-6 py-3 text-center"
+                onClick={goLatestUpdate}
+              >
+                Mới cập nhật
+              </button>
+              <button
+                className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-6 py-3 text-center"
+                onClick={goMostViewed}
+              >
+                Phổ biến
+              </button>
+
+              <div className="border-t border-[#2a3040] my-2" />
+              <button className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-6 py-3 text-center">
+                Phim VIP
+              </button>
+
+              <div className="border-t border-[#2a3040] my-2" />
+              <button
+                onClick={openDrawer}
+                className="text-gray-300 hover:text-yellow-400 hover:bg-[#1a1f2e] transition px-6 py-3 text-center md:hidden"
+              >
+                Chat với FlixAI
+              </button>
+            </nav>
           </div>
         </div>
       </div>
