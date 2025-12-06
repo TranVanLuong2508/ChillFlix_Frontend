@@ -32,5 +32,6 @@ export const useAppRouter = () => {
     goMostViewed: () => router.push("/search?sort=Views"),
 
     goCoWatching: () => router.push("/co-watching"),
+    goFilmVip: () => router.push("/film-vip"),
   };
 };

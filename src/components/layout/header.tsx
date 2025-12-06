@@ -78,6 +78,7 @@ export default function Header() {
     goMostViewed,
     goLatestUpdate,
     goCoWatching,
+    goFilmVip,
   } = useAppRouter();
   const { openDrawer } = useChatDrawerStore();
 
@@ -492,6 +493,7 @@ export default function Header() {
             <button
               className={`text-gray-300 hover:text-yellow-400 ${isScrolled ? "hover:bg-[#1a1f2e]" : "hover:bg-transparent"
                 } transition bg-transparent border-none cursor-pointer px-3 py-2 rounded-md`}
+              onClick={goFilmVip}
             >
               Phim VIP
             </button>

@@ -5,14 +5,14 @@ const SuggestList = () => {
     <>
       <h1 className="text-2xl font-semibold pb-4">Phim đề xuất</h1>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col md:gap-4 gap-6">
         {Array.from({ length: 4 }).map((item, index) => (
           <Link
             key={index}
             href="/xem-video/shin-cau-be-but-chi-63edef863005e93c8c761fdf"
-            className="flex items-stretch gap-4 cursor-pointer ease-out duration-300 hover:bg-eerie-black rounded-[12px]"
+            className="xl:flex xl:items-stretch gap-4 cursor-pointer ease-out duration-300 hover:bg-eerie-black rounded-[12px] bg-zinc-900 xl:bg-transparent shadow-[0px_10px_20px_0px_rgba(59,_130,_246,_0.3)] md:shadow-none"
           >
-            <div className="relative w-[128px] min-w-[128px] xl:w-[200px] xl:min-w-[200px] rounded-[8px] xl:rounded-[12px] overflow-hidden">
+            <div className="relative w-full xl:w-[130px] xl:min-w-[130px] rounded-[8px] xl:rounded-[12px] overflow-hidden">
               <div className="w-full pb-[56.25%] relative">
                 <img
                   className="min-w-full min-h-full absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[8px] xl:rounded-[12px]"
@@ -26,11 +26,11 @@ const SuggestList = () => {
               </div>
             </div>
 
-            <div className="flex-1 min-w-0 pr-4 flex flex-col justify-center">
-              <h3 className="text-white-smoke font-medium text-[16px] leading-[150%] tracking-[0.32px] mb-2 line-clamp-2">
+            <div className="flex-1 min-w-0 p-4 xl:p-0  flex flex-col justify-center">
+              <h3 className="text-white-smoke font-medium xl:text-[14px] text-[16px] leading-[150%] tracking-[0.32px] mb-2 line-clamp-2">
                 Shin - Cậu Bé Bút Chì
               </h3>
-              <p className="text-spanish-gray text-[16px] leading-[150%] tracking-[0.32px]">
+              <p className="text-spanish-gray xl:text-[14px] text-[14px] leading-[150%] tracking-[0.32px]">
                 2019 • T16 • 300/300 tập • Nhật Bản
               </p>
             </div>

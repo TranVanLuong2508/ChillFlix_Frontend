@@ -14,6 +14,8 @@ import SuggestList from "@/components/film/player/suggest-list";
 
 import { useFilmStore } from "@/stores/filmStore";
 import { usePlayerStore } from "@/stores/playerStore";
+import { useAuthStore } from "@/stores/authStore";
+import VIPContent from "@/components/custom/VipContent";
 
 export default function PlayPage() {
   const { playSlug }: { playSlug: string } = useParams();
@@ -24,6 +26,7 @@ export default function PlayPage() {
 
   const { loading, filmData, partData, getDetailFilm, getPartData } = useFilmStore();
   const { handleInfoPlayer, resetInfoPlayer } = usePlayerStore();
+  const { authUser } = useAuthStore();
 
   const [episodeDetail, setEpisodeDetail] = useState<EpisodeDetail | null>(null);
   const [partDetail, setPartDetail] = useState<PartDetail | null>(null);
@@ -78,18 +81,24 @@ export default function PlayPage() {
     );
   }
 
+  if (filmData.film.isVip && !authUser.isVip) {
+    return (
+      <VIPContent />
+    )
+  }
+
   return (
-    <div className="w-full bg-zinc-950 text-white pt-[72px]">
-      <div className="px-[20px] pt-4">
+    <div className="w-full bg-zinc-950 text-white md:pt-[72px] pt-[80px]">
+      <div className="px-[20px] lg:pt-4 pt-6">
         <Player currentPart={p!} currentEpisode={ep!} episodeDetail={episodeDetail} partDetail={partDetail} key={searchParams.toString()} />
         <div className="py-10">
-          <div className="grid grid-cols-10 gap-4">
-            <div className="col-span-7 ">
+          <div className="grid grid-cols-1 xl:grid-cols-10 md:grid-cols-12 gap-4">
+            <div className="xl:col-span-7 lg:col-span-9 md:col-span-8">
               <FilmInfo />
               <TabsSection />
               <CommentRatingTabs />
             </div>
-            <div className="col-span-3 border-l border-amber-500 px-4">
+            <div className="xl:col-span-3 lg:col-span-3 md:col-span-4 md:border-l border-amber-500 md:px-4 px-0">
               <SuggestList />
             </div>
           </div>

@@ -134,14 +134,20 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
       fullscreenWeb: true,
 
       // config mobile
-      gesture: false,
+      gesture: true,
       fastForward: true,
       autoOrientation: true,
+      lock: true,
 
       // config play back *****
       // id: "your-url-id",
       // autoPlayback: true,
       // config play back
+
+      moreVideoAttr: {
+        'webkit-playsinline': true,
+        playsInline: true,
+      },
 
       // custom style
       icons: {
@@ -175,7 +181,7 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
   return (
     <div
       ref={artRef}
-      className="artplayer-app hide-scrollbar h-[90vh] aspect-auto"
+      className="artplayer-app hide-scrollbar lg:h-[90vh] md:h-[80vh] h-[25vh] aspect-auto"
     ></div>
   );
 };

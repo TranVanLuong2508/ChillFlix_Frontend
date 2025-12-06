@@ -49,8 +49,11 @@ interface PlayerProps {
 const Player = ({ currentPart, currentEpisode, episodeDetail, partDetail }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
+
+
+  // shadow-[-10px_-10px_30px_4px_rgba(0,0,0,0.1),_10px_10px_30px_4px_rgba(45,78,255,0.15)]
   return (
-    <div className="shadow-[-8px_-8px_40px_10px_rgba(0,0,0,0.3),8px_8px_40px_10px_rgba(0,0,0,0.3)] rounded-2xl overflow-hidden">
+    <div className="md:shadow-[0px_15px_50px_0px_rgba(59,_130,_246,_0.15)] shadow-[0px_15px_50px_0px_rgba(59,_130,_246,_0.4)] rounded-2xl overflow-hidden">
       <div className="relative group">
         <PlayerInfo
           episodeTitle={episodeDetail.title}

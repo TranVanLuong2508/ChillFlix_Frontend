@@ -9,7 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Crown, X } from "lucide-react";
 import { PartDetail } from "@/types/part.type";
@@ -17,7 +16,6 @@ import { useFilmStore } from "@/stores/filmStore";
 import { useEffect, useState } from "react";
 import { EpisodeDetail } from "@/types/episode.type";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { usePlayerStore } from "@/stores/playerStore";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { useAppRouter } from "@/hooks/useAppRouter";
@@ -87,12 +85,12 @@ const Content = ({
 
   const { goUpgradeVip } = useAppRouter();
   const { filmData } = useFilmStore();
-  const { authUser, isLoggingIn } = useAuthStore();
+  const { authUser, isAuthenticated } = useAuthStore();
 
   // Hàm thay đổi searchParams
   const handlePlayEpisode = (episodeNumber: number) => {
     if (filmData?.film.isVip && !authUser.isVip && episodeNumber > 2) {
-      if (isLoggingIn) {
+      if (isAuthenticated) {
         toast.warning("Bạn cần là VIP để xem tập phim này");
         setTimeout(() => { goUpgradeVip() }, 1000)
       } else {
@@ -110,7 +108,7 @@ const Content = ({
   return (
     <>
       <Separator />
-      <div className="h-full w-full rounded-md">
+      <div className="h-[500px] w-full rounded-md">
         <div className="grid grid-cols-4 gap-4">
           {listEpisode.map((episode, i) => {
             const isSelected = episode.episodeNumber === +currentEpisode && isActive;
@@ -159,7 +157,7 @@ const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayLi
 
   return (
     <div
-      className={cn("absolute inset-0 z-1000", !open && "pointer-events-none")}
+      className={cn("fixed inset-0 z-1000", !open && "pointer-events-none")}
     >
       <div
         className={cn(
@@ -171,7 +169,7 @@ const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayLi
       <div
         className={cn(
           "bg-zinc-500/20 backdrop-blur-md text-white flex flex-col gap-4 transition ease-in-out absolute",
-          "inset-y-0 right-0 w-3/4 sm:max-w-sm px-6 py-8 my-6 mr-6 rounded-2xl",
+          "inset-y-0 right-0 w-[88%] md:w-3/4 sm:max-w-sm px-6 py-8 my-6 mr-6 rounded-2xl",
           "transform transition-all duration-300 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
           open ? "opacity-100" : "opacity-0"

@@ -50,3 +50,16 @@ export interface FilmDataStream {
   film: Film;
   filmImages: FilmImages;
 }
+
+export interface IFilmVipRes {
+  filmId: string;
+  originalTitle: string;
+  title: string;
+  isVip: boolean;
+  duration: number;
+  description: string;
+  year: string;
+  slug: string;
+  view: number;
+  filmImages: FilmImageRes[];
+}

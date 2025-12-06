@@ -1,8 +1,10 @@
+import VIPBadge from "@/components/film/detail/VIPBagde";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SearchMessage } from "@/constants/messages/search.message";
 import { cn } from "@/lib/utils";
 import { searchService } from "@/services/searchService";
+import { useAuthStore } from "@/stores/authStore";
 import { IFilmSearch } from "@/types/search.type";
 import { Loader, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -14,6 +16,8 @@ interface SearchDropdownProps {
 }
 
 export default function SearchDropdown({ className, onSelectFilm }: SearchDropdownProps) {
+  const { authUser } = useAuthStore();
+
   const [filmResult, setFilmResult] = useState<IFilmSearch[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -83,6 +87,20 @@ export default function SearchDropdown({ className, onSelectFilm }: SearchDropdo
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+
+  const handleSelectFilmSearch = (film: IFilmSearch) => {
+    if (film.isVip && !authUser.isVip) {
+      toast.warning("Vui lòng đăng ký VIP để chọn phim này")
+      return;
+    }
+    onSelectFilm(film);
+    setKeyword("");
+    setDebouncedKeyword("");
+    setShowDropdown(false);
+    setFilmResult([]);
+  }
+
   return (
     <>
       <div className="flex-1 w-full" ref={wrapperRef}>
@@ -126,13 +144,7 @@ export default function SearchDropdown({ className, onSelectFilm }: SearchDropdo
                       {filmResult.map((film) => (
                         <div
                           key={film.filmId}
-                          onClick={() => {
-                            onSelectFilm(film);
-                            setKeyword("");
-                            setDebouncedKeyword("");
-                            setShowDropdown(false);
-                            setFilmResult([]);
-                          }}
+                          onClick={() => handleSelectFilmSearch(film)}
                           className="flex gap-3 cursor-pointer p-2 hover:bg-[#2a3040] rounded-lg transition"
                         >
                           <img
@@ -142,6 +154,10 @@ export default function SearchDropdown({ className, onSelectFilm }: SearchDropdo
                           <div className="flex flex-col items-start gap-1">
                             <span className="text-white font-semibold text-sm">
                               {film.title}
+                              {
+                                film.isVip &&
+                                <VIPBadge size="sm" className="ml-2" />
+                              }
                             </span>
                             <span className="text-gray-400 text-xs italic">
                               {film.originalTitle}
