@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
-import { Play, Heart, Info, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Heart, Info, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import filmService from "@/services/filmService";
 import { userServices } from "@/services";
 import type { FilmDetailRes } from "@/types/filmType";
@@ -12,6 +12,7 @@ import { useAppRouter } from "@/hooks/useAppRouter";
 import { useFilmRouter } from "@/hooks/filmRouter";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
+import { useFilmStore } from "@/stores/filmStore";
 
 const getPosterUrl = (film: any): string => {
   if (film.posterUrl) return film.posterUrl; // fallback for old format
@@ -25,6 +26,29 @@ const getPosterUrl = (film: any): string => {
   }
   return "/placeholder.svg";
 };
+
+const renderStars = (rating: number) => {
+  const fullStars = Math.floor(rating)
+  const hasHalfStar = rating % 1 >= 0.5
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
+
+  return (
+    <div className="flex items-center gap-1">
+      {Array(fullStars)
+        .fill(0)
+        .map((_, i) => (
+          <Star key={`full-${i}`} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+        ))}
+      {hasHalfStar && <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 opacity-50" />}
+      {Array(emptyStars)
+        .fill(0)
+        .map((_, i) => (
+          <Star key={`empty-${i}`} className="w-4 h-4 text-gray-400" />
+        ))}
+      <span className="text-white font-bold text-xs ml-1">{rating.toFixed(1)}</span>
+    </div>
+  )
+}
 
 export default function HeroCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -40,7 +64,7 @@ export default function HeroCarousel() {
   const { isAuthenticated } = useAuthStore();
   const { goGenre } = useAppRouter();
   const { goFilmDetail } = useFilmRouter();
-
+  const { heroFilms, getRatingByFilmId, ratingData } = useFilmStore()
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,6 +99,13 @@ export default function HeroCarousel() {
       fetchFavoriteList();
     }
   }, []);
+
+
+  useEffect(() => {
+    if (films.length > 0) {
+      getRatingByFilmId(films[currentSlide].filmId)
+    }
+  }, [currentSlide, films])
 
   useEffect(() => {
     const states: { [key: string]: boolean } = {};
@@ -196,9 +227,19 @@ export default function HeroCarousel() {
             )}
 
             <div className="flex flex-wrap items-center gap-2 pt-1 select-none">
-              <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-[#f0d25c]">
-                <span className="text-amber-400 font-bold text-xs">IMDb</span>
-                <span className="text-white font-bold text-xs">7.5</span>
+              <div className="flex items-center gap-2 bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-[#f0d25c]">
+                {ratingData?.averageRating ? (
+                  renderStars(ratingData.averageRating)
+                ) : (
+                  <div className="flex items-center gap-1">
+                    {Array(5)
+                      .fill(0)
+                      .map((_, i) => (
+                        <Star key={i} className="w-4 h-4 text-gray-400" />
+                      ))}
+                    <span className="text-gray-400 font-bold text-xs ml-1">0.0</span>
+                  </div>
+                )}
               </div>
               {slide.age && (
                 <div className="bg-[rgba(255,255,255,0.01)] backdrop-blur-sm px-2 py-1 rounded border border-white text-white text-xs">

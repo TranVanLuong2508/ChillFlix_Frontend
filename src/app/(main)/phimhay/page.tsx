@@ -1,150 +1,122 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import HeroCarousel from "@/components/homepage/hero-carousel";
-import ContentCarousel from "@/components/homepage/content-carousel";
-import type { FilmDetailRes } from "@/types/filmType";
-import filmServices from "@/services/filmService";
-import { filmInUserPage } from "@/types/user.type";
-import { userServices } from "@/services";
-import { userFavoriteStore } from "@/stores/favoriteStore";
-import { useAuthStore } from "@/stores/authStore";
-import { toast } from "sonner";
+import { useEffect } from "react"
+import HeroCarousel from "@/components/homepage/hero-carousel"
+import ContentCarousel from "@/components/homepage/content-carousel"
+import { userFavoriteStore } from "@/stores/favoriteStore"
+import { userServices } from "@/services"
+import { useFilmStore } from "@/stores/filmStore"
+import { useRatingStore } from "@/stores/ratingStore"
 
 const getPosterUrl = (film: any): string => {
-  if (film.posterUrl) return film.posterUrl; // fallback for old format
+  if (film.posterUrl) return film.posterUrl
   if (film.filmImages && Array.isArray(film.filmImages)) {
-    const posterImage = film.filmImages.find(
-      (img: any) => img.type === "poster"
-    );
-    if (posterImage) return posterImage.url;
-    // fallback to first image if poster not found
-    if (film.filmImages.length > 0) return film.filmImages[0].url;
+    const posterImage = film.filmImages.find((img: any) => img.type === "poster")
+    if (posterImage) return posterImage.url
+    if (film.filmImages.length > 0) return film.filmImages[0].url
   }
-  return "/placeholder.svg";
-};
+  return "/placeholder.svg"
+}
 
 export default function Home() {
-  const [koreanItems, setKoreanItems] = useState<FilmDetailRes[]>([]);
-  const [chineseItems, setChineseItems] = useState<FilmDetailRes[]>([]);
-  const [usukItems, setUsukItems] = useState<FilmDetailRes[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated } = useAuthStore();
+  const {
+    fetchKoreanFilms,
+    fetchChineseFilms,
+    fetchUSUKFilms,
+    loadingCountry,
+    koreanFilms,
+    chineseFilms,
+    usukFilms,
+    getPartData,
+  } = useFilmStore()
 
-  const { fetchFavoriteList, favoriteList } = userFavoriteStore(); //luong add
+  const { fetchFavoriteList, favoriteList } = userFavoriteStore()
+  const { fetchRatings, averageRating } = useRatingStore()
 
-  //luong add
-  const hanhleToggleFavorite = async (filmId: string) => {
-    if (isAuthenticated) {
-      await userServices.toggleFavoriteFilm(filmId);
-      fetchFavoriteList();
-    } else {
-      toast.warning("Vui lòng đăng nhập");
-    }
-  };
-  //end luong add
+  const handleToggleFavorite = async (filmId: string) => {
+    await userServices.toggleFavoriteFilm(filmId)
+    fetchFavoriteList()
+  }
 
   useEffect(() => {
-    const fetchFilms = async () => {
-      try {
-        setLoading(true);
-        const response = await filmServices.getAll();
-        const films = response.data?.result || [];
-        const transformedFilms = films.map(
-          (film: any) =>
-            ({
-              filmId: film.filmId,
-              id: film.filmId,
-              title: film.title,
-              originalTitle: film.originalTitle,
-              posterUrl: getPosterUrl(film), // Use helper function to extract posterUrl from filmImages
-              imdbRating: 7.5,
-              age: film.age,
-              year: film.year,
-              slug: film.slug,
-              genres:
-                film.genres
-                  ?.map((genre: any) =>
-                    typeof genre === "string"
-                      ? genre
-                      : genre.valueVi || genre.valueEn || genre.keyMap || ""
-                  )
-                  .filter(Boolean) || [],
-              badges: [
-                { text: "PD.8", color: "bg-blue-600" },
-                { text: "TM.4", color: "bg-green-600" },
-              ],
-              episodes: "Phần 1, Tập 12",
-            } as FilmDetailRes)
-        );
-        const itemsPerCategory = Math.ceil(transformedFilms.length / 3);
-        setKoreanItems(transformedFilms.slice(0, itemsPerCategory));
-        setChineseItems(
-          transformedFilms.slice(itemsPerCategory, itemsPerCategory * 2)
-        );
-        setUsukItems(transformedFilms.slice(itemsPerCategory * 2));
+    fetchKoreanFilms()
+    fetchChineseFilms()
+    fetchUSUKFilms()
+    fetchFavoriteList()
+  }, [])
 
-        setError(null);
-      } catch (err) {
-        setError("Không thể tải dữ liệu phim");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFilms();
-    if (isAuthenticated) {
-      fetchFavoriteList(); //luong add
-    }
-  }, [isAuthenticated]);
-
-  if (loading) {
+  if (loadingCountry) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
         <div className="text-white text-lg">Đang tải dữ liệu...</div>
       </div>
-    );
+    )
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-red-500 text-lg">{error}</div>
-      </div>
-    );
+  const transformFilmData = (films: any[]) => {
+    return films.map((film: any) => ({
+      filmId: film.filmId,
+      id: film.filmId,
+      title: film.title,
+      originalTitle: film.originalTitle,
+      posterUrl: getPosterUrl(film),
+      imdbRating: film.ratingData?.averageRating || 0,
+      partData: film.partData || [],
+      age: film.age,
+      year: film.year,
+      slug: film.slug,
+      country: film.country,
+      genres:
+        film.genres
+          ?.map((genre: any) =>
+            typeof genre === "string" ? genre : genre.valueVi || genre.valueEn || genre.keyMap || "",
+          )
+          .filter(Boolean) || [],
+      badges: [
+        { text: "PD.8", color: "bg-blue-600" },
+        { text: "TM.4", color: "bg-green-600" },
+      ],
+      episodes: film.partData?.length > 0 ? `${film.partData.length} tập` : "Phần 1",
+    }))
   }
+
+  const transformedKoreanFilms = transformFilmData(koreanFilms)
+  const transformedChineseFilms = transformFilmData(chineseFilms)
+  const transformedUSUKFilms = transformFilmData(usukFilms)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       <HeroCarousel />
 
       <main className="space-y-4 pb-12 bg-[#191B24] overflow-x-hidden ">
-        {koreanItems.length > 0 && (
+        {transformedKoreanFilms.length > 0 && (
           <ContentCarousel
             title="Phim Hàn Quốc mới"
-            items={koreanItems}
-            userFavoriteList={favoriteList} //luong add
-            hanhleToggleFavorite={hanhleToggleFavorite} //luong add
+            items={transformedKoreanFilms}
+            userFavoriteList={favoriteList}
+            hanhleToggleFavorite={handleToggleFavorite}
+            country="korea"
           />
         )}
-        {chineseItems.length > 0 && (
+        {transformedChineseFilms.length > 0 && (
           <ContentCarousel
             title="Phim Trung Quốc mới"
-            items={chineseItems}
-            userFavoriteList={favoriteList} //luong add
-            hanhleToggleFavorite={hanhleToggleFavorite} //luong add
+            items={transformedChineseFilms}
+            userFavoriteList={favoriteList}
+            hanhleToggleFavorite={handleToggleFavorite}
+            country="china"
           />
         )}
-        {usukItems.length > 0 && (
+        {transformedUSUKFilms.length > 0 && (
           <ContentCarousel
             title="Phim US-UK mới"
-            items={usukItems}
-            userFavoriteList={favoriteList} //luong add
-            hanhleToggleFavorite={hanhleToggleFavorite} //luong add
+            items={transformedUSUKFilms}
+            userFavoriteList={favoriteList}
+            hanhleToggleFavorite={handleToggleFavorite}
+            country="usa"
           />
         )}
       </main>
     </div>
-  );
+  )
 }

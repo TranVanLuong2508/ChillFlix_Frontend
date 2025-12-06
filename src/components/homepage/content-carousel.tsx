@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import type { FilmDetailRes } from "@/types/filmType";
+import * as React from "react"
+import type { FilmDetailRes } from "@/types/filmType"
 import {
   Carousel,
   CarouselContent,
@@ -9,17 +9,18 @@ import {
   CarouselNext,
   CarouselPrevious,
   type CarouselApi,
-} from "@/components/ui/carousel";
-import MovieCard from "./movie-card";
-import { filmInUserPage } from "@/types/user.type";
-import { useAppRouter } from "@/hooks/useAppRouter";
+} from "@/components/ui/carousel"
+import MovieCard from "./movie-card"
+import type { filmInUserPage } from "@/types/user.type"
+import { useAppRouter } from "@/hooks/useAppRouter"
 
 interface ContentCarouselProps {
-  title: string;
-  viewAllLink?: string;
-  items: FilmDetailRes[];
-  userFavoriteList: filmInUserPage[]; //luong add
-  hanhleToggleFavorite: (filmId: string) => void; //luong add
+  title: string
+  viewAllLink?: string
+  items: FilmDetailRes[]
+  userFavoriteList: filmInUserPage[]
+  hanhleToggleFavorite: (filmId: string) => void
+  country?: string // Added country prop
 }
 
 export default function ContentCarousel({
@@ -28,11 +29,23 @@ export default function ContentCarousel({
   items,
   userFavoriteList,
   hanhleToggleFavorite,
+  country = "korea",
 }: ContentCarouselProps) {
-  const { goCountry } = useAppRouter();
-  const [api, setApi] = React.useState<CarouselApi>();
+  const { goCountry } = useAppRouter()
+  const [api, setApi] = React.useState<CarouselApi>()
 
-  console.log("chekc fav", userFavoriteList);
+  const getCountrySlug = (country: string) => {
+    const countryMap: { [key: string]: string } = {
+      korea: "korea",
+      china: "china",
+      usa: "usa",
+    }
+    return countryMap[country] || "korea"
+  }
+
+  const handleViewAll = () => {
+    goCountry(getCountrySlug(country))
+  }
   return (
     <section className="py-6 px-4 md:px-8 bg-[#191B24]">
       <div className="w-full max-w-7xl mx-auto">
@@ -46,25 +59,15 @@ export default function ContentCarousel({
             >
               {title}
             </h4>
-            <a
-              href={viewAllLink}
-              className="inline-flex items-center text-amber-500 hover:text-amber-400 transition-colors font-semibold text-sm gap-1"
+            <button
+              onClick={handleViewAll}
+              className="inline-flex items-center text-amber-500 hover:text-amber-400 transition-colors font-semibold text-sm gap-1 cursor-pointer"
             >
               Xem toàn bộ
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </a>
+            </button>
           </div>
         </div>
 
