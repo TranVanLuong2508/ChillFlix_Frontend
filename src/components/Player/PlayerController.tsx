@@ -5,14 +5,67 @@ import Artplayer from "artplayer";
 import artplayerPluginVttThumbnail from "@artplayer/plugin-vtt-thumbnail";
 
 import "@/components/Player/artplayer-custom.css";
+import { subDays } from "date-fns";
+
+Artplayer.AUTO_PLAYBACK_TIMEOUT = 1000;
+Artplayer.MOBILE_CLICK_PLAY = true;
 
 interface PlayerControllerProps {
   videoUrl: string;
   posterUrl: string;
+  filmId: string;
 }
 
-const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
+interface ArtplayerWithHls extends Artplayer {
+  hls?: Hls;
+}
+
+const getStorageKey = (filmId: string): string => {
+  return `video_progress_${filmId}`;
+};
+
+
+const savePlaybackTime = (filmId: string, currentTime: number, duration: number): void => {
+  if (currentTime >= 5 && currentTime < duration - 10) {
+    const key = getStorageKey(filmId);
+    localStorage.setItem(key, JSON.stringify({
+      time: currentTime,
+      duration: duration,
+      timestamp: Date.now(),
+    }));
+  }
+};
+
+const getSavedPlaybackTime = (filmId: string): number | null => {
+  const key = getStorageKey(filmId);
+  const saved = localStorage.getItem(key);
+
+  if (!saved) return null;
+
+  try {
+    const data = JSON.parse(saved);
+    const thirtyDaysAgo = subDays(new Date(), 30).getTime();
+
+    if (data.timestamp && data.timestamp < thirtyDaysAgo) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return data.time || null;
+  } catch {
+    return null;
+  }
+};
+
+const clearSavedPlaybackTime = (filmId: string): void => {
+  const key = getStorageKey(filmId);
+  localStorage.removeItem(key);
+};
+
+const PlayerController = ({ videoUrl, posterUrl, filmId }: PlayerControllerProps) => {
   const artRef = useRef<HTMLDivElement>(null);
+  const artInstanceRef = useRef<Artplayer | null>(null);
+  const saveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSavedTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (artRef.current) {
@@ -20,17 +73,16 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
       artRef.current.focus();
 
       const headerHeight = 88;
-      const y =
-        artRef.current.getBoundingClientRect().top +
-        window.scrollY -
-        headerHeight;
+      const y = artRef.current.getBoundingClientRect().top + window.scrollY - headerHeight;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
   }, []);
 
-  const playM3u8 = (video: HTMLVideoElement, url: string, art: Artplayer) => {
+  const playM3u8 = (video: HTMLVideoElement, url: string, art: Artplayer, savedTime: number | null) => {
+    const artWithHls = art as ArtplayerWithHls;
+
     if (Hls.isSupported()) {
-      if (art.hls) art.hls.destroy();
+      if (artWithHls.hls) artWithHls.hls.destroy();
 
       const hls = new Hls({
         lowLatencyMode: true,
@@ -44,11 +96,25 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
 
       hls.loadSource(url);
       hls.attachMedia(video);
-      art.hls = hls;
+      artWithHls.hls = hls;
+
+      const restoreTime = () => {
+        if (savedTime !== null && savedTime > 0) {
+          if (video.readyState >= 2) {
+            video.currentTime = savedTime;
+            art.seek = savedTime;
+            art.notice.show = `Đã tiếp tục từ ${Math.floor(savedTime / 60)}:${Math.floor(savedTime % 60).toString().padStart(2, '0')}`;
+          } else {
+            video.addEventListener('loadedmetadata', () => {
+              video.currentTime = savedTime;
+              art.seek = savedTime;
+              art.notice.show = `Đã tiếp tục từ ${Math.floor(savedTime / 60)}:${Math.floor(savedTime % 60).toString().padStart(2, '0')}`;
+            }, { once: true });
+          }
+        }
+      };
 
       hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-        console.log("Available levels: ", data.levels);
-
         const defaultQuality = data.levels[data.levels.length - 1].height;
 
         const qualities = data.levels.map((level, index) => {
@@ -73,19 +139,37 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
           html: "Quality",
           icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>',
           selector: qualities.reverse(),
-          onSelect: function (item: any) {
-            console.log("Select quality: ", item.html);
+          onSelect: function (item) {
+            const qualityItem = item as { html: string; level: number };
+            console.log("Select quality: ", qualityItem.html);
 
-            if (item.level === -1) {
+            if (qualityItem.level === -1) {
               hls.currentLevel = -1;
             } else {
-              hls.currentLevel = item.level;
+              hls.currentLevel = qualityItem.level;
             }
 
-            return item.html;
+            return qualityItem.html;
           },
         });
+
+        if (savedTime !== null && savedTime > 0) {
+          setTimeout(() => {
+            restoreTime();
+          }, 500);
+        }
       });
+
+      if (savedTime !== null && savedTime > 0) {
+        hls.on(Hls.Events.LEVEL_LOADED, () => {
+          setTimeout(() => {
+            if (video.readyState >= 2 && Math.abs(video.currentTime - savedTime) > 1) {
+              video.currentTime = savedTime;
+              art.seek = savedTime;
+            }
+          }, 300);
+        });
+      }
 
       hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
         const level = hls.levels[data.level];
@@ -96,6 +180,13 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
       art.on("destroy", () => hls.destroy());
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = url;
+      if (savedTime !== null && savedTime > 0) {
+        video.addEventListener('loadedmetadata', () => {
+          video.currentTime = savedTime;
+          art.seek = savedTime;
+          art.notice.show = `Đã tiếp tục từ ${Math.floor(savedTime / 60)}:${Math.floor(savedTime % 60).toString().padStart(2, '0')}`;
+        }, { once: true });
+      }
     } else {
       art.notice.show = "Unsupported playback format: m3u8";
     }
@@ -104,13 +195,22 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
   useEffect(() => {
     if (!artRef.current || !videoUrl) return;
 
+    const savedTime = getSavedPlaybackTime(filmId);
+
+    if (savedTime !== null) {
+      console.log(`Found saved playback time: ${savedTime} seconds`);
+    }
+
+    const playM3u8WithSavedTime = (video: HTMLVideoElement, url: string, art: Artplayer) => {
+      playM3u8(video, url, art, savedTime);
+    };
+
     const art = new Artplayer({
       container: artRef.current,
       url: videoUrl,
-      // url: "https://stream.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ.m3u8",
       type: "m3u8",
       customType: {
-        m3u8: playM3u8,
+        m3u8: playM3u8WithSavedTime,
       },
 
       plugins: [
@@ -132,6 +232,7 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
       fullscreen: true,
       aspectRatio: true,
       fullscreenWeb: true,
+      autoPlayback: true,
 
       // config mobile
       gesture: true,
@@ -145,9 +246,8 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
       // config play back
 
       moreVideoAttr: {
-        'webkit-playsinline': true,
         playsInline: true,
-      },
+      } as Partial<HTMLVideoElement>,
 
       // custom style
       icons: {
@@ -155,6 +255,8 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
         state: '<img src="/media/play.png">', // nút play/pause
       },
     });
+
+    artInstanceRef.current = art;
 
     art.on("ready", () => {
       const bottom = art.template.$bottom;
@@ -168,15 +270,73 @@ const PlayerController = ({ videoUrl, posterUrl }: PlayerControllerProps) => {
         info.style.transform = "translate(-50%, -50%)";
       }
 
-      console.info(art.hls);
+      console.info((art as ArtplayerWithHls).hls);
     });
 
+
+    art.on("video:timeupdate", () => {
+      const currentTime = art.currentTime;
+      const duration = art.duration;
+
+      if (duration > 0) {
+        const currentSecond = Math.floor(currentTime);
+        if (currentSecond % 5 === 0 && currentSecond !== lastSavedTimeRef.current) {
+          savePlaybackTime(filmId, currentTime, duration);
+          lastSavedTimeRef.current = currentSecond;
+        }
+      }
+    });
+
+    art.on("video:ended", () => {
+      clearSavedPlaybackTime(filmId);
+      if (saveIntervalRef.current) {
+        clearInterval(saveIntervalRef.current);
+        saveIntervalRef.current = null;
+      }
+    });
+
+    const handleBeforeUnload = () => {
+      if (art && art.currentTime && art.duration) {
+        savePlaybackTime(filmId, art.currentTime, art.duration);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && art && art.currentTime && art.duration) {
+        savePlaybackTime(filmId, art.currentTime, art.duration);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    saveIntervalRef.current = setInterval(() => {
+      if (art && art.currentTime && art.duration) {
+        savePlaybackTime(filmId, art.currentTime, art.duration);
+        lastSavedTimeRef.current = Math.floor(art.currentTime);
+      }
+    }, 10000);
+
     return () => {
+      if (art && art.currentTime && art.duration) {
+        savePlaybackTime(filmId, art.currentTime, art.duration);
+      }
+
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      if (saveIntervalRef.current) {
+        clearInterval(saveIntervalRef.current);
+        saveIntervalRef.current = null;
+      }
+
       if (art && art.destroy) {
         art.destroy(false);
       }
+
+      artInstanceRef.current = null;
     };
-  }, []);
+  }, [videoUrl, posterUrl, filmId]);
 
   return (
     <div

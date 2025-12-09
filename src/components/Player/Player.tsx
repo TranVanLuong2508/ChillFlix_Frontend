@@ -44,13 +44,17 @@ interface PlayerProps {
   currentEpisode: string;
   episodeDetail: EpisodeDetail;
   partDetail: PartDetail;
+  filmId: string;
 }
 
-const Player = ({ currentPart, currentEpisode, episodeDetail, partDetail }: PlayerProps) => {
+const Player = ({
+  currentPart,
+  currentEpisode,
+  episodeDetail,
+  partDetail,
+  filmId,
+}: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
-
-
-
   // shadow-[-10px_-10px_30px_4px_rgba(0,0,0,0.1),_10px_10px_30px_4px_rgba(45,78,255,0.15)]
   return (
     <div className="md:shadow-[0px_15px_50px_0px_rgba(59,_130,_246,_0.15)] shadow-[0px_15px_50px_0px_rgba(59,_130,_246,_0.4)] rounded-2xl overflow-hidden">
@@ -60,11 +64,17 @@ const Player = ({ currentPart, currentEpisode, episodeDetail, partDetail }: Play
           partTitle={partDetail.title}
           onOpenChange={setIsOpen}
         />
-        <PlayListNav currentPart={currentPart} currentEpisode={currentEpisode} open={isOpen} onOpenChange={setIsOpen} />
+        <PlayListNav
+          currentPart={currentPart}
+          currentEpisode={currentEpisode}
+          open={isOpen}
+          onOpenChange={setIsOpen}
+        />
         <div className="relative">
           <PlayerController
             videoUrl={episodeDetail.videoUrl}
             posterUrl={episodeDetail.thumbUrl}
+            filmId={filmId}
           />
         </div>
       </div>
