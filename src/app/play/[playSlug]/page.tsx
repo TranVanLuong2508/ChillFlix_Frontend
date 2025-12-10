@@ -92,6 +92,7 @@ export default function PlayPage() {
       <div className="px-[20px] lg:pt-4 pt-6">
         <Player
           filmId={filmData.film.filmId}
+          episodeId={episodeDetail.id}
           currentPart={p!}
           currentEpisode={ep!}
           episodeDetail={episodeDetail}

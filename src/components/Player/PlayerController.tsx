@@ -6,6 +6,7 @@ import artplayerPluginVttThumbnail from "@artplayer/plugin-vtt-thumbnail";
 
 import "@/components/Player/artplayer-custom.css";
 import { subDays } from "date-fns";
+import filmServices from "@/services/filmService";
 
 Artplayer.AUTO_PLAYBACK_TIMEOUT = 1000;
 Artplayer.MOBILE_CLICK_PLAY = true;
@@ -14,20 +15,21 @@ interface PlayerControllerProps {
   videoUrl: string;
   posterUrl: string;
   filmId: string;
+  episodeId: string;
 }
 
 interface ArtplayerWithHls extends Artplayer {
   hls?: Hls;
 }
 
-const getStorageKey = (filmId: string): string => {
-  return `video_progress_${filmId}`;
+const getStorageKey = (episodeId: string): string => {
+  return `video_progress_${episodeId}`;
 };
 
 
-const savePlaybackTime = (filmId: string, currentTime: number, duration: number): void => {
+const savePlaybackTime = (episodeId: string, currentTime: number, duration: number): void => {
   if (currentTime >= 5 && currentTime < duration - 10) {
-    const key = getStorageKey(filmId);
+    const key = getStorageKey(episodeId);
     localStorage.setItem(key, JSON.stringify({
       time: currentTime,
       duration: duration,
@@ -61,11 +63,29 @@ const clearSavedPlaybackTime = (filmId: string): void => {
   localStorage.removeItem(key);
 };
 
-const PlayerController = ({ videoUrl, posterUrl, filmId }: PlayerControllerProps) => {
+const incrementView = async (filmId: string) => {
+  try {
+    const res = await filmServices.updateView(filmId);
+    if (res.EC !== 0) {
+      console.warn(">> ", res.EM);
+    }
+    console.log("Status: ", res.EM);
+  } catch (error) {
+    console.log("Error when update view: ", error)
+  }
+};
+
+const PlayerController = ({ videoUrl, posterUrl, filmId, episodeId }: PlayerControllerProps) => {
   const artRef = useRef<HTMLDivElement>(null);
   const artInstanceRef = useRef<Artplayer | null>(null);
   const saveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedTimeRef = useRef<number>(0);
+  const viewIncrementedRef = useRef<boolean>(false);
+  const totalWatchedRef = useRef<number>(0);
+  const lastVideoTimeRef = useRef<number | null>(null);
+  const isPlayingRef = useRef<boolean>(false);
+
+  const BACKWARD_RESET_THRESHOLD = 300;
 
   useEffect(() => {
     if (artRef.current) {
@@ -273,16 +293,60 @@ const PlayerController = ({ videoUrl, posterUrl, filmId }: PlayerControllerProps
       console.info((art as ArtplayerWithHls).hls);
     });
 
+    art.on("video:play", () => {
+      isPlayingRef.current = true;
+      lastVideoTimeRef.current = art.currentTime;
+    });
+
+    art.on("video:pause", () => {
+      if (isPlayingRef.current && lastVideoTimeRef.current !== null) {
+        const delta = art.currentTime - lastVideoTimeRef.current;
+        if (delta > 0) {
+          totalWatchedRef.current += delta;
+        }
+      }
+      isPlayingRef.current = false;
+      lastVideoTimeRef.current = art.currentTime;
+    });
+
+    art.on("video:seeked", () => {
+      const newTime = art.currentTime;
+      if (
+        lastVideoTimeRef.current !== null &&
+        newTime < lastVideoTimeRef.current - BACKWARD_RESET_THRESHOLD
+      ) {
+        totalWatchedRef.current = 0;
+        viewIncrementedRef.current = false;
+      }
+      lastVideoTimeRef.current = newTime;
+    });
+
 
     art.on("video:timeupdate", () => {
       const currentTime = art.currentTime;
       const duration = art.duration;
 
       if (duration > 0) {
+        if (isPlayingRef.current) {
+          if (lastVideoTimeRef.current !== null) {
+            const delta = currentTime - lastVideoTimeRef.current;
+            if (delta > 0) {
+              totalWatchedRef.current += delta;
+            }
+          }
+          lastVideoTimeRef.current = currentTime;
+        }
+
         const currentSecond = Math.floor(currentTime);
         if (currentSecond % 5 === 0 && currentSecond !== lastSavedTimeRef.current) {
-          savePlaybackTime(filmId, currentTime, duration);
+          savePlaybackTime(episodeId, currentTime, duration);
           lastSavedTimeRef.current = currentSecond;
+        }
+
+        const watchPercentage = (totalWatchedRef.current / duration) * 100;
+        if (watchPercentage >= 20 && !viewIncrementedRef.current) {
+          incrementView(filmId);
+          viewIncrementedRef.current = true;
         }
       }
     });
@@ -293,17 +357,20 @@ const PlayerController = ({ videoUrl, posterUrl, filmId }: PlayerControllerProps
         clearInterval(saveIntervalRef.current);
         saveIntervalRef.current = null;
       }
+      if (viewIncrementedRef.current) {
+        viewIncrementedRef.current = false;
+      }
     });
 
     const handleBeforeUnload = () => {
       if (art && art.currentTime && art.duration) {
-        savePlaybackTime(filmId, art.currentTime, art.duration);
+        savePlaybackTime(episodeId, art.currentTime, art.duration);
       }
     };
 
     const handleVisibilityChange = () => {
       if (document.hidden && art && art.currentTime && art.duration) {
-        savePlaybackTime(filmId, art.currentTime, art.duration);
+        savePlaybackTime(episodeId, art.currentTime, art.duration);
       }
     };
 
@@ -312,14 +379,14 @@ const PlayerController = ({ videoUrl, posterUrl, filmId }: PlayerControllerProps
 
     saveIntervalRef.current = setInterval(() => {
       if (art && art.currentTime && art.duration) {
-        savePlaybackTime(filmId, art.currentTime, art.duration);
+        savePlaybackTime(episodeId, art.currentTime, art.duration);
         lastSavedTimeRef.current = Math.floor(art.currentTime);
       }
     }, 10000);
 
     return () => {
       if (art && art.currentTime && art.duration) {
-        savePlaybackTime(filmId, art.currentTime, art.duration);
+        savePlaybackTime(episodeId, art.currentTime, art.duration);
       }
 
       window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -335,6 +402,7 @@ const PlayerController = ({ videoUrl, posterUrl, filmId }: PlayerControllerProps
       }
 
       artInstanceRef.current = null;
+      viewIncrementedRef.current = false;
     };
   }, [videoUrl, posterUrl, filmId]);
 

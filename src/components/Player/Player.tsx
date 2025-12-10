@@ -45,6 +45,7 @@ interface PlayerProps {
   episodeDetail: EpisodeDetail;
   partDetail: PartDetail;
   filmId: string;
+  episodeId: string;
 }
 
 const Player = ({
@@ -53,6 +54,7 @@ const Player = ({
   episodeDetail,
   partDetail,
   filmId,
+  episodeId,
 }: PlayerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   // shadow-[-10px_-10px_30px_4px_rgba(0,0,0,0.1),_10px_10px_30px_4px_rgba(45,78,255,0.15)]
@@ -75,6 +77,7 @@ const Player = ({
             videoUrl={episodeDetail.videoUrl}
             posterUrl={episodeDetail.thumbUrl}
             filmId={filmId}
+            episodeId={episodeId}
           />
         </div>
       </div>

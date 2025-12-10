@@ -1,3 +1,4 @@
+import privateAxios from "@/lib/privateAxios";
 import publicAxios from "@/lib/publicAxios";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BACKEND_URL;
@@ -6,6 +7,10 @@ import { IBackendRes, RatingRes } from "@/types/backend.type";
 import { FilmDetailRes, IFilmVipRes } from "@/types/film.type";
 
 const filmServices = {
+  updateView: (filmId: string): Promise<IBackendRes<unknown>> => {
+    return privateAxios.post(`/films/${filmId}/view`);
+  },
+
   getFilmById: (filmId: string): Promise<IBackendRes<FilmDetailRes>> => {
     return publicAxios.get(`/films/${filmId}`);
   },
