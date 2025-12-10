@@ -132,7 +132,7 @@ export default function ArtPlayerClient({
         m3u8: playM3u8,
       },
 
-      poster,
+      // poster,
       theme: "#00B2FF",
 
       playbackRate: true,
@@ -237,7 +237,7 @@ export default function ArtPlayerClient({
   return (
     <div
       ref={artRef}
-      className="artplayer-app hide-scrollbar h-[88vh] aspect-auto"
+      className="artplayer-app hide-scrollbar lg:h-[90vh] md:h-[80vh] h-[25vh] aspect-auto"
     ></div>
   );
 }

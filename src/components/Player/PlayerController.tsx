@@ -233,12 +233,6 @@ const PlayerController = ({ videoUrl, posterUrl, filmId, episodeId }: PlayerCont
         m3u8: playM3u8WithSavedTime,
       },
 
-      plugins: [
-        artplayerPluginVttThumbnail({
-          vtt: "https://image.mux.com/4dfQi4aSj28rdrPWGBkxdzRylMw2SJXR5wBz3YQLMNQ/storyboard.vtt",
-        }),
-      ],
-
       poster: posterUrl,
 
       // config common

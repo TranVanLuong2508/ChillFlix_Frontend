@@ -39,7 +39,7 @@ export const useCoWatchingStore = create<CoWatchingState & CoWatchingAction>((se
     try {
       const res = await roomServices.createRoom(payload);
       if (res.EC !== 0) {
-        toast.error("Had error when create live room");
+        toast.warning(res.EM);
         console.log(">>> Error create live stream room: ", res.EM);
       }
       if (res && res.data) {
