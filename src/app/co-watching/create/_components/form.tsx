@@ -9,6 +9,7 @@ import SearchDropdown from "./search-dropdown";
 import { FilmCard } from "./filmCard";
 import { FormCreateRoom } from "@/components/co_watching/formCreateRoom";
 import { toast } from "sonner";
+import { useCoWatchingStore } from "@/stores/co-watchingStore";
 
 export const Form = () => {
 
@@ -17,6 +18,11 @@ export const Form = () => {
   const [hasFetch, setHasFetch] = useState(false);
 
   const { filmData, partData, loadingPart, getDetailFilm, resetFilmDetail, getPartData } = useFilmStore();
+  const { resetDataRoom } = useCoWatchingStore();
+
+  useEffect(() => {
+    resetDataRoom();
+  }, [])
 
   useEffect(() => {
     handleGetDataFilm();

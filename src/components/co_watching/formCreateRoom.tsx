@@ -80,6 +80,8 @@ export const FormCreateRoom = ({
   }
 
   useEffect(() => {
+
+    console.log("check data room: ", dataRoom)
     if (!dataRoom) return;
 
     const handleRedirect = async () => {

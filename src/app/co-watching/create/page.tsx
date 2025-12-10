@@ -4,10 +4,11 @@ import { ChevronLeft } from "lucide-react"
 
 import Link from "next/link"
 import { Form } from "./_components/form";
+import { useCoWatchingStore } from "@/stores/co-watchingStore";
 
 const CreateCo_WatchingPage = () => {
-
-
+  const { dataRoom } = useCoWatchingStore();
+  console.log("Check has: ", dataRoom);
   return (
     <div className="py-10 pt-[100px] max-w-[1000px] mx-auto">
       <Link href={'/co-watching'} className="flex items-center gap-2 text-white cursor-pointer">

@@ -11,8 +11,8 @@ export function ExitButton({ onClick }: { onClick: () => void }) {
 
   const handleExit = () => {
     onClick();
-    router.push("/co-watching");
     resetDataRoom();
+    router.push("/co-watching");
   };
 
   return (

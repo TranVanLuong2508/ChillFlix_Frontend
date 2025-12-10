@@ -26,9 +26,8 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
   const [userInteracted, setUserInteracted] = useState(false);
   const [syncMode, setSyncMode] = useState<SyncMode>('initial');
 
-  const { dataRoom, getRoomData } = useCoWatchingStore();
+  const { dataRoom, getRoomData, handleUpdateEpisode, resetDataRoom } = useCoWatchingStore();
   const { partData, getPartData } = useFilmStore();
-  const { handleUpdateEpisode } = useCoWatchingStore();
 
   const route = useRouter();
 
@@ -106,8 +105,6 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
   if (!dataRoom || !dataRoom.filmData || !partData) {
     return <Loading />
   }
-
-
 
   return (
     <div className="px-10 pb-10 pt-6">
