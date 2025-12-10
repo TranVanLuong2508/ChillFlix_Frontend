@@ -31,8 +31,8 @@ export const EndLiveButton = ({ handleEnd }: EndLiveButtonProps) => {
             size={"sm"}
             className="hover:bg-red-500 hover:text-white"
           >
-            <Unplug size={16} />
-            <span className="text-sm">Dừng Live</span>
+            <Unplug className="md:size-4 size-3" />
+            <span className="md:text-sm text-xs">Dừng Live</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="bg-[#212a56] border-0">

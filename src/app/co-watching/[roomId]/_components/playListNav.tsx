@@ -149,7 +149,7 @@ const PlayListNav = ({
 
   return (
     <div
-      className={cn("absolute inset-0 z-1000", !open && "pointer-events-none")}
+      className={cn("absolute inset-0 z-1000 md:block hidden", !open && "pointer-events-none")}
     >
       <div
         className={cn(

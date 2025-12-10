@@ -19,10 +19,10 @@ export const Action = () => {
             >
               <Button
                 variant={"outline"}
-                className="rounded-full h-15 w-40 px-7 cursor-pointer hover:bg-amber-400 hover:border-amber-400 transition-all ease duration-150"
+                className="rounded-full lg:h-15 lg:w-40 h-10 w-34 px-7 cursor-pointer hover:bg-amber-400 hover:border-amber-400 transition-all ease duration-150"
               >
-                <DoorOpen className="size-5" />
-                <p className="text-lg">Xem chung</p>
+                <DoorOpen className="lg:size-5 size-4" />
+                <p className="lg:text-lg text-sm">Xem chung</p>
               </Button>
             </Link>
           ) : (
@@ -31,10 +31,10 @@ export const Action = () => {
             >
               <Button
                 variant={"outline"}
-                className="rounded-full h-15 w-40 px-7 cursor-pointer hover:bg-amber-400 hover:border-amber-400 transition-all ease duration-150"
+                className="rounded-full lg:h-15 lg:w-40 h-10 w-34 px-7 cursor-pointer hover:bg-amber-400 hover:border-amber-400 transition-all ease duration-150"
               >
-                <Radio className="size-5" />
-                <p className="text-lg">Quản lý</p>
+                <Radio className="lg:size-5 size-4" />
+                <p className="lg:text-lg text-sm">Quản lý</p>
               </Button>
             </Link>
           )
@@ -45,10 +45,10 @@ export const Action = () => {
         >
           <Button
             variant={"ghost"}
-            className="rounded-full h-15 w-40 px-7 border border-white text-white cursor-pointer hover:bg-transparent hover:text-amber-400 hover:border-amber-400 transition-all ease duration-150"
+            className="rounded-full lg:h-15 lg:w-40 h-10 w-34 px-7 border border-white text-white cursor-pointer hover:bg-transparent hover:text-amber-400 hover:border-amber-400 transition-all ease duration-150"
           >
-            <CirclePlus className="size-5" />
-            <p className="text-lg">Tạo mới</p>
+            <CirclePlus className="lg:size-5 size-4" />
+            <p className="lg:text-lg text-sm">Tạo mới</p>
           </Button>
         </div>
       </div>

@@ -51,11 +51,11 @@ export const Card = ({
             />
           </div>
           {isLive && (
-            <div className="absolute top-0 right-0 p-3">
+            <div className="absolute top-0 right-0 lg:p-3 p-2">
               <Button
                 variant={"ghost"}
                 size={"sm"}
-                className="bg-red-600/85 hover:bg-red-600/80 hover:text-white text-[10px] leading-0 h-6"
+                className="bg-red-600/85 hover:bg-red-600/80 hover:text-white lg:text-[10px] text-[8px] leading-0 lg:h-6 h-5"
               >
                 LIVE
               </Button>
@@ -74,7 +74,7 @@ export const Card = ({
         </div>
         <div>
           <h3
-            className="text-[16px] overflow-hidden"
+            className="lg:text-[16px] overflow-hidden text-sm"
             style={{
               display: "-webkit-box",
               WebkitBoxOrient: "vertical",
@@ -83,7 +83,7 @@ export const Card = ({
           >
             {name}
           </h3>
-          <h3 className="text-sm font-semibold text-white/50 italic">{filmTitle}</h3>
+          <h3 className="text-xs lg:text-sm font-semibold text-white/50 italic">{filmTitle}</h3>
           <p className="text-white/50 text-xs">{hostName} • {formatDistanceToNow(new Date(createdAt), { addSuffix: true, locale: vi })}</p>
         </div>
       </div>

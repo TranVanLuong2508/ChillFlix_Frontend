@@ -104,13 +104,13 @@ export const FormCreateRoom = ({
         <div className="space-y-4">
           <div className="p-6 pt-5 text-white bg-[#282b3a] rounded-3xl">
             <Label
-              className="text-lg font-semibold pb-2"
+              className="lg:text-lg text-sm font-semibold pb-2"
             >
               Tìm kiếm phim khác
             </Label>
             <div className="mt-2">
               <SearchDropdown
-                className="py-3 bg-transparent rounded-lg !text-sm text-white caret-amber-400 active:text-white border-zinc-500 active:border-zinc-500 active:ring-0 focus-visible:ring-0 selection:bg-amber-400 selection:text-black"
+                className="md:py-3 py-2 bg-transparent rounded-lg !text-sm text-white caret-amber-400 active:text-white border-zinc-500 active:border-zinc-500 active:ring-0 focus-visible:ring-0 selection:bg-amber-400 selection:text-black"
                 onSelectFilm={(film) => {
                   setSelectedFilm(film);
                 }}
@@ -121,7 +121,7 @@ export const FormCreateRoom = ({
           <div className="p-6 pt-5 text-white bg-[#282b3a] rounded-3xl">
             <Label
               htmlFor="room-name"
-              className="text-lg font-semibold pb-2"
+              className="lg:text-lg text-sm font-semibold pb-2"
             >
               Tên phòng
             </Label>
@@ -129,7 +129,7 @@ export const FormCreateRoom = ({
               type="text"
               id="room-name"
               placeholder="Nhập tên phòng"
-              className="!text-sm text-white caret-amber-400 active:text-white py-5 px-4 border-zinc-500 active:border-zinc-500 active:ring-0 focus-visible:ring-0 selection:bg-amber-400 selection:text-black"
+              className="md:!text-sm !text-xs text-white caret-amber-400 active:text-white md:py-5 py-3 px-4 border-zinc-500 active:border-zinc-500 active:ring-0 focus-visible:ring-0 selection:bg-amber-400 selection:text-black"
               value={roomName}
               onChange={(evt) => setRoomName(evt.target.value)}
             />
@@ -137,11 +137,11 @@ export const FormCreateRoom = ({
 
           <div className="p-6 pt-5 text-white bg-[#282b3a] rounded-3xl">
             <div className="flex items-center pb-2 justify-between">
-              <h3 className="text-lg font-semibold">
+              <h3 className="lg:text-lg text-sm  font-semibold">
                 Thông tin chi tiết:
               </h3>
               <button
-                className="px-2 py-0.5 rounded-lg bg-transparent border-2 border-zinc-400 text-zinc-300 text-sm hover:bg-amber-400 hover:border-amber-400 hover:text-black cursor-pointer transition-all duration-150 ease-in-out font-semibold"
+                className="md:px-2 px-1 py-0.5 rounded-lg bg-transparent border-2 border-zinc-400 text-zinc-300 md:text-sm text-xs hover:bg-amber-400 hover:border-amber-400 hover:text-black cursor-pointer transition-all duration-150 ease-in-out font-semibold"
                 type="button"
                 onClick={() => setOpen(true)}
               >
@@ -150,29 +150,29 @@ export const FormCreateRoom = ({
             </div>
             <div className="flex items-center justify-between">
               <div className="flex-1 flex items-center gap-3">
-                <h3 className="text-sm italic">Phần: </h3>
+                <h3 className="md:text-sm text-xs italic">Phần: </h3>
                 <p className="text-amber-400 font-semibold">{part}</p>
               </div>
               <div className="flex-1 flex items-center gap-3 ">
-                <h3 className="text-sm italic">Tập: </h3>
+                <h3 className="md:text-sm text-xs italic">Tập: </h3>
                 <p className="text-amber-400 font-semibold">{episode}</p>
               </div>
             </div>
           </div>
           <div className="p-6 pt-5 text-white bg-[#282b3a] rounded-3xl">
             <div className="flex items-center justify-between pb-2">
-              <h3 className="text-lg font-semibold">Bạn chỉ muốn xem với bạn bè?</h3>
+              <h3 className="lg:text-lg text-sm  font-semibold">Bạn chỉ muốn xem với bạn bè?</h3>
               <Switch
                 checked={isPrivate}
                 onCheckedChange={setIsPrivate}
               />
             </div>
-            <p className="text-zinc-200/80 text-sm">Nếu bật, chỉ có thành viên có link mới được xem phòng này</p>
+            <p className="text-zinc-200/80 md:text-sm text-xs">Nếu bật, chỉ có thành viên có link mới được xem phòng này</p>
           </div>
           <div className="grid grid-cols-10 gap-4">
             <div className="col-span-7">
               <button
-                className="w-full bg-amber-300 py-3 rounded-2xl cursor-pointer text-lg font-semibold hover:shadow-[0px_0px_10px_0px_#ffd230] transition-all ease duration-200"
+                className="w-full bg-amber-300 md:py-3 py-2.5 rounded-2xl cursor-pointer md:text-lg text-xs font-semibold hover:shadow-[0px_0px_10px_0px_#ffd230] transition-all ease duration-200"
                 onClick={createRoom}
               >
                 Tạo phòng
@@ -180,7 +180,7 @@ export const FormCreateRoom = ({
             </div>
             <div className="col-span-3">
               <button
-                className="w-full bg-zinc-300 py-3 rounded-2xl cursor-pointer text-lg font-semibold hover:shadow-[0px_0px_10px_0px_#d4d4d8] transition-all ease duration-200"
+                className="w-full bg-zinc-300 md:py-3 py-2.5 rounded-2xl cursor-pointer md:text-lg text-xs font-semibold hover:shadow-[0px_0px_10px_0px_#d4d4d8] transition-all ease duration-200"
                 onClick={handleCancel}
               >
                 Hủy bỏ

@@ -70,10 +70,12 @@ export const List = ({ query }: ListProps) => {
   return (
     <div>
       {list.length === 0 && (
-        <div className="flex items-center justify-center text-amber-400 font-semibold text-lg">Không có phòng live nào!</div>
+        <div className="flex flex-wrap items-center justify-center text-amber-400 font-semibold text-sm lg:text-lg lg:mt-4 mt-8">
+          Không có phòng live nào!
+        </div>
       )}
 
-      <div className="grid grid-cols-4 gap-6 pt-4 pb-20">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4 pb-20">
         {
           list.map((item, i) => (
             <Card

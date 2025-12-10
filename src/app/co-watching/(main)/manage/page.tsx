@@ -27,10 +27,10 @@ const ManagePage = () => {
   }
 
   return (
-    <div className="pt-40 px-[20px] text-white">
+    <div className="lg:pt-40 md:pt-30 pt-20 px-[20px] text-white">
       <div className="flex items-center gap-2">
-        <ListVideo className="size-6" />
-        <h2 className="text-lg font-semibold">Quản lý</h2>
+        <ListVideo className="lg:size-6 size-5" />
+        <h2 className="lg:text-lg text-sm font-semibold">Quản lý</h2>
       </div>
       <List query={query} />
     </div>

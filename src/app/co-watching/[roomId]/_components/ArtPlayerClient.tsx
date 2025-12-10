@@ -153,7 +153,7 @@ export default function ArtPlayerClient({
       autoOrientation: true,
 
       icons: {
-        state: '<img src="/media/play.png">',
+        state: '<img src="/media/play.png" class="size-10">',
       },
       moreVideoAttr: {
         crossOrigin: 'anonymous',
@@ -237,7 +237,7 @@ export default function ArtPlayerClient({
   return (
     <div
       ref={artRef}
-      className="artplayer-app hide-scrollbar lg:h-[90vh] md:h-[80vh] h-[25vh] aspect-auto"
+      className="artplayer-app hide-scrollbar lg:h-[90vh] md:h-[70vh] h-[30vh] aspect-auto"
     ></div>
   );
 }

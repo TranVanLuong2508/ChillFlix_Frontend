@@ -107,7 +107,7 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
   }
 
   return (
-    <div className="px-10 pb-10 pt-6">
+    <div className="md:px-10 px-2 pb-10 pt-6">
       <Player
         dataRoom={dataRoom}
         handlePlay={handlePlay}

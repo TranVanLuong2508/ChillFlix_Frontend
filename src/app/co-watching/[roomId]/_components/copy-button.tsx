@@ -32,8 +32,8 @@ export const CopyButton = () => {
       size={"sm"}
       className="hover:bg-amber-400 hover:text-black"
     >
-      <Icon size={4} />
-      <span className="text-sm">Chia sẻ</span>
+      <Icon className="md:size-4 size-3" />
+      <span className="md:text-sm text-xs">Chia sẻ</span>
     </Button>
   )
 }

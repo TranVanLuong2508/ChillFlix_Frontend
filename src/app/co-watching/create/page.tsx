@@ -11,9 +11,9 @@ const CreateCo_WatchingPage = () => {
   console.log("Check has: ", dataRoom);
   return (
     <div className="py-10 pt-[100px] max-w-[1000px] mx-auto">
-      <Link href={'/co-watching'} className="flex items-center gap-2 text-white cursor-pointer">
-        <ChevronLeft className="size-8 border border-zinc-100 rounded-full p-1" />
-        <h1 className="text-2xl font-semibold">Tạo phòng xem chung</h1>
+      <Link href={'/co-watching'} className="flex items-center gap-2 text-white cursor-pointer px-3 md:px-0">
+        <ChevronLeft className="xl:size-8 lg:size-7 size-6 border border-zinc-100 rounded-full p-1" />
+        <h1 className="xl:text-2xl md:text-xl text-lg font-semibold">Tạo phòng xem chung</h1>
       </Link>
       <Form />
     </div>

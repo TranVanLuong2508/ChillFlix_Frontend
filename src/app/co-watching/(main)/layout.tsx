@@ -7,7 +7,7 @@ interface homeCo_WatchingLayoutProps {
 
 const homeCo_WatchingLayout = ({ children }: homeCo_WatchingLayoutProps) => {
   return (
-    <div className="relative w-full min-h-[calc(100vh-400px)]">
+    <div className="relative w-full lg:min-h-[calc(100vh-400px)] min-h-[calc(100vh-600px)]">
       <Background />
       <div className="relative z-10 pt-[230px]">
         <Action />

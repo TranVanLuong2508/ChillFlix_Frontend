@@ -75,17 +75,17 @@ export const Form = () => {
     <div className="">
       {!selectedFilm && flag === 0 && (
         <div className="@container">
-          <div className="flex mt-16 min-h-[600px] flex-col gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-center justify-start p-6 text-center" data-alt="Abstract gradient background with film reel overlay">
+          <div className="flex mt-16 xl:min-h-[600px] md:min-h-[400px] min-h-[350px] flex-col gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-center justify-start p-6 text-center" data-alt="Abstract gradient background with film reel overlay">
             <div className="flex flex-col gap-2">
-              <h1 className="text-amber-400 text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl">
+              <h1 className="text-amber-400 xl:text-5xl lg:text-4xl md:text-3xl text-2xl font-black leading-tight tracking-[-0.033em]">
                 Tìm kiếm phim để xem cùng nhau
               </h1>
-              <h2 className="text-zinc-400 leading-normal max-w-xl mx-auto">
+              <h2 className="text-zinc-400 leading-normal max-w-xl mx-auto lg:text-lg md:text-sm text-xs">
                 Vui lòng chọn phim bạn muốn xem để tiến hành tạo phòng xem chung!
               </h2>
             </div>
-            <label className="flex flex-col min-w-40 h-14 w-full max-w-[480px]">
-              <div className="flex w-full flex-1 items-stretch rounded-xl h-full shadow-lg">
+            <label className="flex flex-col items-center min-w-40 h-14 w-full max-w-[480px]">
+              <div className="flex md:w-full w-[85%] flex-1 items-stretch rounded-xl h-full lg:shadow-lg">
                 <SearchDropdown
                   onSelectFilm={(film) => {
                     setSelectedFilm(film);
@@ -97,14 +97,15 @@ export const Form = () => {
         </div>
       )}
       {filmData && partData && partData.length > 0 && flag !== 0 && (
-        <div className="pt-8 grid grid-cols-12 gap-8 min-h-[90vh] max-h-[90vh]">
+        <div className="md:pt-8 pt-4 grid grid-cols-1 md:grid-cols-12 gap-8 min-h-[90vh] max-h-[90vh] px-8 md:px-8 lg:px-0">
           <div className={cn(
-            "col-span-5 rounded-3xl bg-[#212a56] overflow-hidden transition-all duration-240 ease",
-            "hover:shadow-[0px_0px_22px_0px_rgba(234,_179,_8,_1)] ring-1 ring-transparent ring-offset-transparent hover:ring-amber-400 cursor-pointer"
+            "md:col-span-5 rounded-3xl bg-[#212a56] overflow-hidden transition-all duration-240 ease",
+            "hover:shadow-[0px_0px_22px_0px_rgba(234,_179,_8,_1)] ring-1 ring-transparent ring-offset-transparent hover:ring-amber-400 cursor-pointer",
+            'md:block hidden'
           )}>
             <FilmCard filmData={filmData} />
           </div>
-          <div className="col-span-7 rounded-3xl">
+          <div className="md:col-span-7 rounded-3xl">
             <FormCreateRoom
               filmData={filmData}
               partData={partData}

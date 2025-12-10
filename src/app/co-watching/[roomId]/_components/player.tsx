@@ -171,10 +171,10 @@ const Player = ({
               </div>
             )}
           </div>
-          <div className="p-4 bg-zinc-950">
+          <div className="md:p-4 p-2 bg-zinc-950">
             <div className="flex items-center justify-between ">
               <div className="pl-2 flex items-center gap-4">
-                <Avatar className="size-10">
+                <Avatar className="md:size-10 size-8">
                   <AvatarImage src="https://github.com/shadcn.png" />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
@@ -184,15 +184,6 @@ const Player = ({
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                {/* <Button
-                  variant={"ghost"}
-                  size={"sm"}
-                  className="hover:bg-transparent hover:text-white"
-                >
-                  <Eye className="size-4" />
-                  <span className="text-sm">10</span>
-                </Button> */}
-
                 {!dataRoom.room.isPrivate && (
                   <CopyButton />
                 )}
