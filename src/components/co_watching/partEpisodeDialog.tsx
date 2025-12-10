@@ -27,16 +27,16 @@ export const PartEpisodeDialog = ({
 }: partEpisodeDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-2xl bg-[#282b3a] border-0 text-white">
+      <DialogContent className="lg:max-w-2xl md:max-w-xl max-w-md bg-[#282b3a] border-0 text-white">
         <DialogHeader>
-          <DialogTitle>Chọn thông tin phim</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-sm md:text-lg">Chọn thông tin phim</DialogTitle>
+          <DialogDescription className="text-sx md:text-sm">
             Xin vui lòng chọn <strong className="text-amber-400">phần</strong> và <strong className="text-amber-400">tập</strong> để bắt đầu tạo phòng xem chung!
           </DialogDescription>
         </DialogHeader>
         <div>
           <Select value={part} onValueChange={setPart}>
-            <SelectTrigger className="w-[120px] border-amber-300">
+            <SelectTrigger className="lg:w-[120px] md:w-[100px] w-[90px] border-amber-300">
               <SelectValue placeholder="Chọn phần" />
             </SelectTrigger>
             <SelectContent className="z-10000 bg-[#282b3a]/50 backdrop-blur-sm  border-0 text-white ring-1 ring-amber-400/50">
@@ -55,7 +55,7 @@ export const PartEpisodeDialog = ({
           </Select>
 
 
-          <div className="flex items-center flex-wrap gap-4 mt-4 pt-4 border-t border-zinc-100">
+          <div className="flex items-center flex-wrap md:gap-4 gap-2 md:mt-4 mt-3 md:pt-4 pt-3 border-t border-zinc-100">
             {partData[+part - 1].episodes.map((ep, i) => {
               const isSelected = ep.episodeNumber === +episode;
               // console.log(">>>>> Check: ", isSelected, episode.episodeNumber === +episode, isActive)
@@ -80,7 +80,7 @@ export const PartEpisodeDialog = ({
             <Button
               variant="outline"
               size={"sm"}
-              className="text-black hover:shadow-[0px_0px_10px_0px_#d4d4d8] transition-all ease duration-200"
+              className="text-black hover:shadow-[0px_0px_10px_0px_#d4d4d8] transition-all ease duration-200 text-xs md:text-sm"
             >
               Đóng
             </Button>
