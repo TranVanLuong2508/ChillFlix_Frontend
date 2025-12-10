@@ -51,7 +51,7 @@ const FilmInfo = () => {
                 {film.genres.map((g: AllCodeValue) => (
                   <button
                     key={g.keyMap}
-                    className="bg-[#27272a] hover:bg-[#3f3f46] text-gray-200 px-2 xl:py-0.5 py-1 rounded cursor-pointer"
+                    className="bg-[#27272a] text-gray-200 px-2 xl:py-0.5 py-1 rounded"
                   >
                     {g.valueVi}
                   </button>
@@ -71,7 +71,7 @@ const FilmInfo = () => {
             href={filmPath.FILM_DETAIL(filmData.film.slug)}
             className="
               relative text-yellow-600
-              after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-yellow-600 after:transition-all after:duration-300 after:ease-out hover:after:w-[120px] xl:text-sm text-xs"
+              after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-yellow-600 after:transition-all after:duration-300 after:ease-out hover:after:w-[90px] xl:hover:after:w-[105px] xl:text-sm text-xs"
           >
             Thông tin chi tiết
           </Link>

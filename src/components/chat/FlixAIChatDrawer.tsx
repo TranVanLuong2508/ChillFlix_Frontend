@@ -103,7 +103,7 @@ export default function FlixAIChatDrawer() {
 
   return (
     <Drawer open={isOpen} onOpenChange={closeDrawer}>
-      <DrawerContent className="h-[85vh] max-h-screen bg-[#0f1419] border-t border-[#2a3040]/60 focus:outline-none focus-visible:outline-none ">
+      <DrawerContent className="h-[85vh] z-99999999 max-h-screen bg-[#0f1419] border-t border-[#2a3040]/60 focus:outline-none focus-visible:outline-none ">
         <div className="flex flex-col h-full max-w-2xl mx-auto">
           <DrawerHeader className="border-b border-[#2a3040]/50 pb-4">
             <div className="flex items-center justify-between">
@@ -137,9 +137,8 @@ export default function FlixAIChatDrawer() {
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex gap-3 ${
-                    msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                 >
                   {msg.role === "assistant" && (
                     <div className="w-8 h-8 bg-gradient-to-br from-[#d4af37] to-[#f5d547] rounded-full flex items-center justify-center flex-shrink-0">
@@ -147,11 +146,10 @@ export default function FlixAIChatDrawer() {
                     </div>
                   )}
                   <div
-                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
-                      msg.role === "user"
+                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${msg.role === "user"
                         ? "bg-gradient-to-r from-[#d4af37] to-[#f5d547] text-[#0f1419] select-text"
                         : "bg-[#1a1f2e] text-gray-200 border border-[#2a3040]/50 select-text"
-                    }`}
+                      }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">
                       <SmartFilmText text={msg.content} />

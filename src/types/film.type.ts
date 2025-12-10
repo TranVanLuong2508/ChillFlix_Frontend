@@ -63,3 +63,18 @@ export interface IFilmVipRes {
   view: number;
   filmImages: FilmImageRes[];
 }
+
+export interface IFilmSuggestRes {
+  filmId: string;
+  originalTitle: string;
+  title: string;
+  isVip: boolean;
+  duration: number;
+  description: string;
+  year: string;
+  slug: string;
+  view: number;
+  filmImages: FilmImageRes[];
+  age: AllCodeValue;
+  country: AllCodeValue;
+}

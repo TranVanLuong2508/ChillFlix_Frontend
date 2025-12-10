@@ -161,6 +161,13 @@ export default function FilmInfo() {
           </div>
 
           <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-white">Lượt xem:</h3>
+            <span className="text-gray-300">
+              {film.view ? `${film.view}` : "Đang cập nhật"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
             <h3 className="font-semibold text-white">Quốc gia:</h3>
             {film.country?.valueVi ? (
               <button

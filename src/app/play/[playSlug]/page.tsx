@@ -16,6 +16,8 @@ import { useFilmStore } from "@/stores/filmStore";
 import { usePlayerStore } from "@/stores/playerStore";
 import { useAuthStore } from "@/stores/authStore";
 import VIPContent from "@/components/custom/VipContent";
+import filmServices from "@/services/filmService";
+import { IFilmSuggestRes } from "@/types/film.type";
 
 export default function PlayPage() {
   const { playSlug }: { playSlug: string } = useParams();
@@ -30,10 +32,12 @@ export default function PlayPage() {
 
   const [episodeDetail, setEpisodeDetail] = useState<EpisodeDetail | null>(null);
   const [partDetail, setPartDetail] = useState<PartDetail | null>(null);
+  const [suggestList, setSuggestList] = useState<IFilmSuggestRes[]>([]);
 
   useEffect(() => {
     if (!playSlug) return;
     getDetailFilm(playSlug);
+    handleGetFilmSuggest();
   }, [playSlug, getDetailFilm]);
 
   useEffect(() => {
@@ -64,7 +68,18 @@ export default function PlayPage() {
     }
   }, [partData, ep, p]);
 
-
+  const handleGetFilmSuggest = async () => {
+    try {
+      const res = await filmServices.getFilmSuggest();
+      if (res.EC === 0 && res.data) {
+        setSuggestList(res.data.result);
+      } else {
+        console.log(res.EM);
+      }
+    } catch (error) {
+      console.log("Error when get data film suggest: ", error);
+    }
+  }
 
   if (loading || !filmData || !partData)
     return (
@@ -87,6 +102,8 @@ export default function PlayPage() {
     )
   }
 
+  console.log("Check data suggest: ", suggestList);
+
   return (
     <div className="w-full bg-zinc-950 text-white md:pt-[72px] pt-[80px]">
       <div className="px-[20px] lg:pt-4 pt-6">
@@ -107,7 +124,7 @@ export default function PlayPage() {
               <CommentRatingTabs />
             </div>
             <div className="xl:col-span-3 lg:col-span-3 md:col-span-4 md:border-l border-amber-500 md:px-4 px-0">
-              <SuggestList />
+              <SuggestList suggestList={suggestList} />
             </div>
           </div>
         </div>

@@ -93,7 +93,7 @@ export default function FilmDetailPage() {
       </Head>
       <main className="bg-[#191B24] min-h-screen overflow-x-hidden">
         <Background />
-        <div className="relative z-20 mx-auto -mt-16 sm:-mt-24 md:-mt-32 lg:-mt-40 px-3 sm:px-4 md:px-6 lg:px-8 max-w-full lg:max-w-[1600px] xl:max-w-[1800px]">
+        <div className="relative z-20 mx-auto -mt-16 sm:-mt-24 md:-mt-32 lg:-mt-72 px-3 sm:px-4 md:px-6 lg:px-8 max-w-full lg:max-w-[1600px] xl:max-w-[1800px]">
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-3 sm:gap-4 lg:gap-6">
             <div className="col-span-1 lg:col-span-3">
               <div className="rounded-2xl sm:rounded-3xl bg-[rgba(25,27,36,0.8)] sm:bg-[rgba(25,27,36,0.7)] backdrop-blur-md w-full">

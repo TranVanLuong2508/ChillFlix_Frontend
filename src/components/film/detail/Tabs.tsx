@@ -98,17 +98,15 @@ export default function TabsSection() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`relative pb-1.5 min-[400px]:pb-2 text-xs min-[400px]:text-sm sm:text-base font-semibold cursor-pointer transition-all duration-500 ease-in-out whitespace-nowrap ${
-              activeTab === tab.id
-                ? "text-yellow-400"
-                : "text-white hover:text-yellow-400"
-            }`}
+            className={`relative pb-1.5 min-[400px]:pb-2 text-xs min-[400px]:text-sm sm:text-base font-semibold cursor-pointer transition-all duration-500 ease-in-out whitespace-nowrap ${activeTab === tab.id
+              ? "text-yellow-400"
+              : "text-white hover:text-yellow-400"
+              }`}
           >
             {tab.label}
             <span
-              className={`absolute left-0 bottom-0 h-[2px] bg-yellow-400 transition-all duration-500 ease-in-out ${
-                activeTab === tab.id ? "w-full" : "w-0"
-              }`}
+              className={`absolute left-0 bottom-0 h-[2px] bg-yellow-400 transition-all duration-500 ease-in-out ${activeTab === tab.id ? "w-full" : "w-0"
+                }`}
             />
           </button>
         ))}
@@ -143,7 +141,7 @@ export default function TabsSection() {
                       onClick={() =>
                         handleWatchVideo(
                           selectedPart?.episodes?.[0]?.episodeNumber?.toString() ??
-                            "1"
+                          "1"
                         )
                       }
                       className="absolute bottom-2 min-[400px]:bottom-3 right-2 min-[400px]:right-3 sm:right-4 text-[9px] min-[400px]:text-[10px] sm:text-xs font-semibold 
@@ -193,11 +191,10 @@ export default function TabsSection() {
                           key={`part-item-${index}`}
                           value={p.partNumber.toString()}
                           className={`flex items-center justify-between w-full my-1 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer select-none transition-all duration-200 ease-in-out
-                        ${
-                          selectedPart?.id === p.id
-                            ? "bg-yellow-400 text-black shadow-[0_0_12px_rgba(250,204,21,0.45)]"
-                            : "text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_14px_rgba(250,204,21,0.4)]"
-                        }`}
+                        ${selectedPart?.id === p.id
+                              ? "bg-yellow-400 text-black shadow-[0_0_12px_rgba(250,204,21,0.45)]"
+                              : "text-yellow-400 bg-transparent hover:bg-yellow-400 hover:text-black hover:shadow-[0_0_14px_rgba(250,204,21,0.4)]"
+                            }`}
                         >
                           {p.title || `Phần ${p.partNumber}`}
                         </SelectItem>
@@ -247,8 +244,8 @@ export default function TabsSection() {
                         className={cn(
                           "p-1.5 min-[400px]:p-2 text-center text-white font-semibold",
                           ep.episodeNumber === +episode &&
-                            selectedPart.partNumber === +part &&
-                            "bg-yellow-400  font-semibold text-zinc-800"
+                          selectedPart.partNumber === +part &&
+                          "bg-yellow-400  font-semibold text-zinc-800"
                         )}
                       >
                         <div className="flex items-center justify-center gap-2">
@@ -277,11 +274,11 @@ export default function TabsSection() {
         {activeTab === "gallery" && (
           <div>
             {filmData && (filmData?.filmImages || filmData.film.thumbUrl) ? (
-              <div className="flex flex-wrap items-center justify-center gap-2 min-[400px]:gap-3 sm:gap-4 max-w-[1000px] mx-auto">
+              <div className="flex flex-wrap items-center gap-2 min-[400px]:gap-3 sm:gap-4 max-w-[1000px] mx-auto">
                 {filmData.film.thumbUrl && (
                   <div
                     key="thumb"
-                    className="h-[100px] w-[150px] min-[400px]:h-[130px] min-[400px]:w-[190px] sm:h-[180px] sm:w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
+                    className="h-[100px] w-auto min-[400px]:h-[130px] sm:h-[180px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300"
                   >
                     <img
                       src={filmData.film.thumbUrl}
@@ -291,7 +288,7 @@ export default function TabsSection() {
                   </div>
                 )}
 
-                <div className="h-[100px] w-[150px] min-[400px]:h-[130px] min-[400px]:w-[190px] sm:h-[180px] sm:w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
+                <div className="h-[100px] w-auto min-[400px]:h-[130px] sm:h-[180px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
                   <img
                     src={filmData?.filmImages.backdrop || "/images/small.jpg"}
                     alt={filmData.film.title}
@@ -299,7 +296,7 @@ export default function TabsSection() {
                   />
                 </div>
 
-                <div className="h-[100px] w-[150px] min-[400px]:h-[130px] min-[400px]:w-[190px] sm:h-[180px] sm:w-[260px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
+                <div className="h-[100px] w-auto min-[400px]:h-[130px] sm:h-[180px] overflow-hidden rounded-lg border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
                   <img
                     src={filmData?.filmImages.horizontal || "/images/small.jpg"}
                     alt={filmData.film.title}
@@ -307,7 +304,7 @@ export default function TabsSection() {
                   />
                 </div>
 
-                <div className="h-[100px] w-[70px] min-[400px]:h-[130px] min-[400px]:w-[90px] sm:h-[180px] sm:w-[120px] overflow-hidden rounded-lg  border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
+                <div className="h-[100px] w-auto min-[400px]:h-[130px] sm:h-[180px] overflow-hidden rounded-lg  border border-zinc-800 hover:border-yellow-400 hover:scale-105 transition-transform duration-300">
                   <img
                     src={filmData?.filmImages.poster || "/images/small.jpg"}
                     alt={`${filmData.film.title} Poster`}

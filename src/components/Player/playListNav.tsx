@@ -157,7 +157,7 @@ const PlayListNav = ({ currentPart, currentEpisode, open, onOpenChange }: PlayLi
 
   return (
     <div
-      className={cn("fixed inset-0 z-1000", !open && "pointer-events-none")}
+      className={cn("fixed inset-0 z-999999991", !open && "pointer-events-none")}
     >
       <div
         className={cn(
