@@ -3,7 +3,6 @@
 import { Card } from "./card"
 import { useEffect, useRef, useState } from "react";
 import roomServices from "@/services/co-watching/roomService";
-import { toast } from "sonner";
 import { roomPaginate } from "@/types/co_watching.type";
 
 export interface ListProps {

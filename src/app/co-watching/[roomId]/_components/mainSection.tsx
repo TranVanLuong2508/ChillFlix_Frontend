@@ -24,7 +24,6 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
   const hasInitialSynced = useRef(false);
 
   const [userInteracted, setUserInteracted] = useState(false);
-  const [showInteractionPrompt, setShowInteractionPrompt] = useState(false);
   const [syncMode, setSyncMode] = useState<SyncMode>('initial');
 
   const { dataRoom, getRoomData } = useCoWatchingStore();
@@ -52,7 +51,7 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
 
   const { handleRemoteEvent } = useVideoSyncHandler();
 
-  const { emitSync, isConnected, isReady, socketId, leaveRoom } = useWatchTogether(
+  const { emitSync, leaveRoom } = useWatchTogether(
     roomId,
     async (event: SyncEvent) => {
       await handleRemoteEvent({
@@ -63,7 +62,6 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
         syncMode,
         isHandlingRemoteEvent,
         hasInitialSynced,
-        onShowInteractionPrompt: setShowInteractionPrompt,
         handleUpdateEpisode,
         handleBackHome,
       });
@@ -90,7 +88,6 @@ export const MainSection = ({ roomId }: MainSectionProps) => {
     const handleInteraction = () => {
       if (!userInteracted) {
         setUserInteracted(true);
-        setShowInteractionPrompt(false);
         console.log('User interacted with page');
       }
     };

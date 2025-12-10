@@ -76,7 +76,6 @@ export interface VideoSyncState {
 }
 
 export interface VideoSyncCallbacks {
-  onShowInteractionPrompt: (show: boolean) => void;
   onUserInteracted: (interacted: boolean) => void;
 }
 
@@ -89,7 +88,6 @@ export interface RemoteEventHandlerParams {
   syncMode: SyncMode;
   isHandlingRemoteEvent: React.MutableRefObject<boolean>;
   hasInitialSynced: React.MutableRefObject<boolean>;
-  onShowInteractionPrompt: (show: boolean) => void;
   handleUpdateEpisode: (part: number, episode: number) => void;
 }
 

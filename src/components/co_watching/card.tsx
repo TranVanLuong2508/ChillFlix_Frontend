@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { EyeIcon } from "lucide-react"
-import Link from "next/link"
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface CardProps {
   thumbUrl: string;
@@ -25,8 +25,22 @@ export const Card = ({
   roomId,
   isLive,
 }: CardProps) => {
+
+  const router = useRouter();
+
+  const handleJoinRoom = () => {
+    if (!isLive) {
+      toast.warning("Phòng live đã dừng");
+      return;
+    }
+    router.push(`/co-watching/${roomId}`)
+  }
+
   return (
-    <Link href={`/co-watching/${roomId}`} className="pt-4 group">
+    <div
+      onClick={handleJoinRoom}
+      className="pt-4 group"
+    >
       <div className="rounded-xl overflow-hidden group-hover:ring-1 group-hover:ring-amber-300 transition-all ease-in duration-120">
         <div className=" relative bg-zinc-700 ">
           <div className="flex items-center justify-center">
@@ -47,16 +61,6 @@ export const Card = ({
               </Button>
             </div>
           )}
-          {/* <div className="absolute bottom-0 right-0 p-4">
-            <Button
-              variant={"ghost"}
-              size={"sm"}
-              className="border border-zinc-400 hover:text-white hover:bg-transparent text-zinc-400 text-xs"
-            >
-              <p className="font-semibold">{view}</p>
-              <EyeIcon className="size-3" />
-            </Button>
-          </div> */}
         </div>
 
       </div>
@@ -83,6 +87,6 @@ export const Card = ({
           <p className="text-white/50 text-xs">{hostName} • {formatDistanceToNow(new Date(createdAt), { addSuffix: true, locale: vi })}</p>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }

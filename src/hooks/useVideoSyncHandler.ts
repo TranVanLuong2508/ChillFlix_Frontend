@@ -13,7 +13,6 @@ export function useVideoSyncHandler() {
       isHandlingRemoteEvent,
       hasInitialSynced,
       handleBackHome,
-      onShowInteractionPrompt,
       handleUpdateEpisode,
     } = params;
 
@@ -82,7 +81,6 @@ export function useVideoSyncHandler() {
       }
     } catch (error: unknown) {
       console.error('Error handling sync event:', error);
-      onShowInteractionPrompt(true);
     }
   };
 

@@ -3,10 +3,11 @@
 import { Button } from "@/components/ui/button"
 import { CirclePlus, DoorOpen, Radio } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export const Action = () => {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <div className="w-full">
@@ -39,8 +40,8 @@ export const Action = () => {
           )
         }
 
-        <Link
-          href={`${pathname}/create`}
+        <div
+          onClick={() => router.push(`/co-watching/create`)}
         >
           <Button
             variant={"ghost"}
@@ -49,7 +50,7 @@ export const Action = () => {
             <CirclePlus className="size-5" />
             <p className="text-lg">Tạo mới</p>
           </Button>
-        </Link>
+        </div>
       </div>
     </div>
   )
